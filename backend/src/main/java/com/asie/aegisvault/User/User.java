@@ -1,5 +1,6 @@
 package com.asie.aegisvault.User;
 
+import com.asie.aegisvault.Department.Department;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -31,7 +32,7 @@ public class User {
     @JoinColumn(
         name = "department",
         nullable = false,
-        foreignkey = @ForeignKey(name = "FK_department")
+        foreignkey = @Foreignkey(name = "FK_department")
     )
     private Department department;
 }
