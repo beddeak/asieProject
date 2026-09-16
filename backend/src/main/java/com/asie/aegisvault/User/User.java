@@ -26,4 +26,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Position position;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+        name = "department",
+        nullable = false,
+        foreignkey = @ForeignKey(name = "FK_department")
+    )
+    private Department department;
 }
