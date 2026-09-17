@@ -8,10 +8,10 @@ spring:
     password:
 
   jpa:
-   open-in-view: false
-  hibernate:
+    open-in-view: false
+    hibernate:
       ddl-auto: update
-  properties:
+    properties:
       hibernate:
         format_sql: true
 

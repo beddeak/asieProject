@@ -32,7 +32,7 @@ public class User {
     @JoinColumn(
         name = "department",
         nullable = false,
-        foreignkey = @Foreignkey(name = "FK_department")
+        foreignKey = @ForeignKey(name = "FK_department")
     )
     private Department department;
 }
