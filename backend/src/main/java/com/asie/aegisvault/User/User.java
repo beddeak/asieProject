@@ -4,6 +4,11 @@ import com.asie.aegisvault.Department.Department;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import lombok.NoArgsConstructor;
 
 @Entity
@@ -28,6 +33,10 @@ public class User {
     @Column(nullable = false)
     private Position position;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AccountStatus accountStatus;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
         name = "department",
@@ -35,4 +44,12 @@ public class User {
         foreignKey = @ForeignKey(name = "FK_department")
     )
     private Department department;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp 
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

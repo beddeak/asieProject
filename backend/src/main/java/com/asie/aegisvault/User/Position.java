@@ -19,4 +19,10 @@ public enum Position {
         this.displayName = displayName;
         this.levelOrder = levelOrder;
     }
+    public boolean isAtLeast(Position requiredPosition) {
+        return this.levelOrder >= requiredPosition.levelOrder;
+    }
+    public boolean isAdmin() {
+        return this == ADMIN;
+    }
 }
