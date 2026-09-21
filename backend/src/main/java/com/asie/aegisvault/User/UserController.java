@@ -25,14 +25,9 @@ public class UserController {
     }
     @PostMapping("/signup")
     public String signup(@Valid User user) {
-        userService.create(
-            user.getNickname(),
-            user.getEmail(),
-            user.getPassword()
-        );
         try {
             userService.create(user.getNickname(), user.getEmail(), user.getPassword());
-            return "/";
+            return "redirect:/";
         } catch (IllegalArgumentException e) {
             return "Signup";
         }
