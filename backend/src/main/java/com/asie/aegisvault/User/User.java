@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.cglib.core.Local;
 
 import lombok.NoArgsConstructor;
 
@@ -37,10 +37,10 @@ public class User {
     @Column(nullable = false)
     private AccountStatus accountStatus;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(
         name = "department",
-        nullable = false,
+        nullable = true,
         foreignKey = @ForeignKey(name = "FK_department")
     )
     private Department department;
@@ -49,7 +49,12 @@ public class User {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp 
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    public User(String nickname,String email,String password) {
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.department = null;
+        this.position = Position.STAFF;
+        this.accountStatus = AccountStatus.ACTIVE;
+    }
 }
