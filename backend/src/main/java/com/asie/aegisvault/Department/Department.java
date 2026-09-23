@@ -19,4 +19,9 @@ public class Department {
 
     @Column(nullable = false, length = 2000)
     private String description;
+    
+    public Department(String name,String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

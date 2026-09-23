@@ -19,6 +19,13 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     public User create(String nickname,String email,String password) {
+        if(nickname == null || nickname.isBlank()) {
+            throw new IllegalArgumentException("아이디를 입력해주세요");
+        }
+        if(password == null || password.isBlank()) {
+            throw new IllegalArgumentException("비밀번호를 입력해주세요");
+        }
+        
         if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용중인 이메일입니다");
         }
