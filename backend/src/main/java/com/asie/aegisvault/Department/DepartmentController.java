@@ -29,6 +29,8 @@ public class DepartmentController {
             return "departmentcreate";
         }
         try {
+
+            
             departmentService.create(departmentCreate.getName(), departmentCreate.getDescription());
             return "departmentcreate";
         } catch (IllegalArgumentException e) {
