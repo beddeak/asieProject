@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문서 작성 | AegisVault</title>
+    <link rel="stylesheet" href="/css/documentwrite.css" th:href="@{/css/documentwrite.css}">
+</head>
+<body class="document-write-page">
+    <header class="workspace-header">
+        <div class="company">
+            <span class="company-mark" aria-hidden="true">A</span>
+            <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
+        </div>
+        <span class="environment">가상 기업 · 프로젝트 데모</span>
+    </header>
+
+    <main class="write-workspace">
+        <header class="page-heading">
+            <div>
+                <p class="eyebrow">DOCUMENT WORKSPACE</p>
+                <h1>새 문서 작성</h1>
+                <p class="page-description">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
+            </div>
+            <span class="draft-badge"><span aria-hidden="true"></span>초안 작성</span>
+        </header>
+
+        <div class="workspace-grid">
+            <section class="editor-panel" aria-labelledby="editor-title">
+                <header class="panel-heading">
+                    <h2 id="editor-title">문서 내용</h2>
+                    <span>제목과 본문은 필수입니다.</span>
+                </header>
+
+                <div class="notice success-notice" role="status"
+                     th:if="${successMessage != null}" hidden th:hidden="${false}">
+                    <p th:text="${successMessage}"></p>
+                    <a href="/document/write" th:href="@{/document/write}">새 문서 작성하기 →</a>
+                </div>
+                <div class="notice error-notice" role="alert"
+                     th:if="${errorMessage != null}" th:text="${errorMessage}"
+                     hidden th:hidden="${false}"></div>
+
+                <!-- th:action을 사용하면 Spring Security의 CSRF 토큰이 폼에 자동으로 포함됩니다. -->
+                <form action="/document/write" th:action="@{/document/write}"
+                      th:object="${documentCreateRequest}" method="post">
+                    <!-- 현재 작성 기능은 첫 버전의 초안만 만듭니다. 실제 값은 서비스/엔티티에서도 결정합니다. -->
+                    <input type="hidden" name="versionNumber" value="1">
+                    <input type="hidden" name="status" value="DRAFT">
+
+                    <div class="notice error-notice" role="alert"
+                         th:if="${#fields.hasErrors('*')}" hidden th:hidden="${false}">
+                        <p class="notice-title">입력 내용을 확인해주세요.</p>
+                        <ul>
+                            <li th:each="error : ${#fields.errors('*')}" th:text="${error}"></li>
+                        </ul>
+                    </div>
+
+                    <div class="field">
+                        <label for="document-title">문서 제목 <span>필수</span></label>
+                        <input id="document-title" name="title" type="text" th:field="*{title}"
+                               maxlength="50" required pattern=".*\S.*"
+                               title="공백이 아닌 문서 제목을 입력해주세요."
+                               placeholder="예: 레이더 모듈 환경 시험 보고서"
+                               aria-describedby="title-hint" th:attr="aria-invalid=${#fields.hasErrors('title')}">
+                        <p id="title-hint" class="field-hint">문서의 목적이 드러나는 제목을 작성해주세요. 최대 50자.</p>
+                    </div>
+
+                    <div class="field content-field">
+                        <label for="document-content">본문 <span>필수</span></label>
+                        <textarea id="document-content" name="content" th:field="*{content}"
+                                  rows="15" required aria-describedby="content-hint"
+                                  th:attr="aria-invalid=${#fields.hasErrors('content')}"
+                                  placeholder="문서의 목적, 주요 내용, 결과 및 검토 사항을 작성해주세요."></textarea>
+                        <p id="content-hint" class="field-hint">일반 텍스트로 저장됩니다. 문단은 줄바꿈으로 구분해주세요.</p>
+                    </div>
+
+                    <footer class="editor-actions">
+                        <p>자동 저장되지 않습니다.<br>작성을 마치면 초안을 저장해주세요.</p>
+                        <button type="submit">초안 저장 <span aria-hidden="true">→</span></button>
+                    </footer>
+                </form>
+            </section>
+
+            <aside class="document-sidebar" aria-label="문서 작성 정보">
+                <section class="metadata-panel" aria-labelledby="metadata-title">
+                    <p class="eyebrow">DOCUMENT DETAILS</p>
+                    <h2 id="metadata-title">등록 정보</h2>
+                    <dl class="document-metadata">
+                        <div><dt>버전</dt><dd>01 <span>최초 작성</span></dd></div>
+                        <div><dt>저장 상태</dt><dd>초안 <span>DRAFT</span></dd></div>
+                        <div><dt>작성자</dt><dd>로그인 계정</dd></div>
+                        <div><dt>담당 부서</dt><dd>작성자의 소속 부서</dd></div>
+                    </dl>
+                    <p class="metadata-note">작성자와 부서는 로그인 정보에서 자동으로 확인합니다. 부서가 배정된 계정만 작성할 수 있습니다.</p>
+                </section>
+
+                <section class="writing-guide" aria-labelledby="guide-title">
+                    <span class="guide-marker" aria-hidden="true">i</span>
+                    <div>
+                        <h2 id="guide-title">저장 전 확인</h2>
+                        <p>시험 조건, 수치와 단위를 명확하게 기록해주세요. 초안 저장은 검토·승인 완료를 의미하지 않습니다.</p>
+                    </div>
+                </section>
+            </aside>
+        </div>
+    </main>
+
+    <footer class="workspace-footer">
+        <span>AegisVault · Internal Document Management</span>
+        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
+    </footer>
+</body>
+</html>
