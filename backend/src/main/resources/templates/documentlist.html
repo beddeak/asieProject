@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문서 목록 | AegisVault</title>
+    <link rel="stylesheet" href="../static/css/documentlist.css" th:href="@{/css/documentlist.css}">
+</head>
+<body class="document-list-page">
+    <a class="skip-link" href="#document-register">문서 목록으로 바로가기</a>
+    <header class="workspace-header">
+        <div class="company">
+            <span class="company-mark" aria-hidden="true">A</span>
+            <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
+        </div>
+        <span class="environment">가상 기업 · 프로젝트 데모</span>
+    </header>
+
+    <main class="list-workspace">
+        <header class="page-heading">
+            <div>
+                <p class="eyebrow">DOCUMENT REGISTER</p>
+                <h1>문서 목록</h1>
+                <p class="page-description">소속 부서의 기술 문서와 검토 현황을 확인합니다.</p>
+            </div>
+            <a class="write-button" href="/document/write" th:href="@{/document/write}">
+                <span aria-hidden="true">＋</span> 새 문서 작성
+            </a>
+        </header>
+
+        <section class="department-banner" aria-labelledby="department-title">
+            <div class="department-summary">
+                <span class="department-mark" aria-hidden="true">ADT</span>
+                <div>
+                    <p class="eyebrow">DEPARTMENT WORKSPACE</p>
+                    <h2 id="department-title" th:text="${departmentName ?: '소속 부서 확인 전'}">소속 부서 확인 전</h2>
+                </div>
+            </div>
+            <p>설계부터 검토까지,<br>부서의 기록을 한곳에서 관리합니다.</p>
+        </section>
+
+        <!--
+            연결할 Model 값:
+            documentVersions: List<DocumentVersion> (열람 가능한 부서의 문서별 최신 버전만)
+            departmentName: 로그인한 사용자의 부서명 (String)
+            errorMessage: 조회 실패 안내 (선택, String)
+
+            이 HTML은 부서 권한을 검사하지 않습니다. 서비스에서 검사·필터링해야 합니다.
+            document.author 등 LAZY 연관관계는 서비스의 트랜잭션 안에서 미리 조회해야 합니다.
+            제목 링크의 document.id는 문서 ID입니다. version.id와 구분해주세요.
+            상세 조회 주소 /document/detail/{id}는 이후 컨트롤러에서 연결할 예정입니다.
+        -->
+        <section id="document-register" class="register-panel" aria-labelledby="register-title" tabindex="-1">
+            <header class="register-heading">
+                <div class="register-title-group">
+                    <h2 id="register-title">부서 문서</h2>
+                    <span class="document-count" th:if="${documentVersions != null}"
+                          th:text="${#lists.size(documentVersions)} + '건'" hidden th:hidden="${false}"></span>
+                </div>
+                <span class="register-description">문서별 최신 버전</span>
+            </header>
+
+            <div class="error-notice" role="alert" th:if="${errorMessage != null}"
+                 th:text="${errorMessage}" hidden th:hidden="${false}"></div>
+
+            <div class="table-scroll" role="region" aria-label="부서 문서 목록 표" tabindex="0"
+                 th:if="${errorMessage == null and documentVersions != null and !#lists.isEmpty(documentVersions)}"
+                 hidden th:hidden="${false}">
+                <table class="document-table">
+                    <caption class="visually-hidden">문서 제목, 상태, 작성자, 최신 버전 및 해당 버전 등록일</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" class="title-column">문서 제목</th>
+                            <th scope="col">상태</th>
+                            <th scope="col">작성자</th>
+                            <th scope="col">버전</th>
+                            <th scope="col">버전 등록일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="version : ${documentVersions}">
+                            <td class="title-cell">
+                                <a class="document-link" th:href="@{/document/detail/{id}(id=${version.document.id})}"
+                                   th:text="${version.title}"></a>
+                                <span class="document-reference" th:text="'DOC · ' + ${version.document.id}"></span>
+                            </td>
+                            <td>
+                                <span class="status-badge" th:attr="data-status=${version.status}"
+                                      th:switch="${version.status?.name()}">
+                                    <span th:case="'DRAFT'">초안</span>
+                                    <span th:case="'PENDING_REVIEW'">검토 대기</span>
+                                    <span th:case="'PENDING_SECURITY_APPROVAL'">보안 승인 대기</span>
+                                    <span th:case="'APPROVED'">승인 완료</span>
+                                    <span th:case="'REJECTED'">반려</span>
+                                    <span th:case="'ARCHIVED'">보관</span>
+                                    <span th:case="*">상태 미지정</span>
+                                </span>
+                            </td>
+                            <td class="author-cell" th:text="${version.document.author.nickname}"></td>
+                            <td class="version-cell" th:text="'v' + ${version.versionNumber}"></td>
+                            <td class="date-cell">
+                                <time th:if="${version.createdAt != null}" th:attr="datetime=${version.createdAt}"
+                                      th:text="${#temporals.format(version.createdAt, 'yyyy.MM.dd')}"></time>
+                                <span th:if="${version.createdAt == null}">—</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state"
+                 th:if="${errorMessage == null and (documentVersions == null or #lists.isEmpty(documentVersions))}">
+                <span class="empty-document" aria-hidden="true"><span></span><span></span><span></span></span>
+                <h3 th:text="${documentVersions == null ? '문서 목록 연결을 기다리고 있습니다' : '등록된 문서가 없습니다'}">문서 목록 연결을 기다리고 있습니다</h3>
+                <p th:text="${documentVersions == null ? '조회한 문서 목록을 연결하면 이곳에 표시됩니다.' : '새 문서를 작성해 부서의 첫 기록을 남겨보세요.'}">조회한 문서 목록을 연결하면 이곳에 표시됩니다.</p>
+            </div>
+
+            <footer class="register-footer">
+                <span class="info-mark" aria-hidden="true">i</span>
+                <p>문서 제목을 선택하면 상세 내용으로 이동합니다.</p>
+            </footer>
+        </section>
+    </main>
+
+    <footer class="workspace-footer">
+        <span>AegisVault · Internal Document Management</span>
+        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
+    </footer>
+</body>
+</html>
