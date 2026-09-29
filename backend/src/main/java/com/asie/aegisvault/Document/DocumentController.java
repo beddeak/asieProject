@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.asie.aegisvault.Document.dto.DocumentCreateRequest;
@@ -51,6 +52,12 @@ public class DocumentController {
             model.addAttribute("errorMessage", e.getMessage());
             return "documentwrite";
         }
+    }
+    @GetMapping("/detail/{id}")
+    public String documentDetail(Model model,@PathVariable("id") Long id) {
+        DocumentVersion detail = this.documentService.documentdetail(id);
+        model.addAttribute("documentVersion", detail);
+        return "documentdetail";
     }
     
 }

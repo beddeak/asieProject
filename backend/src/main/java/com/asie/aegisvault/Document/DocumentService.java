@@ -1,5 +1,7 @@
 package com.asie.aegisvault.Document;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,5 +42,18 @@ public class DocumentService {
         documentVersionRepository.save(version);
 
         return document;
+    }
+    public DocumentVersion documentdetail(Long documentId) {
+        Optional<Document> document = this.documentRepository.findById(documentId);
+
+        if(document.isPresent()) {
+            Document foundDocument = document.get();
+            DocumentVersion detail = documentVersionRepository
+                    .findFirstByDocumentOrderByVersionNumberDesc(foundDocument)
+                    .orElseThrow(() -> new IllegalArgumentException("문서 버전을 찾을 수 없습니다"));
+            return detail;
+        } else {
+            throw new IllegalArgumentException("문서를 찾을수가없습니다");
+        }
     }
 }
