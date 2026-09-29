@@ -1,6 +1,7 @@
 package com.asie.aegisvault.Document;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -54,8 +55,10 @@ public class DocumentController {
         }
     }
     @GetMapping("/detail/{id}")
-    public String documentDetail(Model model,@PathVariable("id") Long id) {
-        DocumentVersion detail = this.documentService.documentdetail(id);
+    public String documentDetail(Model model, @PathVariable("id") Long id, Principal principal) {
+        User viewer = userRepository.findByNickname(principal.getName())
+                .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+        DocumentVersion detail = documentService.documentdetail(id, viewer.getId());
         model.addAttribute("documentVersion", detail);
         return "documentdetail";
     }

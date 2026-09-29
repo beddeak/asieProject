@@ -1,5 +1,6 @@
 package com.asie.aegisvault.Document;
 
+import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.config.SecurityConfig;
@@ -14,6 +15,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.mock.web.MockServletContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,6 +25,7 @@ import org.springframework.web.context.support.AnnotationConfigWebApplicationCon
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -189,6 +193,66 @@ class DocumentControllerTest {
                         .param("versionNumber", "1").param("status", "DRAFT"))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(documentService, userRepository);
+    }
+
+    @Test
+    void anonymousDetailRequestIsSentToLogin() throws Exception {
+        mockMvc.perform(get("/document/detail/42"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/user/login"));
+        verifyNoInteractions(documentService, userRepository);
+    }
+
+    @Test
+    void detailUsesAuthenticatedViewerAndRendersAuthorizedVersion() throws Exception {
+        mockAuthor();
+        User author = new User("original-author", "author@example.com", "test-password-hash");
+        Department department = new Department("연구개발본부", "기술 문서");
+        Document document = new Document(author, department);
+        DocumentVersion version = new DocumentVersion(document, 3, "최신 시험 보고서", "승인된 열람 요청의 본문");
+        when(documentService.documentdetail(42L, 7L)).thenReturn(version);
+
+        mockMvc.perform(get("/document/detail/42").with(user("writer"))
+                        .param("viewerId", "999").param("position", "ADMIN"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("documentdetail"))
+                .andExpect(model().attribute("documentVersion", version))
+                .andExpect(content().string(containsString("최신 시험 보고서")))
+                .andExpect(content().string(containsString("승인된 열람 요청의 본문")))
+                .andExpect(content().string(containsString("original-author")))
+                .andExpect(content().string(containsString("연구개발본부")));
+
+        verify(userRepository).findByNickname("writer");
+        verify(documentService).documentdetail(42L, 7L);
+    }
+
+    @Test
+    void forbiddenDetailRequestReturns403() throws Exception {
+        mockAuthor();
+        when(documentService.documentdetail(42L, 7L))
+                .thenThrow(new AccessDeniedException("열람 권한이 없습니다."));
+
+        mockMvc.perform(get("/document/detail/42").with(user("writer")))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void deletedViewerCannotReadUsingAnExistingLoginSession() throws Exception {
+        when(userRepository.findByNickname("writer")).thenReturn(Optional.empty());
+
+        mockMvc.perform(get("/document/detail/42").with(user("writer")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(documentService);
+    }
+
+    @Test
+    void missingDocumentReturns404() throws Exception {
+        mockAuthor();
+        when(documentService.documentdetail(42L, 7L))
+                .thenThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "문서를 찾을 수 없습니다."));
+
+        mockMvc.perform(get("/document/detail/42").with(user("writer")))
+                .andExpect(status().isNotFound());
     }
 
     private void mockAuthor() {

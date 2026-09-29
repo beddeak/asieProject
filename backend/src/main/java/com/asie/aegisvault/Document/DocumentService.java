@@ -1,14 +1,15 @@
 package com.asie.aegisvault.Document;
 
-import java.util.Optional;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.asie.aegisvault.Department.Department;
-import com.asie.aegisvault.Department.DepartmentRepository;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
+import com.asie.aegisvault.security.UserAccessPolicy;
 
 import lombok.RequiredArgsConstructor;
 
@@ -19,7 +20,7 @@ public class DocumentService {
     private final DocumentVersionRepository documentVersionRepository;
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
-    private final DepartmentRepository departmentRepository;
+    private final UserAccessPolicy userAccessPolicy;
 
     @Transactional()
     public Document create(int versionNumber,String title,String content,Long authorId) {
@@ -43,17 +44,36 @@ public class DocumentService {
 
         return document;
     }
-    public DocumentVersion documentdetail(Long documentId) {
-        Optional<Document> document = this.documentRepository.findById(documentId);
+    public DocumentVersion documentdetail(Long documentId, Long viewerId) {
+        if (viewerId == null) {
+            throw new AccessDeniedException("사용자 정보를 확인할 수 없습니다.");
+        }
 
-        if(document.isPresent()) {
-            Document foundDocument = document.get();
-            DocumentVersion detail = documentVersionRepository
-                    .findFirstByDocumentOrderByVersionNumberDesc(foundDocument)
-                    .orElseThrow(() -> new IllegalArgumentException("문서 버전을 찾을 수 없습니다"));
-            return detail;
-        } else {
-            throw new IllegalArgumentException("문서를 찾을수가없습니다");
+        User viewer = userRepository.findById(viewerId)
+                .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+        Document document = documentRepository.findById(documentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서를 찾을 수 없습니다."));
+
+        validateReadPermission(viewer, document);
+
+        return documentVersionRepository.findFirstByDocumentOrderByVersionNumberDesc(document)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
+    }
+
+    private void validateReadPermission(User viewer, Document document) {
+
+        if (userAccessPolicy.isAdmin(viewer)) {
+            return;
+        }
+
+        userAccessPolicy.requireManagerOrAbove(viewer);
+
+        Department viewerDepartment = viewer.getDepartment();
+        Department documentDepartment = document.getDepartment();
+        if (viewerDepartment == null || documentDepartment == null
+                || viewerDepartment.getId() == null
+                || !viewerDepartment.getId().equals(documentDepartment.getId())) {
+            throw new AccessDeniedException("해당 문서를 열람할 권한이 없습니다.");
         }
     }
 }
