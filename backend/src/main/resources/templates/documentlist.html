@@ -38,18 +38,6 @@
             </div>
             <p>설계부터 검토까지,<br>부서의 기록을 한곳에서 관리합니다.</p>
         </section>
-
-        <!--
-            연결할 Model 값:
-            documentVersions: List<DocumentVersion> (열람 가능한 부서의 문서별 최신 버전만)
-            departmentName: 로그인한 사용자의 부서명 (String)
-            errorMessage: 조회 실패 안내 (선택, String)
-
-            이 HTML은 부서 권한을 검사하지 않습니다. 서비스에서 검사·필터링해야 합니다.
-            document.author 등 LAZY 연관관계는 서비스의 트랜잭션 안에서 미리 조회해야 합니다.
-            제목 링크의 document.id는 문서 ID입니다. version.id와 구분해주세요.
-            상세 조회 주소 /document/detail/{id}는 이후 컨트롤러에서 연결할 예정입니다.
-        -->
         <section id="document-register" class="register-panel" aria-labelledby="register-title" tabindex="-1">
             <header class="register-heading">
                 <div class="register-title-group">

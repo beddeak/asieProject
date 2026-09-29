@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문서 상세 | AegisVault</title>
+    <link rel="stylesheet" href="../static/css/documentlist.css" th:href="@{/css/documentlist.css}">
+    <link rel="stylesheet" href="../static/css/documentdetail.css" th:href="@{/css/documentdetail.css}">
+</head>
+<body class="document-detail-page">
+    <a class="skip-link" href="#document-detail">문서 내용으로 바로가기</a>
+    <header class="workspace-header">
+        <div class="company">
+            <span class="company-mark" aria-hidden="true">A</span>
+            <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
+        </div>
+        <span class="environment">가상 기업 · 프로젝트 데모</span>
+    </header>
+
+    <main id="document-detail" class="detail-workspace" tabindex="-1">
+        <nav class="detail-navigation" aria-label="문서 탐색">
+            <a class="back-link" href="/document/list" th:href="@{/document/list}">
+                <span aria-hidden="true">←</span> 문서 목록
+            </a>
+            <span class="navigation-caption">DOCUMENT VIEWER</span>
+        </nav>
+
+        <!--
+            documentVersion: 열람 권한을 확인한 DocumentVersion 한 건을 Model에 전달합니다.
+            errorMessage: 문서가 없거나 조회할 수 없을 때 표시할 안내입니다(선택).
+            documentVersion.document.author / department는 서비스 트랜잭션 안에서 조회해주세요.
+            HTML은 권한 검사나 HTTP 403/404 처리를 대신하지 않습니다.
+            목록 링크 /document/list와 상세 조회 컨트롤러는 별도로 연결해야 합니다.
+        -->
+        <div class="detail-layout" th:if="${documentVersion != null and errorMessage == null}"
+             hidden th:hidden="${false}">
+            <article class="document-sheet" aria-labelledby="document-title">
+                <header class="document-heading">
+                    <div class="document-identifiers">
+                        <p class="eyebrow" th:text="'DOCUMENT / ' + ${documentVersion.document.id}"></p>
+                        <span class="version-tag" th:text="'v' + ${documentVersion.versionNumber}"></span>
+                    </div>
+                    <h1 id="document-title" th:text="${documentVersion.title}"></h1>
+                    <p class="document-department" th:text="${documentVersion.document.department.name}"></p>
+                </header>
+
+                <section class="document-body" aria-labelledby="body-title">
+                    <h2 id="body-title">문서 본문</h2>
+                    <!-- 일반 텍스트: th:text로 이스케이프하고 CSS로 줄바꿈을 유지합니다. -->
+                    <div class="document-content" th:text="${documentVersion.content}"></div>
+                </section>
+
+                <footer class="sheet-footer">
+                    <span>AEGIS DEFENSE TECHNOLOGIES</span>
+                    <span th:text="'DOC · ' + ${documentVersion.document.id}"></span>
+                </footer>
+            </article>
+
+            <aside class="detail-sidebar" aria-label="문서 정보">
+                <section class="metadata-panel" aria-labelledby="metadata-title">
+                    <p class="eyebrow">DOCUMENT DETAILS</p>
+                    <h2 id="metadata-title">문서 정보</h2>
+                    <div class="document-status">
+                        <span class="metadata-label">현재 버전 상태</span>
+                        <span class="status-badge" th:attr="data-status=${documentVersion.status}"
+                              th:switch="${documentVersion.status?.name()}">
+                            <span th:case="'DRAFT'">초안</span>
+                            <span th:case="'PENDING_REVIEW'">검토 대기</span>
+                            <span th:case="'PENDING_SECURITY_APPROVAL'">보안 승인 대기</span>
+                            <span th:case="'APPROVED'">승인 완료</span>
+                            <span th:case="'REJECTED'">반려</span>
+                            <span th:case="'ARCHIVED'">보관</span>
+                            <span th:case="*">상태 미지정</span>
+                        </span>
+                    </div>
+                    <dl class="document-metadata">
+                        <div>
+                            <dt>문서 번호</dt>
+                            <dd th:text="'DOC · ' + ${documentVersion.document.id}"></dd>
+                        </div>
+                        <div>
+                            <dt>작성자</dt>
+                            <dd th:text="${documentVersion.document.author.nickname}"></dd>
+                        </div>
+                        <div>
+                            <dt>담당 부서</dt>
+                            <dd th:text="${documentVersion.document.department.name}"></dd>
+                        </div>
+                        <div>
+                            <dt>열람 중인 버전</dt>
+                            <dd th:text="'v' + ${documentVersion.versionNumber}"></dd>
+                        </div>
+                        <div>
+                            <dt>문서 최초 작성일</dt>
+                            <dd>
+                                <time th:if="${documentVersion.document.createdAt != null}"
+                                      th:attr="datetime=${documentVersion.document.createdAt}"
+                                      th:text="${#temporals.format(documentVersion.document.createdAt, 'yyyy.MM.dd HH:mm')}"></time>
+                                <span th:if="${documentVersion.document.createdAt == null}">—</span>
+                            </dd>
+                        </div>
+                        <div>
+                            <dt>현재 버전 등록일</dt>
+                            <dd>
+                                <time th:if="${documentVersion.createdAt != null}"
+                                      th:attr="datetime=${documentVersion.createdAt}"
+                                      th:text="${#temporals.format(documentVersion.createdAt, 'yyyy.MM.dd HH:mm')}"></time>
+                                <span th:if="${documentVersion.createdAt == null}">—</span>
+                            </dd>
+                        </div>
+                    </dl>
+                </section>
+                <div class="reading-note">
+                    <span class="info-mark" aria-hidden="true">i</span>
+                    <p>제목·본문·상태는 열람 중인 버전을 기준으로 표시됩니다.</p>
+                </div>
+            </aside>
+        </div>
+
+        <section class="unavailable-panel" aria-labelledby="unavailable-title"
+                 th:if="${documentVersion == null or errorMessage != null}">
+            <p class="eyebrow">DOCUMENT VIEWER</p>
+            <h1 id="unavailable-title" th:text="${errorMessage != null ? '문서를 표시할 수 없습니다' : '문서 연결을 기다리고 있습니다'}">문서 연결을 기다리고 있습니다</h1>
+            <p th:if="${errorMessage == null}">조회한 문서를 연결하면 제목과 본문이 이곳에 표시됩니다.</p>
+            <p class="detail-error" role="alert" th:if="${errorMessage != null}"
+               th:text="${errorMessage}" hidden th:hidden="${false}"></p>
+        </section>
+    </main>
+
+    <footer class="workspace-footer">
+        <span>AegisVault · Internal Document Management</span>
+        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
+    </footer>
+</body>
+</html>
