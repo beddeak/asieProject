@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>사용자 관리 | AegisVault</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/departmentcreate.css}">
+    <script defer th:src="@{/js/admin.js}"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">본문으로 이동</a>
+<header class="workspace-header">
+    <a class="brand" th:href="@{/}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a>
+    <div class="header-account"><span><strong th:text="${currentUser.nickname}"></strong> · 관리자</span><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></div>
+</header>
+<main id="main" class="admin-workspace">
+    <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / ACCESS CONTROL</p><h1>사용자 관리</h1><p class="page-description">사용자의 직급, 소속 부서와 계정 상태를 관리합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
+    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}" aria-current="page">사용자 관리</a><a th:href="@{/admin/activity}">문서 활동 기록</a><a href="#department-form">부서 생성</a></nav>
+    <p class="notice success" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+    <p class="notice error" role="alert" th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
+    <section class="summary-grid" aria-label="사용자 현황">
+        <div><span>전체 계정</span><strong th:text="${summary.total}"></strong><small>삭제된 계정 포함</small></div>
+        <div><span>정상 계정</span><strong th:text="${summary.active}"></strong><small>시스템 이용 가능</small></div>
+        <div><span>정지 계정</span><strong th:text="${summary.banned}"></strong><small>로그인 차단</small></div>
+        <div><span>부서 미배정</span><strong th:text="${summary.unassigned}"></strong><small>문서 작성 전 배정 필요</small></div>
+    </section>
+    <section class="panel" aria-labelledby="users-title">
+        <header class="panel-heading"><h2 id="users-title">사용자 목록 <span class="count" th:text="${userPage.totalElements}"></span></h2><span>페이지당 20명</span></header>
+        <form class="filter-form" th:action="@{/admin/users}" method="get">
+            <label class="search-field">아이디 / 이메일<input type="search" name="keyword" th:value="${keyword}" maxlength="255" placeholder="검색어를 입력하세요"></label>
+            <label>소속 부서<select name="departmentId"><option value="">전체 부서</option><option value="0" th:selected="${departmentId != null and departmentId == 0}">미배정</option><option th:each="dep : ${departments}" th:value="${dep.id}" th:text="${dep.name}" th:selected="${departmentId == dep.id}"></option></select></label>
+            <label>직급<select name="position"><option value="">전체 직급</option><option th:each="rank : ${positions}" th:value="${rank}" th:text="${rank.displayName}" th:selected="${position == rank}"></option></select></label>
+            <label>계정 상태<select name="status"><option value="">전체 상태</option><option th:each="state : ${statuses}" th:value="${state}" th:selected="${status == state}" th:text="${state.name() == 'ACTIVE' ? '정상' : (state.name() == 'BAN' ? '정지' : (state.name() == 'LOCKED' ? '잠금' : '삭제'))}"></option></select></label>
+            <button class="button" type="submit">검색</button><a class="reset-link" th:href="@{/admin/users}">초기화</a>
+        </form>
+        <div class="table-scroll" tabindex="0" aria-label="사용자 목록 가로 스크롤" th:if="${!userPage.empty}">
+            <table class="user-table"><thead><tr><th scope="col">사용자</th><th scope="col">직급 · 부서 배정</th><th scope="col">계정 상태</th><th scope="col">가입일</th><th scope="col">관리</th></tr></thead>
+                <tbody><tr th:each="member : ${userPage.content}">
+                    <td><strong class="user-name" th:text="${member.nickname}"></strong><span class="self-tag" th:if="${member.id == currentUser.id}">내 계정</span><small th:text="${member.email}"></small><small class="reference" th:text="'USER / ' + ${member.id}"></small></td>
+                    <td><form class="assignment-form" th:if="${member.accountStatus.name() != 'DELETED'}" th:action="@{/admin/users/{id}/assignment(id=${member.id})}" method="post">
+                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 직급'"></span><select name="position" required><option th:each="rank : ${positions}" th:value="${rank}" th:text="${rank.displayName}" th:selected="${member.position == rank}" th:disabled="${member.id == currentUser.id and rank.name() != 'ADMIN'}"></option></select></label>
+                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 부서'"></span><select name="departmentId"><option value="">미배정</option><option th:each="dep : ${departments}" th:value="${dep.id}" th:text="${dep.name}" th:selected="${member.department != null and member.department.id == dep.id}"></option></select></label>
+                        <button class="button compact secondary" type="submit">배정 저장</button>
+                    </form><span th:if="${member.accountStatus.name() == 'DELETED'}" th:text="${member.position.displayName} + ' · ' + ${member.department != null ? member.department.name : '미배정'}"></span></td>
+                    <td><span class="status-badge" th:attr="data-status=${member.accountStatus}" th:text="${member.accountStatus.name() == 'ACTIVE' ? '정상' : (member.accountStatus.name() == 'BAN' ? '정지' : (member.accountStatus.name() == 'LOCKED' ? '잠금' : '삭제'))}"></span></td>
+                    <td class="date-cell" th:text="${#temporals.format(member.createdAt, 'yyyy.MM.dd')}"></td>
+                    <td><div class="row-actions"><a th:href="@{/admin/activity(userId=${member.id})}">활동 기록</a>
+                        <th:block th:if="${member.id != currentUser.id and member.accountStatus.name() != 'DELETED'}">
+                            <form th:if="${member.accountStatus.name() != 'BAN'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post" data-confirm="이 계정의 시스템 이용을 정지할까요?"><input type="hidden" name="status" value="BAN"><button class="text-button danger" type="submit">밴</button></form>
+                            <form th:if="${member.accountStatus.name() != 'ACTIVE'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post"><input type="hidden" name="status" value="ACTIVE"><button class="text-button" type="submit">정상 복구</button></form>
+                            <form th:if="${member.accountStatus.name() == 'ACTIVE'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post" data-confirm="이 계정을 잠글까요?"><input type="hidden" name="status" value="LOCKED"><button class="text-button" type="submit">잠금</button></form>
+                            <details class="delete-control"><summary class="danger">계정 삭제</summary><form th:action="@{/admin/users/{id}/delete(id=${member.id})}" method="post" data-confirm="계정을 삭제할까요? 로그인은 영구 차단되고 문서와 활동 기록은 보존됩니다."><p>로그인을 영구 차단합니다.<br>문서와 기록은 보존됩니다.</p><button class="button compact destructive" type="submit">삭제 확정</button></form></details>
+                        </th:block>
+                    </div></td>
+                </tr></tbody>
+            </table>
+        </div>
+        <div class="empty-state" th:if="${userPage.empty}"><h3>검색 조건에 맞는 사용자가 없습니다.</h3><p>검색어와 필터를 변경해 주세요.</p></div>
+        <footer class="panel-footer"><p>부서가 배정되어야 문서를 작성할 수 있습니다. 직급·계정 상태 변경은 다음 요청부터 적용됩니다.</p><nav class="pagination" aria-label="사용자 페이지" th:if="${userPage.totalPages > 0}"><a th:if="${userPage.hasPrevious()}" th:href="@{/admin/users(page=${userPage.number - 1},keyword=${keyword},departmentId=${departmentId},position=${position},status=${status})}">← 이전</a><span th:text="${userPage.number + 1} + ' / ' + ${userPage.totalPages}"></span><a th:if="${userPage.hasNext()}" th:href="@{/admin/users(page=${userPage.number + 1},keyword=${keyword},departmentId=${departmentId},position=${position},status=${status})}">다음 →</a></nav></footer>
+    </section>
+    <details id="department-form" class="department-section" th:open="${openDepartmentForm == true}"><summary>새 부서 생성 <span>등록 후 사용자에게 배정할 수 있습니다.</span></summary><div th:replace="~{departmentcreate :: departmentForm}"></div></details>
+</main>
+<footer class="workspace-footer"><span>AegisVault · Internal Document Management</span><span>ADMINISTRATION / 사용자 및 조직 관리</span></footer>
+</body>
+</html>

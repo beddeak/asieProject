@@ -7,6 +7,11 @@ spring:
     username: sa
     password:
 
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:db/schema.sql
+
   jpa:
     open-in-view: false
     hibernate:

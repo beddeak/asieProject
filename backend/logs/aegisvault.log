@@ -91,3 +91,47 @@ Action:
 
 Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
 
+2026-09-30T22:41:39.212+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Starting AegisvaultApplicationTests using Java 21.0.7 with PID 24852 (started by GIGAFACTORY in C:\Users\GIGAFACTORY\asieProject\backend)
+2026-09-30T22:41:39.213+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : No active profile set, falling back to 1 default profile: "default"
+2026-09-30T22:41:39.911+09:00  INFO 24852 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-09-30T22:41:39.993+09:00  INFO 24852 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 67 ms. Found 4 JPA repository interfaces.
+2026-09-30T22:41:40.803+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-09-30T22:41:40.936+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-09-30T22:41:41.719+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-09-30T22:41:41.770+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-09-30T22:41:42.071+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-09-30T22:41:42.075+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-09-30T22:41:42.162+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-09-30T22:41:43.505+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-09-30T22:41:43.618+09:00  INFO 24852 --- [aegisvault] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-09-30T22:41:43.736+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-09-30T22:41:45.279+09:00  INFO 24852 --- [aegisvault] [Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-09-30T22:41:46.112+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Started AegisvaultApplicationTests in 7.274 seconds (process running for 8.916)
+2026-09-30T22:41:46.874+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-30T22:41:46.875+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-30T22:41:46.876+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
+2026-09-30T22:41:47.914+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-30T22:41:47.914+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-30T22:41:47.915+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-30T22:41:48.070+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-30T22:41:48.070+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-30T22:41:48.071+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-30T22:41:48.441+09:00  INFO 24852 --- [aegisvault] [Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
+2026-09-30T22:41:48.729+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
+2026-09-30T22:41:48.730+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
+2026-09-30T22:41:48.730+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
+2026-09-30T22:41:49.894+09:00  INFO 24852 --- [aegisvault] [Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.asie.aegisvault.Document.DocumentReadIntegrationTest]: DocumentReadIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-30T22:41:50.098+09:00  INFO 24852 --- [aegisvault] [Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.asie.aegisvault.AegisvaultApplication for test class com.asie.aegisvault.Document.DocumentReadIntegrationTest
+2026-09-30T22:41:50.101+09:00  INFO 24852 --- [aegisvault] [Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.asie.aegisvault.Document.DocumentReadIntegrationTest]: DocumentReadIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+2026-09-30T22:41:50.131+09:00  INFO 24852 --- [aegisvault] [Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.asie.aegisvault.AegisvaultApplication for test class com.asie.aegisvault.Document.DocumentReadIntegrationTest

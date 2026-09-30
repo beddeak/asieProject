@@ -51,30 +51,30 @@ class DepartmentControllerTest {
 
     @Test
     void createPageRendersInputsAndFormAction() throws Exception {
-        mockMvc.perform(get("/dep/create"))
+        mockMvc.perform(get("/dep/create").principal(() -> "admin"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("action=\"/dep/create\"")))
                 .andExpect(content().string(containsString("name=\"name\"")))
                 .andExpect(content().string(containsString("name=\"description\"")))
                 .andExpect(content().string(containsString("/css/departmentcreate.css")));
-        verifyNoInteractions(departmentService);
+        verify(departmentService).requireAdmin("admin");
     }
 
     @Test
     void submittedFieldsReachExistingService() throws Exception {
-        mockMvc.perform(post("/dep/create")
+        mockMvc.perform(post("/dep/create").principal(() -> "admin")
                         .param("name", "연구개발본부")
                         .param("description", "설계 문서 작성"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("value=\"연구개발본부\"")));
-        verify(departmentService).create("연구개발본부", "설계 문서 작성");
+        verify(departmentService).create("연구개발본부", "설계 문서 작성", "admin");
     }
 
     @Test
     void duplicateErrorIsShownAndInputIsEscaped() throws Exception {
-        when(departmentService.create("연구개발본부", "<script>test</script>"))
+        when(departmentService.create("연구개발본부", "<script>test</script>", "admin"))
                 .thenThrow(new IllegalArgumentException("이미 있는 부서이름입니다"));
-        mockMvc.perform(post("/dep/create")
+        mockMvc.perform(post("/dep/create").principal(() -> "admin")
                         .param("name", "연구개발본부")
                         .param("description", "<script>test</script>"))
                 .andExpect(status().isOk())

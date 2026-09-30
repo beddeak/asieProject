@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
+import java.security.Principal;
 
 @RequiredArgsConstructor
 @Controller 
@@ -19,19 +20,23 @@ public class DepartmentController {
     private final DepartmentService departmentService;
 
     @GetMapping("/create")
-    public String createDepartment(@ModelAttribute("departmentCreate") DepartmentCreate departmentCreate) {
+    public String createDepartment(@ModelAttribute("departmentCreate") DepartmentCreate departmentCreate,
+                                   Principal principal) {
+        departmentService.requireAdmin(principal.getName());
         return "departmentcreate";
     }
 
     @PostMapping("/create")
-    public String createDepartment(@Valid @ModelAttribute("departmentCreate") DepartmentCreate departmentCreate, BindingResult bindingResult, Model model) {
+    public String createDepartment(@Valid @ModelAttribute("departmentCreate") DepartmentCreate departmentCreate,
+                                   BindingResult bindingResult, Model model, Principal principal) {
+        departmentService.requireAdmin(principal.getName());
         if (bindingResult.hasErrors()) {
             return "departmentcreate";
         }
         try {
 
             
-            departmentService.create(departmentCreate.getName(), departmentCreate.getDescription());
+            departmentService.create(departmentCreate.getName(), departmentCreate.getDescription(), principal.getName());
             return "departmentcreate";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());

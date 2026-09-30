@@ -2,6 +2,7 @@ package com.asie.aegisvault.security;
 
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
+import com.asie.aegisvault.User.AccountStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Component;
 import java.util.Arrays;
@@ -9,11 +10,25 @@ import java.util.List;
 
 @Component
 public class UserAccessPolicy {
+    public void requireActive(User user) {
+        if (user == null || user.getAccountStatus() != AccountStatus.ACTIVE) {
+            throw new AccessDeniedException("정상 상태의 계정만 이용할 수 있습니다.");
+        }
+    }
+
+    public void requireAdmin(User user) {
+        requireActive(user);
+        if (!isAdmin(user)) {
+            throw new AccessDeniedException("관리자만 이용할 수 있습니다.");
+        }
+    }
+
     public boolean isAdmin(User user) {
         return user != null && user.getPosition() != null && user.getPosition().isAdmin();
     }
 
     public void requireManagerOrAbove(User user) {
+        requireActive(user);
         if (user == null || user.getPosition() == null
                 || !user.getPosition().isAtLeast(Position.MANAGER)) {
             throw new AccessDeniedException("과장 이상만 이용할 수 있습니다.");
@@ -21,6 +36,7 @@ public class UserAccessPolicy {
     }
 
     public List<Position> assignablePositions(User user) {
+        requireActive(user);
         if (user == null || user.getPosition() == null) {
             throw new AccessDeniedException("사용자 직급을 확인할 수 없습니다.");
         }

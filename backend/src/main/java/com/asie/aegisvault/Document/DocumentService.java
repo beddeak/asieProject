@@ -14,6 +14,9 @@ import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.security.UserAccessPolicy;
+import com.asie.aegisvault.activity.DocumentAction;
+import com.asie.aegisvault.activity.DocumentActivity;
+import com.asie.aegisvault.activity.DocumentActivityRepository;
 import java.util.List;
 
 import lombok.RequiredArgsConstructor;
@@ -26,6 +29,7 @@ public class DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final UserAccessPolicy userAccessPolicy;
+    private final DocumentActivityRepository activityRepository;
 
     @Transactional()
     public Document create(String title, String content, Position requiredPosition, Long authorId) {
@@ -35,7 +39,7 @@ public class DocumentService {
         if(content == null || content.isBlank()) {
             throw new IllegalArgumentException("문서 내용을 입력하세요");
         }
-        User author = userRepository.findById(authorId).orElseThrow(() -> new IllegalArgumentException("유저를 찾을수가 없습니다"));
+        User author = findUser(authorId);
         userAccessPolicy.requireAssignablePosition(author, requiredPosition);
 
         Department department = author.getDepartment();
@@ -48,9 +52,11 @@ public class DocumentService {
         DocumentVersion version = new DocumentVersion(document,1,title,content);
         version.submitForReview();
         documentVersionRepository.save(version);
+        activityRepository.save(new DocumentActivity(author, version, DocumentAction.CREATED));
 
         return document;
     }
+    @Transactional
     public DocumentVersion documentdetail(Long documentId, Long viewerId) {
         User viewer = findUser(viewerId);
         Document document = documentRepository.findById(documentId)
@@ -65,6 +71,7 @@ public class DocumentService {
                 && !viewer.getPosition().isAtLeast(Position.MANAGER)) {
             throw new AccessDeniedException("승인 전·반려 문서는 작성자와 검토자만 열람할 수 있습니다.");
         }
+        activityRepository.save(new DocumentActivity(viewer, version, DocumentAction.READ));
         return version;
     }
 
@@ -82,10 +89,11 @@ public class DocumentService {
         }
         return documentVersionRepository.findReviewQueue(DocumentStatus.PENDING_REVIEW,
                 admin ? null : department.getId(), userAccessPolicy.assignablePositions(reviewer),
-                admin ? null : reviewer.getId(),
+                reviewer.getId(),
                 PageRequest.of(Math.max(page, 0), 20, Sort.by(Sort.Direction.DESC, "createdAt", "id")));
     }
 
+    @Transactional
     public DocumentVersion reviewDetail(Long versionId, Long reviewerId) {
         User reviewer = findUser(reviewerId);
         userAccessPolicy.requireManagerOrAbove(reviewer);
@@ -93,6 +101,7 @@ public class DocumentService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
         validateReviewPermission(reviewer, version.getDocument());
         requirePendingLatestVersion(version);
+        activityRepository.save(new DocumentActivity(reviewer, version, DocumentAction.REVIEW_OPENED));
         return version;
     }
 
@@ -118,6 +127,8 @@ public class DocumentService {
         } else {
             version.reject(reviewer);
         }
+        activityRepository.save(new DocumentActivity(reviewer, version,
+                approve ? DocumentAction.APPROVED : DocumentAction.REJECTED));
     }
 
     private void requirePendingLatestVersion(DocumentVersion version) {
@@ -136,8 +147,10 @@ public class DocumentService {
         if (userId == null) {
             throw new AccessDeniedException("사용자 정보를 확인할 수 없습니다.");
         }
-        return userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+        userAccessPolicy.requireActive(user);
+        return user;
     }
 
     private boolean isAuthor(User user, Document document) {
@@ -148,7 +161,7 @@ public class DocumentService {
     private void validateReviewPermission(User reviewer, Document document) {
         userAccessPolicy.requireManagerOrAbove(reviewer);
         validateReadPermission(reviewer, document);
-        if (!userAccessPolicy.isAdmin(reviewer) && isAuthor(reviewer, document)) {
+        if (isAuthor(reviewer, document)) {
             throw new AccessDeniedException("자신이 작성한 문서는 다른 검토자가 처리해야 합니다.");
         }
     }

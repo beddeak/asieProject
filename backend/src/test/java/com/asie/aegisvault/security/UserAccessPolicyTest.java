@@ -2,6 +2,7 @@ package com.asie.aegisvault.security;
 
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
+import com.asie.aegisvault.User.AccountStatus;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -48,6 +49,7 @@ class UserAccessPolicyTest {
     private User userWith(Position position) {
         User user = mock(User.class);
         when(user.getPosition()).thenReturn(position);
+        when(user.getAccountStatus()).thenReturn(AccountStatus.ACTIVE);
         return user;
     }
 
@@ -70,5 +72,15 @@ class UserAccessPolicyTest {
         assertThrows(IllegalArgumentException.class, () -> policy.requireAssignablePosition(userWith(Position.ADMIN), null));
         assertThrows(AccessDeniedException.class, () -> policy.assignablePositions(null));
         assertThrows(AccessDeniedException.class, () -> policy.assignablePositions(userWith(null)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = AccountStatus.class, names = {"BAN", "LOCKED", "DELETED"})
+    void inactiveAccountsCannotManageUsersOrDocuments(AccountStatus status) {
+        User admin = userWith(Position.ADMIN);
+        when(admin.getAccountStatus()).thenReturn(status);
+        assertThrows(AccessDeniedException.class, () -> policy.requireAdmin(admin));
+        assertThrows(AccessDeniedException.class, () -> policy.requireManagerOrAbove(admin));
+        assertThrows(AccessDeniedException.class, () -> policy.assignablePositions(admin));
     }
 }

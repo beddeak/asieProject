@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>문서 활동 기록 | AegisVault</title><link rel="stylesheet" th:href="@{/css/admin.css}"></head>
+<body>
+<a class="skip-link" href="#main">본문으로 이동</a>
+<header class="workspace-header"><a class="brand" th:href="@{/}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></header>
+<main id="main" class="admin-workspace">
+    <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / DOCUMENT AUDIT</p><h1>문서 활동 기록</h1><p class="page-description">모든 부서의 문서 활동을 사용자와 문서별로 확인합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
+    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}">사용자 관리</a><a th:href="@{/admin/activity}" aria-current="page">문서 활동 기록</a><a th:href="@{/admin/users} + '#department-form'">부서 생성</a></nav>
+    <p class="notice info">기록 기능 적용 이후 성공한 작성·열람·검토·승인·반려를 저장합니다. 과거 열람과 차단된 접근은 이 목록에 포함되지 않습니다. 직급과 제목은 활동 당시 정보입니다.</p>
+    <section class="panel" aria-labelledby="activity-title">
+        <header class="panel-heading"><h2 id="activity-title">활동 이력 <span class="count" th:text="${activityPage.totalElements}"></span></h2><span>최신순 · 페이지당 30건</span></header>
+        <form class="filter-form" th:action="@{/admin/activity}" method="get">
+            <label class="search-field">아이디 / 문서 제목<input type="search" name="keyword" maxlength="255" th:value="${keyword}" placeholder="사용자 또는 문서 검색"></label>
+            <label>사용자 번호<input type="number" min="1" name="userId" th:value="${userId}" placeholder="전체 사용자"></label>
+            <label>문서 번호<input type="number" min="1" name="documentId" th:value="${documentId}" placeholder="전체 문서"></label>
+            <label>활동<select name="action"><option value="">전체 활동</option><option th:each="type : ${actions}" th:value="${type}" th:text="${type.displayName}" th:selected="${action == type}"></option></select></label>
+            <button class="button" type="submit">검색</button><a class="reset-link" th:href="@{/admin/activity}">초기화</a>
+        </form>
+        <div class="table-scroll" tabindex="0" aria-label="활동 기록 가로 스크롤" th:if="${!activityPage.empty}"><table class="activity-table"><thead><tr><th scope="col">일시</th><th scope="col">사용자</th><th scope="col">활동</th><th scope="col">문서</th><th scope="col">버전</th></tr></thead><tbody><tr th:each="entry : ${activityPage.content}">
+            <td class="date-cell" th:text="${#temporals.format(entry.occurredAt, 'yyyy.MM.dd HH:mm:ss')}"></td>
+            <td><a th:href="@{/admin/activity(userId=${entry.actorId})}" th:text="${entry.actorNickname}"></a><small th:text="${entry.actorPosition.displayName} + ' · #' + ${entry.actorId}"></small></td>
+            <td><span class="status-badge" th:attr="data-action=${entry.action}" th:text="${entry.action.displayName}"></span></td>
+            <td><a th:href="@{/document/detail/{id}(id=${entry.documentId})}" th:text="${entry.documentTitle}"></a><small><a th:href="@{/admin/activity(documentId=${entry.documentId})}" th:text="'DOCUMENT / ' + ${entry.documentId} + ' · 기록 보기'"></a></small></td>
+            <td class="reference" th:text="'v' + ${entry.versionNumber}"></td>
+        </tr></tbody></table></div>
+        <div class="empty-state" th:if="${activityPage.empty}"><h3>표시할 문서 활동이 없습니다.</h3><p>필터를 확인하거나 문서를 작성·열람한 뒤 다시 확인하세요.</p></div>
+        <footer class="panel-footer"><p>문서 제목을 누르면 현재 최신 버전을 열람합니다. 삭제된 계정의 기록도 유지됩니다.</p><nav class="pagination" aria-label="활동 기록 페이지" th:if="${activityPage.totalPages > 0}"><a th:if="${activityPage.hasPrevious()}" th:href="@{/admin/activity(page=${activityPage.number - 1},userId=${userId},documentId=${documentId},action=${action},keyword=${keyword})}">← 이전</a><span th:text="${activityPage.number + 1} + ' / ' + ${activityPage.totalPages}"></span><a th:if="${activityPage.hasNext()}" th:href="@{/admin/activity(page=${activityPage.number + 1},userId=${userId},documentId=${documentId},action=${action},keyword=${keyword})}">다음 →</a></nav></footer>
+    </section>
+</main>
+<footer class="workspace-footer"><span>AegisVault · Internal Document Management</span><span>DOCUMENT AUDIT / 문서 활동 기록</span></footer>
+</body>
+</html>

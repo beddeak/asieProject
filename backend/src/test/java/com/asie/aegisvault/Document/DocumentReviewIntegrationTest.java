@@ -138,14 +138,17 @@ class DocumentReviewIntegrationTest {
     }
 
     @Test
-    void adminCanReadAllDepartmentsAndReviewOwnDocument() {
+    void adminCanReadAllDepartmentsButCannotReviewOwnDocument() {
         assertEquals(pending.getId(), service.reviewDetail(pending.getId(), admin.getId()).getId());
         assertEquals(pending.getId(), service.documentdetail(document.getId(), admin.getId()).getId());
         User adminAuthor = user("admin-author", Position.ADMIN, otherDepartment);
         Document own = service.create("관리자 문서", "본문", Position.ADMIN, adminAuthor.getId());
         DocumentVersion version = versions.findFirstByDocumentOrderByVersionNumberDesc(own).orElseThrow();
-        assertTrue(service.reviewQueue(adminAuthor.getId(), 0).stream().anyMatch(v -> v.getId().equals(version.getId())));
-        service.approve(version.getId(), adminAuthor.getId());
+        assertTrue(service.reviewQueue(adminAuthor.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertThrows(AccessDeniedException.class, () -> service.reviewDetail(version.getId(), adminAuthor.getId()));
+        assertThrows(AccessDeniedException.class, () -> service.approve(version.getId(), adminAuthor.getId()));
+        assertThrows(AccessDeniedException.class, () -> service.reject(version.getId(), adminAuthor.getId()));
+        service.approve(version.getId(), admin.getId());
         assertEquals(DocumentStatus.APPROVED, service.documentdetail(own.getId(), admin.getId()).getStatus());
     }
 

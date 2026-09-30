@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +13,7 @@
             <span class="company-mark" aria-hidden="true">A</span>
             <span>Aegis Defense Technologies<small>AEGISVAULT / REVIEW DESK</small></span>
         </div>
-        <span class="environment">가상 기업 · 프로젝트 데모</span>
+        <span class="environment"><a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리 →</a></span>
     </header>
     <main class="list-workspace">
         <header class="page-heading">

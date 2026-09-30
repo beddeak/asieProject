@@ -3,6 +3,7 @@ package com.asie.aegisvault.Document;
 import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.Position;
+import com.asie.aegisvault.User.AccountStatus;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.config.SecurityConfig;
 import org.junit.jupiter.api.AfterAll;
@@ -41,6 +42,7 @@ import static org.hamcrest.Matchers.not;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.doThrow;
@@ -136,7 +138,7 @@ class DocumentControllerTest {
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/document/detail/42"))
                 .andExpect(flash().attribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다."));
-        verify(userRepository).findByNickname("writer");
+        verify(userRepository, times(2)).findByNickname("writer");
         verify(documentService).create("시험 보고서", "시험 결과입니다.", Position.STAFF, 7L);
     }
 
@@ -239,7 +241,7 @@ class DocumentControllerTest {
                 .andExpect(content().string(containsString("original-author")))
                 .andExpect(content().string(containsString("연구개발본부")));
 
-        verify(userRepository).findByNickname("writer");
+        verify(userRepository, times(2)).findByNickname("writer");
         verify(documentService).documentdetail(42L, 7L);
     }
 
@@ -275,6 +277,8 @@ class DocumentControllerTest {
     private void mockAuthor() {
         User author = mock(User.class);
         when(author.getId()).thenReturn(7L);
+        when(author.getAccountStatus()).thenReturn(AccountStatus.ACTIVE);
+        when(author.getPosition()).thenReturn(Position.STAFF);
         when(userRepository.findByNickname("writer")).thenReturn(Optional.of(author));
         when(documentService.assignablePositions(7L))
                 .thenReturn(List.of(Position.STAFF, Position.ASSISTANT_MANAGER, Position.MANAGER));

@@ -7,7 +7,6 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.cglib.core.Local;
 
 import lombok.NoArgsConstructor;
 
@@ -48,6 +47,21 @@ public class User {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    public void assign(Position position, Department department) {
+        if (position == null) {
+            throw new IllegalArgumentException("직급을 선택해주세요.");
+        }
+        this.position = position;
+        this.department = department;
+    }
+
+    public void changeAccountStatus(AccountStatus status) {
+        if (status == null) {
+            throw new IllegalArgumentException("계정 상태를 선택해주세요.");
+        }
+        this.accountStatus = status;
+    }
 
     public User(String nickname,String email,String password) {
         this.nickname = nickname;

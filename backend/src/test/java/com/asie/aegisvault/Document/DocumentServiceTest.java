@@ -4,6 +4,8 @@ import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
+import com.asie.aegisvault.User.AccountStatus;
+import com.asie.aegisvault.activity.DocumentActivityRepository;
 import com.asie.aegisvault.security.UserAccessPolicy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,11 +39,13 @@ class DocumentServiceTest {
         versionRepository = mock(DocumentVersionRepository.class);
         documentRepository = mock(DocumentRepository.class);
         userRepository = mock(UserRepository.class);
-        service = new DocumentService(versionRepository, documentRepository, userRepository, new UserAccessPolicy());
+        service = new DocumentService(versionRepository, documentRepository, userRepository,
+                new UserAccessPolicy(), mock(DocumentActivityRepository.class));
 
         viewer = mock(User.class);
         document = mock(Document.class);
         when(viewer.getPosition()).thenReturn(Position.MANAGER);
+        when(viewer.getAccountStatus()).thenReturn(AccountStatus.ACTIVE);
         when(viewer.getId()).thenReturn(7L);
         when(document.getRequiredPosition()).thenReturn(Position.STAFF);
         when(viewer.getDepartment()).thenReturn(department(2000L));
@@ -152,6 +156,7 @@ class DocumentServiceTest {
 
     private void assertLatestVersionReturned() {
         DocumentVersion version = mock(DocumentVersion.class);
+        when(version.getDocument()).thenReturn(document);
         when(version.getStatus()).thenReturn(DocumentStatus.APPROVED);
         when(versionRepository.findFirstByDocumentOrderByVersionNumberDesc(document)).thenReturn(Optional.of(version));
         assertSame(version, service.documentdetail(42L, 7L));

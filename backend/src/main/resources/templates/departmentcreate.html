@@ -16,7 +16,7 @@
                 <p>새로운 부서의 이름과 설명을 등록합니다.</p>
             </header>
 
-            <form action="/dep/create" th:action="@{/dep/create}"
+            <form action="/dep/create" th:action="@{${departmentFormAction != null ? departmentFormAction : '/dep/create'}}"
                   th:object="${departmentCreate}" method="post">
                 <div class="department-create-error" role="alert"
                      th:if="${errorMessage != null}" th:text="${errorMessage}"
