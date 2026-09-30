@@ -42,7 +42,8 @@ class DocumentServiceTest {
         viewer = mock(User.class);
         document = mock(Document.class);
         when(viewer.getPosition()).thenReturn(Position.MANAGER);
-        // 같은 DB 부서를 나타내더라도 Java 객체가 다를 수 있습니다.
+        when(viewer.getId()).thenReturn(7L);
+        when(document.getRequiredPosition()).thenReturn(Position.STAFF);
         when(viewer.getDepartment()).thenReturn(department(2000L));
         when(document.getDepartment()).thenReturn(department(2000L));
         when(userRepository.findById(7L)).thenReturn(Optional.of(viewer));
@@ -60,9 +61,9 @@ class DocumentServiceTest {
 
     @ParameterizedTest
     @EnumSource(value = Position.class, names = {"STAFF", "ASSISTANT_MANAGER"})
-    void sameDepartmentBelowManagerCannotRead(Position position) {
+    void sameDepartmentBelowManagerCanReadApprovedStaffDocument(Position position) {
         when(viewer.getPosition()).thenReturn(position);
-        assertReadDeniedBeforeLoadingContent();
+        assertLatestVersionReturned();
     }
 
     @ParameterizedTest
@@ -151,6 +152,7 @@ class DocumentServiceTest {
 
     private void assertLatestVersionReturned() {
         DocumentVersion version = mock(DocumentVersion.class);
+        when(version.getStatus()).thenReturn(DocumentStatus.APPROVED);
         when(versionRepository.findFirstByDocumentOrderByVersionNumberDesc(document)).thenReturn(Optional.of(version));
         assertSame(version, service.documentdetail(42L, 7L));
         verify(versionRepository).findFirstByDocumentOrderByVersionNumberDesc(document);
@@ -160,5 +162,20 @@ class DocumentServiceTest {
         Department department = new Department("연구개발본부", "테스트 부서");
         ReflectionTestUtils.setField(department, "id", id);
         return department;
+    }
+
+    @Test
+    void documentGradeStillBlocksLowerRank() {
+        when(document.getRequiredPosition()).thenReturn(Position.EXECUTIVE);
+        assertReadDeniedBeforeLoadingContent();
+    }
+
+    @Test
+    void pendingDocumentIsHiddenFromUnrelatedStaff() {
+        when(viewer.getPosition()).thenReturn(Position.STAFF);
+        DocumentVersion version = mock(DocumentVersion.class);
+        when(version.getStatus()).thenReturn(DocumentStatus.PENDING_REVIEW);
+        when(versionRepository.findFirstByDocumentOrderByVersionNumberDesc(document)).thenReturn(Optional.of(version));
+        assertThrows(AccessDeniedException.class, () -> service.documentdetail(42L, 7L));
     }
 }

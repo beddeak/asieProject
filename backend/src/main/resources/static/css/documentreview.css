@@ -1,0 +1,4 @@
+.document-register { overflow: hidden; border: 1px solid #d6dfe6; border-radius: 8px; background: #fff; }
+.table-scroll { overflow-x: auto; }
+.review-notice { padding: 14px 18px; border: 1px solid #b6d4cc; border-radius: 5px; background: #edf7f3; color: #155a4f; }
+.review-pagination { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 20px; }

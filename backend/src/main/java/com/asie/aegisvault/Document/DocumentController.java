@@ -19,8 +19,8 @@ import java.security.Principal;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 
@@ -31,24 +31,26 @@ public class DocumentController {
     private final DocumentService documentService;
     private final UserRepository userRepository;
     @GetMapping("/write")
-    public String writeDocument(@ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest) {
+    public String writeDocument(@ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest,
+                                Model model, Principal principal) {
+        User author = currentUser(principal);
+        model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
         return "documentwrite";
     }
     @PostMapping("/write")
-    public String writeDocument(@Valid @ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest, BindingResult bindingResult, Model model, Principal principal) {
+    public String writeDocument(@Valid @ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest,
+                                BindingResult bindingResult, Model model, Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        User author = currentUser(principal);
+        model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
         if(bindingResult.hasErrors()) {
             return "documentwrite";
         }
-        String authorNickname = principal.getName();
-        model.addAttribute("authorNickname", authorNickname);
-        User author = userRepository.findByNickname(authorNickname).orElseThrow(() -> new IllegalArgumentException("유저를 찾을수가 없습니다"));
         try {
-            documentService.create(documentCreateRequest.versionNumber(),
-                                    documentCreateRequest.title(),
-                                documentCreateRequest.content(),
-                            author.getId());
-            model.addAttribute("successMessage", "문서가 첫 번째 버전의 초안으로 저장되었습니다.");
-            return "documentwrite";
+            Document document = documentService.create(documentCreateRequest.title(), documentCreateRequest.content(),
+                    documentCreateRequest.requiredPosition(), author.getId());
+            redirectAttributes.addFlashAttribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다.");
+            return "redirect:/document/detail/" + document.getId();
         }catch(IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "documentwrite";
@@ -56,11 +58,43 @@ public class DocumentController {
     }
     @GetMapping("/detail/{id}")
     public String documentDetail(Model model, @PathVariable("id") Long id, Principal principal) {
-        User viewer = userRepository.findByNickname(principal.getName())
-                .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+        User viewer = currentUser(principal);
         DocumentVersion detail = documentService.documentdetail(id, viewer.getId());
         model.addAttribute("documentVersion", detail);
         return "documentdetail";
     }
-    
+
+    @GetMapping("/review")
+    public String reviewQueue(@RequestParam(defaultValue = "0") int page, Model model, Principal principal) {
+        User reviewer = currentUser(principal);
+        model.addAttribute("reviewPage", documentService.reviewQueue(reviewer.getId(), page));
+        return "documentreview";
+    }
+
+    @GetMapping("/review/{versionId}")
+    public String reviewDetail(@PathVariable Long versionId, Model model, Principal principal) {
+        User reviewer = currentUser(principal);
+        model.addAttribute("documentVersion", documentService.reviewDetail(versionId, reviewer.getId()));
+        model.addAttribute("reviewMode", true);
+        return "documentdetail";
+    }
+
+    @PostMapping("/review/{versionId}/approve")
+    public String approve(@PathVariable Long versionId, Principal principal, RedirectAttributes redirectAttributes) {
+        documentService.approve(versionId, currentUser(principal).getId());
+        redirectAttributes.addFlashAttribute("successMessage", "문서를 승인했습니다.");
+        return "redirect:/document/review";
+    }
+
+    @PostMapping("/review/{versionId}/reject")
+    public String reject(@PathVariable Long versionId, Principal principal, RedirectAttributes redirectAttributes) {
+        documentService.reject(versionId, currentUser(principal).getId());
+        redirectAttributes.addFlashAttribute("successMessage", "문서를 반려했습니다.");
+        return "redirect:/document/review";
+    }
+
+    private User currentUser(Principal principal) {
+        return userRepository.findByNickname(principal.getName())
+                .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+    }
 }

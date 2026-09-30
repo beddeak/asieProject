@@ -19,19 +19,14 @@
 
     <main id="document-detail" class="detail-workspace" tabindex="-1">
         <nav class="detail-navigation" aria-label="문서 탐색">
-            <a class="back-link" href="/document/list" th:href="@{/document/list}">
+            <a class="back-link" href="/document/list" th:href="${reviewMode == true} ? @{/document/review} : @{/document/list}">
                 <span aria-hidden="true">←</span> 문서 목록
             </a>
+            <a th:href="@{/document/review}">검토함</a>
             <span class="navigation-caption">DOCUMENT VIEWER</span>
         </nav>
 
-        <!--
-            documentVersion: 열람 권한을 확인한 DocumentVersion 한 건을 Model에 전달합니다.
-            errorMessage: 문서가 없거나 조회할 수 없을 때 표시할 안내입니다(선택).
-            documentVersion.document.author / department는 서비스 트랜잭션 안에서 조회해주세요.
-            HTML은 권한 검사나 HTTP 403/404 처리를 대신하지 않습니다.
-            목록 링크 /document/list와 상세 조회 컨트롤러는 별도로 연결해야 합니다.
-        -->
+        <p class="review-notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
         <div class="detail-layout" th:if="${documentVersion != null and errorMessage == null}"
              hidden th:hidden="${false}">
             <article class="document-sheet" aria-labelledby="document-title">
@@ -46,7 +41,6 @@
 
                 <section class="document-body" aria-labelledby="body-title">
                     <h2 id="body-title">문서 본문</h2>
-                    <!-- 일반 텍스트: th:text로 이스케이프하고 CSS로 줄바꿈을 유지합니다. -->
                     <div class="document-content" th:text="${documentVersion.content}"></div>
                 </section>
 
@@ -74,6 +68,10 @@
                         </span>
                     </div>
                     <dl class="document-metadata">
+                        <div>
+                            <dt>최소 열람 직급</dt>
+                            <dd th:text="${documentVersion.document.requiredPosition.displayName} + ' 이상'"></dd>
+                        </div>
                         <div>
                             <dt>문서 번호</dt>
                             <dd th:text="'DOC · ' + ${documentVersion.document.id}"></dd>
@@ -109,6 +107,21 @@
                             </dd>
                         </div>
                     </dl>
+                </section>
+                <section class="review-actions" th:if="${reviewMode == true}">
+                    <h2>검토 결정</h2>
+                    <p>본문과 열람 등급을 확인한 뒤 결정해주세요.</p>
+                    <form th:action="@{/document/review/{id}/approve(id=${documentVersion.id})}" method="post">
+                        <button class="approve-button" type="submit">문서 승인</button>
+                    </form>
+                    <form th:action="@{/document/review/{id}/reject(id=${documentVersion.id})}" method="post">
+                        <button class="reject-button" type="submit">문서 반려</button>
+                    </form>
+                </section>
+                <section class="review-actions" th:if="${documentVersion.reviewedBy != null}">
+                    <h2>검토 이력</h2>
+                    <p th:text="${documentVersion.reviewedBy.nickname}"></p>
+                    <time th:text="${#temporals.format(documentVersion.reviewedAt, 'yyyy.MM.dd HH:mm')}"></time>
                 </section>
                 <div class="reading-note">
                     <span class="info-mark" aria-hidden="true">i</span>

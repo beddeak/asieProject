@@ -93,4 +93,31 @@ class DocumentVersionTest {
         Department department = new Department("연구개발본부", "기술 문서 작성");
         return new Document(author, department);
     }
+
+    @Test
+    void onlyDraftCanBeSubmittedAndOnlyPendingCanBeReviewed() {
+        DocumentVersion version = new DocumentVersion(createDocument(), 1, "제목", "본문");
+        User reviewer = new User("reviewer", "reviewer@example.com", "hash");
+        assertThrows(IllegalStateException.class, () -> version.approve(reviewer));
+        version.submitForReview();
+        assertEquals(DocumentStatus.PENDING_REVIEW, version.getStatus());
+        assertThrows(IllegalStateException.class, version::submitForReview);
+        assertThrows(IllegalArgumentException.class, () -> version.approve(null));
+        version.approve(reviewer);
+        assertEquals(DocumentStatus.APPROVED, version.getStatus());
+        assertSame(reviewer, version.getReviewedBy());
+        org.junit.jupiter.api.Assertions.assertNotNull(version.getReviewedAt());
+        assertThrows(IllegalStateException.class, () -> version.reject(reviewer));
+    }
+
+    @Test
+    void rejectionRecordsReviewerAndCannotBeOverwritten() {
+        DocumentVersion version = new DocumentVersion(createDocument(), 1, "제목", "본문");
+        User reviewer = new User("reviewer", "reviewer@example.com", "hash");
+        version.submitForReview();
+        version.reject(reviewer);
+        assertEquals(DocumentStatus.REJECTED, version.getStatus());
+        assertSame(reviewer, version.getReviewedBy());
+        assertThrows(IllegalStateException.class, () -> version.approve(reviewer));
+    }
 }

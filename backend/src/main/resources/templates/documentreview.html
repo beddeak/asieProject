@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문서 검토함 | AegisVault</title>
+    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
+    <link rel="stylesheet" th:href="@{/css/documentreview.css}">
+</head>
+<body class="document-list-page">
+    <header class="workspace-header">
+        <div class="company">
+            <span class="company-mark" aria-hidden="true">A</span>
+            <span>Aegis Defense Technologies<small>AEGISVAULT / REVIEW DESK</small></span>
+        </div>
+        <span class="environment">가상 기업 · 프로젝트 데모</span>
+    </header>
+    <main class="list-workspace">
+        <header class="page-heading">
+            <div>
+                <p class="eyebrow">DOCUMENT REVIEW</p>
+                <h1>문서 검토함</h1>
+                <p class="page-description">검토 권한이 있는 최신 문서를 확인하고 승인 또는 반려합니다.</p>
+            </div>
+            <a class="write-button" th:href="@{/document/write}">문서 작성 →</a>
+        </header>
+        <p class="review-notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+        <section class="document-register">
+            <header class="register-heading">
+                <h2>검토 대기 <span th:text="${reviewPage.totalElements}"></span>건</h2>
+                <span>과장 이상 · 부서 및 열람 등급 확인</span>
+            </header>
+            <div class="table-scroll" th:if="${!reviewPage.empty}">
+                <table class="document-table">
+                    <thead><tr><th class="title-column">문서</th><th>부서</th><th>작성자</th><th>열람 등급</th><th>접수일</th></tr></thead>
+                    <tbody>
+                        <tr th:each="version : ${reviewPage.content}">
+                            <td>
+                                <a class="document-link" th:href="@{/document/review/{id}(id=${version.id})}"
+                                   th:text="${version.title}"></a>
+                                <span class="document-reference" th:text="'DOC ' + ${version.document.id} + ' / v' + ${version.versionNumber}"></span>
+                            </td>
+                            <td th:text="${version.document.department.name}"></td>
+                            <td th:text="${version.document.author.nickname}"></td>
+                            <td th:text="${version.document.requiredPosition.displayName} + ' 이상'"></td>
+                            <td class="date-cell" th:text="${#temporals.format(version.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="empty-state" th:if="${reviewPage.empty}">
+                <h3>검토할 문서가 없습니다.</h3>
+                <p>열람 등급을 충족하는 같은 부서 문서가 표시됩니다.<br>자신의 문서는 제외되며, ADMIN은 제한 없이 검토할 수 있습니다.</p>
+            </div>
+            <nav class="review-pagination" aria-label="검토 목록 페이지" th:if="${reviewPage.totalPages > 1}">
+                <a th:if="${reviewPage.hasPrevious()}" th:href="@{/document/review(page=${reviewPage.number - 1})}">이전</a>
+                <span th:text="${reviewPage.number + 1} + ' / ' + ${reviewPage.totalPages}"></span>
+                <a th:if="${reviewPage.hasNext()}" th:href="@{/document/review(page=${reviewPage.number + 1})}">다음</a>
+            </nav>
+        </section>
+    </main>
+    <footer class="workspace-footer"><span>AegisVault · Internal Document Management</span><span>검토 결정은 서버에서 다시 권한을 확인합니다.</span></footer>
+</body>
+</html>

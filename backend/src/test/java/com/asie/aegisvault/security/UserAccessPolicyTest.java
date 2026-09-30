@@ -50,4 +50,25 @@ class UserAccessPolicyTest {
         when(user.getPosition()).thenReturn(position);
         return user;
     }
+
+    @ParameterizedTest
+    @EnumSource(Position.class)
+    void canAssignOnlyOwnRankOrLower(Position authorPosition) {
+        User author = userWith(authorPosition);
+        for (Position required : Position.values()) {
+            if (authorPosition.isAtLeast(required)) {
+                assertDoesNotThrow(() -> policy.requireAssignablePosition(author, required));
+            } else {
+                assertThrows(AccessDeniedException.class, () -> policy.requireAssignablePosition(author, required));
+            }
+            assertEquals(authorPosition.isAtLeast(required), policy.assignablePositions(author).contains(required));
+        }
+    }
+
+    @Test
+    void missingGradeOrUnknownUserCannotAssignGrade() {
+        assertThrows(IllegalArgumentException.class, () -> policy.requireAssignablePosition(userWith(Position.ADMIN), null));
+        assertThrows(AccessDeniedException.class, () -> policy.assignablePositions(null));
+        assertThrows(AccessDeniedException.class, () -> policy.assignablePositions(userWith(null)));
+    }
 }

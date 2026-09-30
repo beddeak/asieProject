@@ -22,7 +22,7 @@
                 <h1>새 문서 작성</h1>
                 <p class="page-description">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
             </div>
-            <span class="draft-badge"><span aria-hidden="true"></span>초안 작성</span>
+            <a class="draft-badge" th:href="@{/document/review}">검토함 →</a>
         </header>
 
         <div class="workspace-grid">
@@ -41,12 +41,8 @@
                      th:if="${errorMessage != null}" th:text="${errorMessage}"
                      hidden th:hidden="${false}"></div>
 
-                <!-- th:action을 사용하면 Spring Security의 CSRF 토큰이 폼에 자동으로 포함됩니다. -->
                 <form action="/document/write" th:action="@{/document/write}"
                       th:object="${documentCreateRequest}" method="post">
-                    <!-- 현재 작성 기능은 첫 버전의 초안만 만듭니다. 실제 값은 서비스/엔티티에서도 결정합니다. -->
-                    <input type="hidden" name="versionNumber" value="1">
-                    <input type="hidden" name="status" value="DRAFT">
 
                     <div class="notice error-notice" role="alert"
                          th:if="${#fields.hasErrors('*')}" hidden th:hidden="${false}">
@@ -66,6 +62,17 @@
                         <p id="title-hint" class="field-hint">문서의 목적이 드러나는 제목을 작성해주세요. 최대 50자.</p>
                     </div>
 
+                    <div class="field">
+                        <label for="required-position">열람 가능한 최소 직급 <span>필수</span></label>
+                        <select id="required-position" th:field="*{requiredPosition}" required
+                                aria-describedby="position-hint"
+                                th:attr="aria-invalid=${#fields.hasErrors('requiredPosition')}">
+                            <option th:each="position : ${availablePositions}" th:value="${position}"
+                                    th:text="${position.displayName} + ' 이상'"></option>
+                        </select>
+                        <p id="position-hint" class="field-hint">본인 직급 이하로만 설정할 수 있습니다. ADMIN은 모든 문서를 열람할 수 있습니다.</p>
+                    </div>
+
                     <div class="field content-field">
                         <label for="document-content">본문 <span>필수</span></label>
                         <textarea id="document-content" name="content" th:field="*{content}"
@@ -76,8 +83,8 @@
                     </div>
 
                     <footer class="editor-actions">
-                        <p>자동 저장되지 않습니다.<br>작성을 마치면 초안을 저장해주세요.</p>
-                        <button type="submit">초안 저장 <span aria-hidden="true">→</span></button>
+                        <p>자동 저장되지 않습니다.<br>등록하면 해당 부서의 검토를 요청합니다.</p>
+                        <button type="submit">등록 및 검토 요청 <span aria-hidden="true">→</span></button>
                     </footer>
                 </form>
             </section>
@@ -88,7 +95,7 @@
                     <h2 id="metadata-title">등록 정보</h2>
                     <dl class="document-metadata">
                         <div><dt>버전</dt><dd>01 <span>최초 작성</span></dd></div>
-                        <div><dt>저장 상태</dt><dd>초안 <span>DRAFT</span></dd></div>
+                        <div><dt>등록 후 상태</dt><dd>검토 대기 <span>PENDING_REVIEW</span></dd></div>
                         <div><dt>작성자</dt><dd>로그인 계정</dd></div>
                         <div><dt>담당 부서</dt><dd>작성자의 소속 부서</dd></div>
                     </dl>
@@ -99,7 +106,7 @@
                     <span class="guide-marker" aria-hidden="true">i</span>
                     <div>
                         <h2 id="guide-title">저장 전 확인</h2>
-                        <p>시험 조건, 수치와 단위를 명확하게 기록해주세요. 초안 저장은 검토·승인 완료를 의미하지 않습니다.</p>
+                        <p>승인 전에는 작성자, 열람 등급을 충족하는 해당 부서 검토자와 ADMIN만 볼 수 있습니다. 일반 검토자는 자신의 문서를 승인할 수 없습니다.</p>
                     </div>
                 </section>
             </aside>

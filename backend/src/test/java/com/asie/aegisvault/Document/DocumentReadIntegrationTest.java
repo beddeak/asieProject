@@ -88,11 +88,10 @@ class DocumentReadIntegrationTest {
     }
 
     @Test
-    void sameDepartmentStaffCannotReadEvenTheirOwnDocument() {
+    void sameDepartmentStaffCanReadTheirOwnDraft() {
         flushAndClear();
 
-        assertThrows(AccessDeniedException.class,
-                () -> service.documentdetail(document.getId(), author.getId()));
+        assertEquals(3, service.documentdetail(document.getId(), author.getId()).getVersionNumber());
     }
 
     @Test

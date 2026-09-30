@@ -2,6 +2,7 @@ package com.asie.aegisvault.Document;
 
 import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.User.User;
+import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.config.SecurityConfig;
 import org.junit.jupiter.api.AfterAll;
@@ -31,6 +32,9 @@ import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 import java.util.Optional;
+import java.util.List;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.not;
@@ -38,6 +42,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -49,6 +55,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 
 // 실제 컨트롤러·템플릿·SecurityConfig를 사용하되, 서비스와 Repository는 mock으로 DB 접근을 막습니다.
@@ -73,6 +80,7 @@ class DocumentControllerTest {
     @BeforeEach
     void resetMocks() {
         reset(documentService, userRepository);
+        mockAuthor();
     }
 
     @AfterAll
@@ -91,7 +99,7 @@ class DocumentControllerTest {
     }
 
     @Test
-    void emptyFormRendersWithDraftDefaultsAndCsrfToken() throws Exception {
+    void emptyFormRendersAllowedGradesAndCsrfToken() throws Exception {
         mockMvc.perform(get("/document/write").with(user("writer")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("documentwrite"))
@@ -99,12 +107,14 @@ class DocumentControllerTest {
                 .andExpect(content().string(containsString("action=\"/document/write\"")))
                 .andExpect(content().string(containsString("name=\"title\"")))
                 .andExpect(content().string(containsString("name=\"content\"")))
-                .andExpect(content().string(containsString("name=\"versionNumber\" value=\"1\"")))
-                .andExpect(content().string(containsString("name=\"status\" value=\"DRAFT\"")))
+                .andExpect(content().string(containsString("name=\"requiredPosition\"")))
+                .andExpect(content().string(containsString("value=\"MANAGER\"")))
+                .andExpect(content().string(not(containsString("value=\"EXECUTIVE\""))))
                 .andExpect(content().string(containsString("name=\"_csrf\"")))
                 .andExpect(content().string(containsString("/css/documentwrite.css")))
                 .andExpect(content().string(not(containsString("name=\"authorId\""))));
-        verifyNoInteractions(documentService, userRepository);
+        verify(documentService).assignablePositions(7L);
+        verifyNoMoreInteractions(documentService);
     }
 
     @Test
@@ -118,12 +128,16 @@ class DocumentControllerTest {
     @Test
     void validFormUsesAuthenticatedAuthorAndShowsSuccess() throws Exception {
         mockAuthor();
-        mockMvc.perform(write("시험 보고서", "시험 결과입니다.").param("authorId", "999"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("documentwrite"))
-                .andExpect(content().string(containsString("문서가 첫 번째 버전의 초안으로 저장되었습니다.")));
+        Document saved = mock(Document.class);
+        when(saved.getId()).thenReturn(42L);
+        when(documentService.create("시험 보고서", "시험 결과입니다.", Position.STAFF, 7L)).thenReturn(saved);
+        mockMvc.perform(write("시험 보고서", "시험 결과입니다.").param("authorId", "999")
+                        .param("versionNumber", "99").param("status", "APPROVED"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/document/detail/42"))
+                .andExpect(flash().attribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다."));
         verify(userRepository).findByNickname("writer");
-        verify(documentService).create(1, "시험 보고서", "시험 결과입니다.", 7L);
+        verify(documentService).create("시험 보고서", "시험 결과입니다.", Position.STAFF, 7L);
     }
 
     @ParameterizedTest
@@ -136,7 +150,8 @@ class DocumentControllerTest {
                 .andExpect(model().attributeHasFieldErrors("documentCreateRequest", field))
                 .andExpect(content().string(containsString("입력 내용을 확인해주세요.")))
                 .andExpect(content().string(containsString(field.equals("title") ? "유지할 본문" : "유지할 제목")));
-        verifyNoInteractions(documentService, userRepository);
+        verify(documentService).assignablePositions(7L);
+        verifyNoMoreInteractions(documentService);
     }
 
     @Test
@@ -145,7 +160,8 @@ class DocumentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"))
                 .andExpect(content().string(containsString("문서 제목은 50자 이하여야 합니다")));
-        verifyNoInteractions(documentService, userRepository);
+        verify(documentService).assignablePositions(7L);
+        verifyNoMoreInteractions(documentService);
     }
 
     @Test
@@ -153,21 +169,22 @@ class DocumentControllerTest {
         mockMvc.perform(post("/document/write").with(user("writer")).with(csrf())
                         .param("title", "제목").param("content", "본문"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "versionNumber", "status"))
-                .andExpect(content().string(containsString("버전 번호를 입력해주세요")))
-                .andExpect(content().string(containsString("문서 상태를 선택해주세요")));
-        verifyNoInteractions(documentService, userRepository);
+                .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "requiredPosition"))
+                .andExpect(content().string(containsString("열람 가능한 최소 직급을 선택해주세요")));
+        verify(documentService).assignablePositions(7L);
+        verifyNoMoreInteractions(documentService);
     }
 
     @Test
     void invalidMetadataTypesReturnFormInsteadOfServerError() throws Exception {
         mockMvc.perform(post("/document/write").with(user("writer")).with(csrf())
                         .param("title", "제목").param("content", "본문")
-                        .param("versionNumber", "not-a-number").param("status", "UNKNOWN"))
+                        .param("requiredPosition", "UNKNOWN"))
                 .andExpect(status().isOk())
-                .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "versionNumber", "status"))
+                .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "requiredPosition"))
                 .andExpect(view().name("documentwrite"));
-        verifyNoInteractions(documentService, userRepository);
+        verify(documentService).assignablePositions(7L);
+        verifyNoMoreInteractions(documentService);
     }
 
     @Test
@@ -175,7 +192,7 @@ class DocumentControllerTest {
         mockAuthor();
         String title = "<b>제목</b>";
         String contentValue = "</textarea><script>alert(1)</script>";
-        when(documentService.create(1, title, contentValue, 7L))
+        when(documentService.create(title, contentValue, Position.STAFF, 7L))
                 .thenThrow(new IllegalArgumentException("소속 부서가 없습니다"));
         mockMvc.perform(write(title, contentValue))
                 .andExpect(status().isOk())
@@ -259,12 +276,93 @@ class DocumentControllerTest {
         User author = mock(User.class);
         when(author.getId()).thenReturn(7L);
         when(userRepository.findByNickname("writer")).thenReturn(Optional.of(author));
+        when(documentService.assignablePositions(7L))
+                .thenReturn(List.of(Position.STAFF, Position.ASSISTANT_MANAGER, Position.MANAGER));
     }
 
     private MockHttpServletRequestBuilder write(String title, String contentValue) {
         return post("/document/write").with(user("writer")).with(csrf())
                 .param("title", title).param("content", contentValue)
-                .param("versionNumber", "1").param("status", "DRAFT");
+                .param("requiredPosition", "STAFF");
+    }
+
+    @Test
+    void reviewQueueRendersAuthorizedDocumentsAndEmptyState() throws Exception {
+        DocumentVersion version = reviewVersion();
+        when(documentService.reviewQueue(7L, 0)).thenReturn(new PageImpl<>(List.of(version)));
+        mockMvc.perform(get("/document/review").with(user("writer")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("검토 문서")))
+                .andExpect(content().string(containsString("/document/review/99")));
+        when(documentService.reviewQueue(7L, 0)).thenReturn(new PageImpl<>(List.of()));
+        mockMvc.perform(get("/document/review").with(user("writer")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("검토할 문서가 없습니다.")));
+    }
+
+    @Test
+    void reviewDetailRendersPostActionsWithCsrf() throws Exception {
+        when(documentService.reviewDetail(99L, 7L)).thenReturn(reviewVersion());
+        mockMvc.perform(get("/document/review/99").with(user("writer")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("action=\"/document/review/99/approve\"")))
+                .andExpect(content().string(containsString("action=\"/document/review/99/reject\"")))
+                .andExpect(content().string(containsString("name=\"_csrf\"")));
+    }
+
+    @ParameterizedTest
+    @CsvSource({"approve", "reject"})
+    void reviewPostUsesAuthenticatedReviewerAndRequiresCsrf(String action) throws Exception {
+        mockMvc.perform(post("/document/review/99/" + action).with(user("writer")))
+                .andExpect(status().isForbidden());
+        verifyNoInteractions(documentService);
+
+        mockMvc.perform(post("/document/review/99/" + action).with(user("writer")).with(csrf())
+                        .param("reviewerId", "999"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/document/review"));
+        if (action.equals("approve")) {
+            verify(documentService).approve(99L, 7L);
+        } else {
+            verify(documentService).reject(99L, 7L);
+        }
+    }
+
+    @Test
+    void reviewFailuresKeepForbiddenAndConflictStatus() throws Exception {
+        when(documentService.reviewQueue(7L, 0)).thenThrow(new AccessDeniedException("검토 권한이 없습니다."));
+        mockMvc.perform(get("/document/review").with(user("writer"))).andExpect(status().isForbidden());
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT, "이미 처리되었습니다."))
+                .when(documentService).approve(99L, 7L);
+        mockMvc.perform(post("/document/review/99/approve").with(user("writer")).with(csrf()))
+                .andExpect(status().isConflict());
+    }
+
+    private DocumentVersion reviewVersion() {
+        User author = new User("review-author", "review@example.com", "hash");
+        Document document = new Document(author, new Department("연구개발", "테스트"));
+        DocumentVersion version = new DocumentVersion(document, 1, "검토 문서", "검토할 본문");
+        ReflectionTestUtils.setField(version, "id", 99L);
+        ReflectionTestUtils.setField(version, "createdAt", java.time.LocalDateTime.of(2026, 9, 30, 12, 0));
+        version.submitForReview();
+        return version;
+    }
+
+    @ParameterizedTest
+    @CsvSource({"/document/review", "/document/review/99"})
+    void anonymousReviewRequestsAreRedirectedToLogin(String path) throws Exception {
+        mockMvc.perform(get(path)).andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/user/login"));
+        verifyNoInteractions(documentService, userRepository);
+    }
+
+    @Test
+    void forgedGradeGets403InsteadOfBypassingSelectOptions() throws Exception {
+        when(documentService.create("제목", "본문", Position.ADMIN, 7L))
+                .thenThrow(new AccessDeniedException("직급을 초과했습니다."));
+        mockMvc.perform(post("/document/write").with(user("writer")).with(csrf())
+                        .param("title", "제목").param("content", "본문").param("requiredPosition", "ADMIN"))
+                .andExpect(status().isForbidden());
     }
 
     @Configuration(proxyBeanMethods = false)

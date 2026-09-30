@@ -1,6 +1,6 @@
 package com.asie.aegisvault.Document.dto;
 
-import com.asie.aegisvault.Document.DocumentStatus;
+import com.asie.aegisvault.User.Position;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
@@ -32,19 +32,18 @@ class DocumentCreateRequestTest {
     @Test
     void acceptsValidRequest() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "시험 보고서", "시험 결과입니다.", 1, DocumentStatus.DRAFT);
+                "시험 보고서", "시험 결과입니다.", Position.STAFF);
 
         assertTrue(validator.validate(request).isEmpty());
         assertEquals("시험 보고서", request.title());
         assertEquals("시험 결과입니다.", request.content());
-        assertEquals(1, request.versionNumber());
-        assertEquals(DocumentStatus.DRAFT, request.status());
+        assertEquals(Position.STAFF, request.requiredPosition());
     }
 
     @Test
     void acceptsTitleOf50CharactersAndLongContent() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "가".repeat(50), "본문\n".repeat(10000), 1, DocumentStatus.DRAFT);
+                "가".repeat(50), "본문\n".repeat(10000), Position.STAFF);
 
         assertTrue(validator.validate(request).isEmpty());
     }
@@ -54,7 +53,7 @@ class DocumentCreateRequestTest {
     @ValueSource(strings = {" ", "\t\n"})
     void rejectsBlankTitle(String title) {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                title, "본문", 1, DocumentStatus.DRAFT);
+                title, "본문", Position.STAFF);
 
         assertViolation(request, "title", "문서 제목을 입력해주세요");
     }
@@ -62,7 +61,7 @@ class DocumentCreateRequestTest {
     @Test
     void rejectsTitleOver50Characters() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "가".repeat(51), "본문", 1, DocumentStatus.DRAFT);
+                "가".repeat(51), "본문", Position.STAFF);
 
         assertViolation(request, "title", "문서 제목은 50자 이하여야 합니다");
     }
@@ -72,34 +71,17 @@ class DocumentCreateRequestTest {
     @ValueSource(strings = {" ", "\t\n"})
     void rejectsBlankContent(String content) {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "제목", content, 1, DocumentStatus.DRAFT);
+                "제목", content, Position.STAFF);
 
         assertViolation(request, "content", "문서 본문을 입력해주세요");
     }
 
     @Test
-    void rejectsMissingVersionNumber() {
+    void rejectsMissingRequiredPosition() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "제목", "본문", null, DocumentStatus.DRAFT);
+                "제목", "본문", null);
 
-        assertViolation(request, "versionNumber", "버전 번호를 입력해주세요");
-    }
-
-    @ParameterizedTest
-    @ValueSource(ints = {0, -1})
-    void rejectsNonPositiveVersionNumber(int versionNumber) {
-        DocumentCreateRequest request = new DocumentCreateRequest(
-                "제목", "본문", versionNumber, DocumentStatus.DRAFT);
-
-        assertViolation(request, "versionNumber", "버전 번호는 1 이상이어야 합니다");
-    }
-
-    @Test
-    void rejectsMissingStatus() {
-        DocumentCreateRequest request = new DocumentCreateRequest(
-                "제목", "본문", 1, null);
-
-        assertViolation(request, "status", "문서 상태를 선택해주세요");
+        assertViolation(request, "requiredPosition", "열람 가능한 최소 직급을 선택해주세요");
     }
 
     private void assertViolation(DocumentCreateRequest request, String field, String message) {

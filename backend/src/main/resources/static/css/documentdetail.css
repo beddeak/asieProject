@@ -36,6 +36,16 @@
 .unavailable-panel > p:not(.eyebrow) { margin: 0; color: #536577; font-size: 14px; line-height: 1.8; overflow-wrap: anywhere; }
 .unavailable-panel > p.detail-error { color: #9b2922; }
 
+.review-notice { padding: 14px 18px; border: 1px solid #b6d4cc; border-radius: 5px; background: #edf7f3; color: #155a4f; }
+.review-actions { padding: 22px; border: 1px solid #d6dfe6; border-radius: 8px; background: #fff; }
+.review-actions h2 { margin: 0 0 12px; font-size: 16px; }
+.review-actions p, .review-actions time { font-size: 12px; color: #536577; }
+.review-actions form { margin-top: 10px; }
+.review-actions button { width: 100%; min-height: 44px; border: 1px solid transparent; border-radius: 4px; font: inherit; font-weight: 650; cursor: pointer; }
+.approve-button { background: #12675f; color: #fff; }
+.review-actions .reject-button { background: #fff3f1; border-color: #e2b9b4; color: #9b2922; }
+.review-actions button:focus-visible { outline: 3px solid #218477; outline-offset: 3px; }
+
 @media (max-width: 1200px) {
     .detail-workspace { margin: 12px 40px 32px; }
 }
