@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
@@ -81,5 +82,16 @@ class DepartmentControllerTest {
                 .andExpect(content().string(containsString("이미 있는 부서이름입니다")))
                 .andExpect(content().string(containsString("&lt;script&gt;test&lt;/script&gt;")))
                 .andExpect(content().string(not(containsString("<script>test</script>"))));
+    }
+
+    @Test
+    void concurrentDuplicateInsertReturnsFormWithoutDatabaseDetails() throws Exception {
+        when(departmentService.create("연구개발본부", "설계 문서 작성", "admin"))
+                .thenThrow(new DataIntegrityViolationException("SQL constraint department_unique private-detail"));
+        mockMvc.perform(post("/dep/create").principal(() -> "admin")
+                        .param("name", "연구개발본부").param("description", "설계 문서 작성"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("이미 있는 부서이름입니다")))
+                .andExpect(content().string(not(containsString("private-detail"))));
     }
 }

@@ -1,6 +1,7 @@
 package com.asie.aegisvault.User;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -46,6 +47,10 @@ public class UserController {
             return "redirect:/";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
+            return "Signup";
+        } catch (DataIntegrityViolationException e) {
+            // 중복 확인 이후 다른 요청이 먼저 저장한 경우에도 폼으로 안내합니다.
+            model.addAttribute("errorMessage", "이미 사용 중인 아이디 또는 이메일입니다.");
             return "Signup";
         }
     }

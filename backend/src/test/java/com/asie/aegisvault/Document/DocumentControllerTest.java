@@ -239,7 +239,9 @@ class DocumentControllerTest {
                 .andExpect(content().string(containsString("최신 시험 보고서")))
                 .andExpect(content().string(containsString("승인된 열람 요청의 본문")))
                 .andExpect(content().string(containsString("original-author")))
-                .andExpect(content().string(containsString("연구개발본부")));
+                .andExpect(content().string(containsString("연구개발본부")))
+                .andExpect(content().string(containsString("href=\"/document/write\"")))
+                .andExpect(content().string(not(containsString("/document/list"))));
 
         verify(userRepository, times(2)).findByNickname("writer");
         verify(documentService).documentdetail(42L, 7L);
@@ -309,6 +311,8 @@ class DocumentControllerTest {
         when(documentService.reviewDetail(99L, 7L)).thenReturn(reviewVersion());
         mockMvc.perform(get("/document/review/99").with(user("writer")))
                 .andExpect(status().isOk())
+                .andExpect(content().string(containsString("href=\"/document/review\"")))
+                .andExpect(content().string(containsString("검토함으로 돌아가기")))
                 .andExpect(content().string(containsString("action=\"/document/review/99/approve\"")))
                 .andExpect(content().string(containsString("action=\"/document/review/99/reject\"")))
                 .andExpect(content().string(containsString("name=\"_csrf\"")));

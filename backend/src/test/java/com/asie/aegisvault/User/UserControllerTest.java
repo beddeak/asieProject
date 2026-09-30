@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -161,6 +162,18 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("Signup"))
                 .andExpect(content().string(containsString("이미 사용중인 닉네임입니다")))
+                .andExpect(content().string(not(containsString("demo-password"))));
+    }
+
+    @Test
+    void concurrentDuplicateInsertReturnsFormWithoutDatabaseDetails() throws Exception {
+        when(userService.create("demo-user", "demo@example.com", "demo-password"))
+                .thenThrow(new DataIntegrityViolationException("SQL constraint users_unique private-detail"));
+        mockMvc.perform(signup("demo-user", "demo@example.com", "demo-password", "demo-password"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("Signup"))
+                .andExpect(content().string(containsString("이미 사용 중인 아이디 또는 이메일입니다.")))
+                .andExpect(content().string(not(containsString("private-detail"))))
                 .andExpect(content().string(not(containsString("demo-password"))));
     }
 

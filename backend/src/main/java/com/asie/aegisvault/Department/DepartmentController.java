@@ -1,6 +1,7 @@
 package com.asie.aegisvault.Department;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -40,6 +41,9 @@ public class DepartmentController {
             return "departmentcreate";
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
+            return "departmentcreate";
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("errorMessage", "이미 있는 부서이름입니다");
             return "departmentcreate";
         }
     }
