@@ -30,6 +30,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class DocumentController {
     private final DocumentService documentService;
     private final UserRepository userRepository;
+
+    @GetMapping("/list")
+    public String documentList(@RequestParam(defaultValue = "0") int page, Model model, Principal principal) {
+        var result = documentService.documentList(currentUser(principal).getId(), page);
+        model.addAttribute("documentPage", result.documents());
+        model.addAttribute("departmentName", result.departmentName());
+        model.addAttribute("departmentRequired", result.departmentRequired());
+        model.addAttribute("canWrite", result.canWrite());
+        model.addAttribute("canReview", result.canReview());
+        return "documentlist";
+    }
+
     @GetMapping("/write")
     public String writeDocument(@ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest,
                                 Model model, Principal principal) {

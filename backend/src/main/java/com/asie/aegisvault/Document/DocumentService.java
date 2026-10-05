@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 
 import com.asie.aegisvault.Department.Department;
+import com.asie.aegisvault.Document.dto.DocumentListItem;
+import com.asie.aegisvault.Document.dto.DocumentListResult;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.User.Position;
@@ -77,6 +79,34 @@ public class DocumentService {
 
     public List<Position> assignablePositions(Long userId) {
         return userAccessPolicy.assignablePositions(findUser(userId));
+    }
+
+    public DocumentListResult documentList(Long viewerId, int page) {
+        User viewer = findUser(viewerId);
+        List<Position> positions = userAccessPolicy.assignablePositions(viewer);
+        boolean admin = userAccessPolicy.isAdmin(viewer);
+        boolean reviewer = viewer.getPosition().isAtLeast(Position.MANAGER);
+        Department department = viewer.getDepartment();
+        boolean assigned = department != null && department.getId() != null;
+        String departmentName = admin ? "전체 부서" : assigned ? department.getName() : "소속 부서 미배정";
+        var sort = Sort.by(Sort.Direction.DESC, "createdAt", "id");
+        // JPA's offset is an int; normalize arbitrary query-string page numbers before querying.
+        var pageable = PageRequest.of(Math.min(Math.max(page, 0), Integer.MAX_VALUE / 20), 20, sort);
+        if (!admin && !assigned) {
+            return new DocumentListResult(Page.empty(PageRequest.of(0, 20, sort)),
+                    departmentName, true, false, reviewer);
+        }
+        Long departmentId = admin ? null : department.getId();
+        Page<DocumentListItem> documents = documentVersionRepository.findVisibleLatestVersions(
+                admin, departmentId, positions, reviewer, viewer.getId(), DocumentStatus.APPROVED, pageable);
+        if (documents.getTotalElements() == 0) {
+            documents = Page.empty(PageRequest.of(0, 20, sort));
+        } else if (documents.getNumber() >= documents.getTotalPages()) {
+            documents = documentVersionRepository.findVisibleLatestVersions(admin, departmentId, positions,
+                    reviewer, viewer.getId(), DocumentStatus.APPROVED,
+                    PageRequest.of(documents.getTotalPages() - 1, 20, sort));
+        }
+        return new DocumentListResult(documents, departmentName, false, assigned, reviewer);
     }
 
     public Page<DocumentVersion> reviewQueue(Long reviewerId, int page) {

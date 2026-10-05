@@ -6,7 +6,7 @@
 <header class="workspace-header"><a class="brand" th:href="@{/}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></header>
 <main id="main" class="admin-workspace">
     <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / DOCUMENT AUDIT</p><h1>문서 활동 기록</h1><p class="page-description">모든 부서의 문서 활동을 사용자와 문서별로 확인합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
-    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}">사용자 관리</a><a th:href="@{/admin/activity}" aria-current="page">문서 활동 기록</a><a th:href="@{/admin/users} + '#department-form'">부서 생성</a></nav>
+    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}">사용자 관리</a><a th:href="@{/admin/activity}" aria-current="page">문서 활동 기록</a><a th:href="@{/document/list}">문서 목록</a><a th:href="@{/admin/users} + '#department-form'">부서 생성</a></nav>
     <p class="notice info">기록 기능 적용 이후 성공한 작성·열람·검토·승인·반려를 저장합니다. 과거 열람과 차단된 접근은 이 목록에 포함되지 않습니다. 직급과 제목은 활동 당시 정보입니다.</p>
     <section class="panel" aria-labelledby="activity-title">
         <header class="panel-heading"><h2 id="activity-title">활동 이력 <span class="count" th:text="${activityPage.totalElements}"></span></h2><span>최신순 · 페이지당 30건</span></header>

@@ -240,8 +240,8 @@ class DocumentControllerTest {
                 .andExpect(content().string(containsString("승인된 열람 요청의 본문")))
                 .andExpect(content().string(containsString("original-author")))
                 .andExpect(content().string(containsString("연구개발본부")))
-                .andExpect(content().string(containsString("href=\"/document/write\"")))
-                .andExpect(content().string(not(containsString("/document/list"))));
+                .andExpect(content().string(containsString("href=\"/document/list\"")))
+                .andExpect(content().string(containsString("문서 목록으로 돌아가기")));
 
         verify(userRepository, times(2)).findByNickname("writer");
         verify(documentService).documentdetail(42L, 7L);

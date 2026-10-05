@@ -19,9 +19,9 @@
 
     <main id="document-detail" class="detail-workspace" tabindex="-1">
         <nav class="detail-navigation" aria-label="문서 탐색">
-            <a class="back-link" href="/document/write" th:href="${reviewMode == true} ? @{/document/review} : @{/document/write}">
+            <a class="back-link" href="/document/list" th:href="${reviewMode == true} ? @{/document/review} : @{/document/list}">
                 <span aria-hidden="true">←</span>
-                <span th:text="${reviewMode == true} ? '검토함으로 돌아가기' : '문서 작성으로 돌아가기'">문서 작성으로 돌아가기</span>
+                <span th:text="${reviewMode == true} ? '검토함으로 돌아가기' : '문서 목록으로 돌아가기'">문서 목록으로 돌아가기</span>
             </a>
             <a th:href="@{/document/review}">검토함</a>
             <span class="navigation-caption">DOCUMENT VIEWER</span>

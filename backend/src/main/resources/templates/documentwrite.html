@@ -22,7 +22,10 @@
                 <h1>새 문서 작성</h1>
                 <p class="page-description">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
             </div>
-            <a class="draft-badge" th:href="@{/document/review}">검토함 →</a>
+            <nav class="page-actions" aria-label="문서 탐색">
+                <a class="draft-badge" th:href="@{/document/list}">문서 목록 →</a>
+                <a class="draft-badge" th:href="@{/document/review}">검토함 →</a>
+            </nav>
         </header>
 
         <div class="workspace-grid">

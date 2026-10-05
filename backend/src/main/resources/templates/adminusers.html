@@ -16,7 +16,7 @@
 </header>
 <main id="main" class="admin-workspace">
     <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / ACCESS CONTROL</p><h1>사용자 관리</h1><p class="page-description">사용자의 직급, 소속 부서와 계정 상태를 관리합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
-    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}" aria-current="page">사용자 관리</a><a th:href="@{/admin/activity}">문서 활동 기록</a><a href="#department-form">부서 생성</a></nav>
+    <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}" aria-current="page">사용자 관리</a><a th:href="@{/admin/activity}">문서 활동 기록</a><a th:href="@{/document/list}">문서 목록</a><a href="#department-form">부서 생성</a></nav>
     <p class="notice success" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
     <p class="notice error" role="alert" th:if="${errorMessage != null}" th:text="${errorMessage}"></p>
     <section class="summary-grid" aria-label="사용자 현황">

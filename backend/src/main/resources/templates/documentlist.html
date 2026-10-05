@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문서 목록 | AegisVault</title>
-    <link rel="stylesheet" href="../static/css/documentlist.css" th:href="@{/css/documentlist.css}">
+    <link rel="stylesheet" href="/css/documentlist.css" th:href="@{/css/documentlist.css}">
 </head>
 <body class="document-list-page">
     <a class="skip-link" href="#document-register">문서 목록으로 바로가기</a>
@@ -13,7 +13,7 @@
             <span class="company-mark" aria-hidden="true">A</span>
             <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
         </div>
-        <span class="environment">가상 기업 · 프로젝트 데모</span>
+        <span class="environment"><a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리 →</a></span>
     </header>
 
     <main class="list-workspace">
@@ -21,11 +21,14 @@
             <div>
                 <p class="eyebrow">DOCUMENT REGISTER</p>
                 <h1>문서 목록</h1>
-                <p class="page-description">소속 부서의 기술 문서와 검토 현황을 확인합니다.</p>
+                <p class="page-description">열람 가능한 기술 문서와 최신 검토 현황을 확인합니다.</p>
             </div>
-            <a class="write-button" href="/document/write" th:href="@{/document/write}">
-                <span aria-hidden="true">＋</span> 새 문서 작성
-            </a>
+            <nav class="page-actions" aria-label="문서 작업">
+                <a class="secondary-button" th:if="${canReview}" th:href="@{/document/review}">검토함 →</a>
+                <a class="write-button" th:if="${canWrite}" href="/document/write" th:href="@{/document/write}">
+                    <span aria-hidden="true">＋</span> 새 문서 작성
+                </a>
+            </nav>
         </header>
 
         <section class="department-banner" aria-labelledby="department-title">
@@ -33,7 +36,7 @@
                 <span class="department-mark" aria-hidden="true">ADT</span>
                 <div>
                     <p class="eyebrow">DEPARTMENT WORKSPACE</p>
-                    <h2 id="department-title" th:text="${departmentName ?: '소속 부서 확인 전'}">소속 부서 확인 전</h2>
+                    <h2 id="department-title" th:text="${departmentName}">소속 부서</h2>
                 </div>
             </div>
             <p>설계부터 검토까지,<br>부서의 기록을 한곳에서 관리합니다.</p>
@@ -41,18 +44,17 @@
         <section id="document-register" class="register-panel" aria-labelledby="register-title" tabindex="-1">
             <header class="register-heading">
                 <div class="register-title-group">
-                    <h2 id="register-title">부서 문서</h2>
-                    <span class="document-count" th:if="${documentVersions != null}"
-                          th:text="${#lists.size(documentVersions)} + '건'" hidden th:hidden="${false}"></span>
+                    <h2 id="register-title">열람 가능한 문서</h2>
+                    <span class="document-count" th:text="${documentPage.totalElements} + '건'"></span>
                 </div>
-                <span class="register-description">문서별 최신 버전</span>
+                <span class="register-description">문서별 최신 버전 · 최신순 · 페이지당 20건</span>
             </header>
 
             <div class="error-notice" role="alert" th:if="${errorMessage != null}"
                  th:text="${errorMessage}" hidden th:hidden="${false}"></div>
 
             <div class="table-scroll" role="region" aria-label="부서 문서 목록 표" tabindex="0"
-                 th:if="${errorMessage == null and documentVersions != null and !#lists.isEmpty(documentVersions)}"
+                 th:if="${!documentPage.empty}"
                  hidden th:hidden="${false}">
                 <table class="document-table">
                     <caption class="visually-hidden">문서 제목, 상태, 작성자, 최신 버전 및 해당 버전 등록일</caption>
@@ -66,11 +68,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr th:each="version : ${documentVersions}">
+                        <tr th:each="version : ${documentPage.content}">
                             <td class="title-cell">
-                                <a class="document-link" th:href="@{/document/detail/{id}(id=${version.document.id})}"
+                                <a class="document-link" th:href="@{/document/detail/{id}(id=${version.documentId})}"
                                    th:text="${version.title}"></a>
-                                <span class="document-reference" th:text="'DOC · ' + ${version.document.id}"></span>
+                                <span class="document-reference" th:text="'DOC · ' + ${version.documentId}"></span>
+                                <span class="document-scope" th:text="${version.departmentName} + ' · ' + ${version.requiredPosition.displayName} + ' 이상'"></span>
                             </td>
                             <td>
                                 <span class="status-badge" th:attr="data-status=${version.status}"
@@ -84,7 +87,7 @@
                                     <span th:case="*">상태 미지정</span>
                                 </span>
                             </td>
-                            <td class="author-cell" th:text="${version.document.author.nickname}"></td>
+                            <td class="author-cell" th:text="${version.authorName}"></td>
                             <td class="version-cell" th:text="'v' + ${version.versionNumber}"></td>
                             <td class="date-cell">
                                 <time th:if="${version.createdAt != null}" th:attr="datetime=${version.createdAt}"
@@ -97,15 +100,20 @@
             </div>
 
             <div class="empty-state"
-                 th:if="${errorMessage == null and (documentVersions == null or #lists.isEmpty(documentVersions))}">
+                 th:if="${documentPage.empty}">
                 <span class="empty-document" aria-hidden="true"><span></span><span></span><span></span></span>
-                <h3 th:text="${documentVersions == null ? '문서 목록 연결을 기다리고 있습니다' : '등록된 문서가 없습니다'}">문서 목록 연결을 기다리고 있습니다</h3>
-                <p th:text="${documentVersions == null ? '조회한 문서 목록을 연결하면 이곳에 표시됩니다.' : '새 문서를 작성해 부서의 첫 기록을 남겨보세요.'}">조회한 문서 목록을 연결하면 이곳에 표시됩니다.</p>
+                <h3 th:text="${departmentRequired ? '소속 부서가 배정되지 않았습니다' : '열람 가능한 문서가 없습니다'}">열람 가능한 문서가 없습니다</h3>
+                <p th:text="${departmentRequired ? '관리자에게 부서 배정을 요청해주세요. 배정 후 부서 문서를 확인할 수 있습니다.' : '문서의 승인 상태와 열람 등급에 따라 목록에 표시됩니다.'}">문서의 승인 상태와 열람 등급에 따라 목록에 표시됩니다.</p>
             </div>
 
             <footer class="register-footer">
                 <span class="info-mark" aria-hidden="true">i</span>
                 <p>문서 제목을 선택하면 상세 내용으로 이동합니다.</p>
+                <nav class="list-pagination" aria-label="문서 목록 페이지" th:if="${documentPage.totalPages > 1}">
+                    <a th:if="${documentPage.hasPrevious()}" th:href="@{/document/list(page=${documentPage.number - 1})}">← 이전</a>
+                    <span aria-live="polite" th:text="${documentPage.number + 1} + ' / ' + ${documentPage.totalPages}"></span>
+                    <a th:if="${documentPage.hasNext()}" th:href="@{/document/list(page=${documentPage.number + 1})}">다음 →</a>
+                </nav>
             </footer>
         </section>
     </main>
