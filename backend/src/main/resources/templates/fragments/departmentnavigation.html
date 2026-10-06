@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<header class="workspace-header" th:fragment="header">
+    <a class="company department-brand" th:href="@{/departments}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>DEPARTMENT WORKSPACE</small></span></a>
+    <nav class="page-actions" aria-label="전체 메뉴">
+        <a th:href="@{/document/list}">문서 목록</a>
+        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리</a>
+    </nav>
+</header>
+<nav class="department-tabs" aria-label="부서 탭" th:fragment="tabs(workspace)" th:if="${!#lists.isEmpty(workspace.tabs)}">
+    <a th:each="department : ${workspace.tabs}" class="department-tab"
+       th:href="@{/departments/{id}(id=${department.id})}" th:text="${department.name}"
+       th:attr="aria-current=${workspace.selected != null and department.id == workspace.selected.id ? 'page' : null}"></a>
+</nav>
+</body>
+</html>

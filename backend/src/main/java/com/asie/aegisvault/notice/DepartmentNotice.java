@@ -1,0 +1,66 @@
+package com.asie.aegisvault.notice;
+
+import com.asie.aegisvault.Department.Department;
+import com.asie.aegisvault.User.User;
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@NoArgsConstructor
+@Table(name = "department_notice", indexes = @Index(name = "IDX_department_notice_recent", columnList = "department_id, created_at, id"))
+public class DepartmentNotice {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "department_id", nullable = false)
+    private Department department;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "author_id", nullable = false)
+    private User author;
+
+    @Column(nullable = false, length = 255)
+    private String title;
+
+    @Column(nullable = false, length = 10000)
+    private String content;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
+
+    @Version
+    private Long version;
+
+    public DepartmentNotice(Department department, User author, String title, String content) {
+        if (department == null || author == null) {
+            throw new IllegalArgumentException("공지의 부서와 작성자가 필요합니다.");
+        }
+        this.department = department;
+        this.author = author;
+        updateText(title, content);
+    }
+
+    public void updateText(String title, String content) {
+        if (title == null || title.isBlank() || title.length() > 255) {
+            throw new IllegalArgumentException("공지 제목은 1~255자로 입력해주세요.");
+        }
+        if (content == null || content.isBlank() || content.length() > 10000) {
+            throw new IllegalArgumentException("공지 내용은 1~10,000자로 입력해주세요.");
+        }
+        this.title = title.strip();
+        this.content = content;
+    }
+}

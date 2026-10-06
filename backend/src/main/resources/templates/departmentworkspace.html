@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>부서 탭 · 공지 | AegisVault</title>
+    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
+    <link rel="stylesheet" th:href="@{/css/departmentworkspace.css}">
+</head>
+<body class="document-list-page department-workspace-page">
+    <a class="skip-link" href="#department-notices">부서 공지로 바로가기</a>
+    <header th:replace="~{fragments/departmentnavigation :: header}"></header>
+    <main class="list-workspace">
+        <header class="page-heading">
+            <div><p class="eyebrow">DEPARTMENT WORKSPACE</p><h1>부서 탭</h1><p class="page-description">우리 부서의 소식과 공지를 한곳에서 확인합니다.</p></div>
+            <a class="secondary-button" th:if="${workspace.admin}" th:href="@{/admin/users} + '#department-form'">새 부서 생성 →</a>
+        </header>
+        <nav th:replace="~{fragments/departmentnavigation :: tabs(${workspace})}"></nav>
+        <p class="notice-feedback" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+        <section class="department-banner" th:if="${workspace.selected != null}">
+            <div class="department-summary"><span class="department-mark" aria-hidden="true">ADT</span><div><p class="eyebrow">DEPARTMENT</p><h2 th:text="${workspace.selected.name}"></h2><p class="department-description" th:text="${workspace.description}"></p></div></div>
+            <a class="notice-primary" th:if="${workspace.canManage}" th:href="@{/departments/{id}/notices/new(id=${workspace.selected.id})}">＋ 공지 작성</a>
+        </section>
+        <section id="department-notices" class="register-panel" aria-labelledby="notices-title" tabindex="-1">
+            <header class="register-heading"><div class="register-title-group"><h2 id="notices-title">부서 공지</h2><span class="document-count" th:text="${workspace.notices.totalElements} + '건'"></span></div><span class="register-description">최신순 · 페이지당 20건</span></header>
+            <div class="empty-state" th:if="${workspace.selected == null}">
+                <h3 th:text="${workspace.admin ? '등록된 부서가 없습니다' : '소속 부서가 배정되지 않았습니다'}"></h3>
+                <p th:text="${workspace.admin ? '부서를 생성하면 이곳에 해당 부서 탭이 자동으로 표시됩니다.' : '관리자에게 부서 배정을 요청해주세요. 배정 후 해당 부서 탭과 공지를 확인할 수 있습니다.'}"></p>
+            </div>
+            <div class="empty-state" th:if="${workspace.selected != null and workspace.notices.empty}"><h3>등록된 공지가 없습니다</h3><p>부서 소식이 등록되면 이곳에 표시됩니다.</p><a class="secondary-button empty-action" th:if="${workspace.canManage}" th:href="@{/departments/{id}/notices/new(id=${workspace.selected.id})}">첫 공지 작성</a></div>
+            <div class="table-scroll" th:if="${!workspace.notices.empty}" role="region" aria-label="부서 공지 목록" tabindex="0">
+                <table class="notice-table"><caption class="visually-hidden">공지 제목, 작성자와 등록일</caption><thead><tr><th scope="col">공지 제목</th><th scope="col">작성자</th><th scope="col">등록일</th></tr></thead><tbody>
+                    <tr th:each="notice : ${workspace.notices.content}"><td><a class="document-link" th:href="@{/departments/{departmentId}/notices/{id}(departmentId=${workspace.selected.id},id=${notice.id})}" th:text="${notice.title}"></a></td><td th:text="${notice.authorName}"></td><td class="date-cell"><time th:attr="datetime=${notice.createdAt}" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"></time></td></tr>
+                </tbody></table>
+            </div>
+            <footer class="register-footer"><p>공지 제목을 선택하면 자세한 내용을 확인할 수 있습니다.</p><nav class="list-pagination" aria-label="공지 페이지" th:if="${workspace.notices.totalPages > 1}"><a th:if="${workspace.notices.hasPrevious()}" th:href="@{/departments/{id}(id=${workspace.selected.id},page=${workspace.notices.number - 1})}">← 이전</a><span th:text="${workspace.notices.number + 1} + ' / ' + ${workspace.notices.totalPages}"></span><a th:if="${workspace.notices.hasNext()}" th:href="@{/departments/{id}(id=${workspace.selected.id},page=${workspace.notices.number + 1})}">다음 →</a></nav></footer>
+        </section>
+    </main>
+    <footer class="workspace-footer"><span>AegisVault · Department Workspace</span><span>부서원을 위한 공지 게시판</span></footer>
+</body>
+</html>

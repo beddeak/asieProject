@@ -87,8 +87,9 @@ public class AdminUserController {
             return "redirect:/admin/users";
         }
         try {
-            departmentService.create(request.getName(), request.getDescription(), principal.getName());
-            redirect.addFlashAttribute("successMessage", "부서를 생성했습니다. 사용자에게 새 부서를 배정할 수 있습니다.");
+            var department = departmentService.create(request.getName(), request.getDescription(), principal.getName());
+            redirect.addFlashAttribute("createdDepartmentId", department.getId());
+            redirect.addFlashAttribute("successMessage", "부서와 부서 탭이 준비되었습니다. 사용자에게 새 부서를 배정할 수 있습니다.");
         } catch (IllegalArgumentException | DataIntegrityViolationException e) {
             redirect.addFlashAttribute("errorMessage", e instanceof IllegalArgumentException
                     ? e.getMessage() : "이미 등록된 부서 이름입니다.");
