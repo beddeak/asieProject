@@ -13,7 +13,7 @@
             <span class="company-mark" aria-hidden="true">A</span>
             <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
         </div>
-        <span class="environment">가상 기업 · 프로젝트 데모</span>
+        <a class="home-link" href="/" th:href="@{/}">← 메인 홈페이지</a>
     </header>
 
     <main class="list-workspace">
@@ -21,9 +21,9 @@
             <div>
                 <p class="eyebrow">DOCUMENT REGISTER</p>
                 <h1>문서 목록</h1>
-                <p class="page-description">소속 부서의 기술 문서와 검토 현황을 확인합니다.</p>
+                <p class="page-description">열람 권한이 있는 최신 문서와 검토 현황을 확인합니다.</p>
             </div>
-            <a class="write-button" href="/document/write" th:href="@{/document/write}">
+            <a class="write-button" href="/document/write" th:href="@{/document/write}" th:if="${canWrite}">
                 <span aria-hidden="true">＋</span> 새 문서 작성
             </a>
         </header>
@@ -33,7 +33,7 @@
                 <span class="department-mark" aria-hidden="true">ADT</span>
                 <div>
                     <p class="eyebrow">DEPARTMENT WORKSPACE</p>
-                    <h2 id="department-title" th:text="${departmentName ?: '소속 부서 확인 전'}">소속 부서 확인 전</h2>
+                    <h2 id="department-title" th:text="${departmentName}">문서 보관소</h2>
                 </div>
             </div>
             <p>설계부터 검토까지,<br>부서의 기록을 한곳에서 관리합니다.</p>
@@ -41,12 +41,22 @@
         <section id="document-register" class="register-panel" aria-labelledby="register-title" tabindex="-1">
             <header class="register-heading">
                 <div class="register-title-group">
-                    <h2 id="register-title">부서 문서</h2>
-                    <span class="document-count" th:if="${documentVersions != null}"
-                          th:text="${#lists.size(documentVersions)} + '건'" hidden th:hidden="${false}"></span>
+                    <h2 id="register-title">열람 가능한 문서</h2>
+                    <span class="document-count" th:text="${documentPage.totalElements} + '건'">0건</span>
                 </div>
                 <span class="register-description">문서별 최신 버전</span>
             </header>
+
+            <form class="archive-search" action="/document/list" th:action="@{/document/list}" method="get" role="search">
+                <label for="archive-query">문서 제목 검색</label>
+                <div class="search-controls">
+                    <input id="archive-query" name="q" type="search" maxlength="100" th:value="${query}"
+                           placeholder="검색할 문서 제목을 입력하세요">
+                    <input type="hidden" name="size" th:value="${documentPage.size}">
+                    <button type="submit">검색</button>
+                    <a th:if="${!#strings.isEmpty(query)}" href="/document/list" th:href="@{/document/list}">초기화</a>
+                </div>
+            </form>
 
             <div class="error-notice" role="alert" th:if="${errorMessage != null}"
                  th:text="${errorMessage}" hidden th:hidden="${false}"></div>
@@ -99,9 +109,19 @@
             <div class="empty-state"
                  th:if="${errorMessage == null and (documentVersions == null or #lists.isEmpty(documentVersions))}">
                 <span class="empty-document" aria-hidden="true"><span></span><span></span><span></span></span>
-                <h3 th:text="${documentVersions == null ? '문서 목록 연결을 기다리고 있습니다' : '등록된 문서가 없습니다'}">문서 목록 연결을 기다리고 있습니다</h3>
-                <p th:text="${documentVersions == null ? '조회한 문서 목록을 연결하면 이곳에 표시됩니다.' : '새 문서를 작성해 부서의 첫 기록을 남겨보세요.'}">조회한 문서 목록을 연결하면 이곳에 표시됩니다.</p>
+                <h3 th:text="${!#strings.isEmpty(query) ? '검색 결과가 없습니다' : '열람 가능한 문서가 없습니다'}">열람 가능한 문서가 없습니다</h3>
+                <p th:text="${!#strings.isEmpty(query) ? '다른 제목으로 검색하거나 검색어를 초기화해 주세요.' : '문서가 등록되고 열람 권한을 충족하면 이곳에 표시됩니다.'}">문서가 등록되고 열람 권한을 충족하면 이곳에 표시됩니다.</p>
             </div>
+
+            <nav class="archive-pagination" aria-label="문서 목록 페이지" th:if="${documentPage.totalPages > 1}">
+                <a th:if="${documentPage.hasPrevious()}"
+                   th:href="@{/document/list(page=${documentPage.number - 1},size=${documentPage.size},q=${query})}">← 이전</a>
+                <span th:unless="${documentPage.hasPrevious()}" class="disabled">← 이전</span>
+                <span class="page-number" th:text="${documentPage.number + 1} + ' / ' + ${documentPage.totalPages}">1 / 1</span>
+                <a th:if="${documentPage.hasNext()}"
+                   th:href="@{/document/list(page=${documentPage.number + 1},size=${documentPage.size},q=${query})}">다음 →</a>
+                <span th:unless="${documentPage.hasNext()}" class="disabled">다음 →</span>
+            </nav>
 
             <footer class="register-footer">
                 <span class="info-mark" aria-hidden="true">i</span>

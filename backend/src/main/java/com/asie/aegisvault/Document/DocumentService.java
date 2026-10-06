@@ -79,6 +79,24 @@ public class DocumentService {
         return userAccessPolicy.assignablePositions(findUser(userId));
     }
 
+    public Page<DocumentVersion> accessibleDocuments(Long viewerId, int page, int size, String query) {
+        User viewer = findUser(viewerId);
+        PageRequest pageRequest = PageRequest.of(Math.max(page, 0), Math.max(1, Math.min(size, 50)),
+                Sort.by(Sort.Direction.DESC, "createdAt", "id"));
+        boolean admin = userAccessPolicy.isAdmin(viewer);
+        Department department = viewer.getDepartment();
+        if (!admin && (department == null || department.getId() == null || viewer.getPosition() == null)) {
+            return Page.empty(pageRequest);
+        }
+        String titleQuery = query == null ? "" : query.strip();
+        if (titleQuery.length() > 100) {
+            titleQuery = titleQuery.substring(0, 100);
+        }
+        return documentVersionRepository.findAccessibleDocuments(admin,
+                admin ? null : department.getId(), userAccessPolicy.assignablePositions(viewer), viewer.getId(),
+                viewer.getPosition().isAtLeast(Position.MANAGER), DocumentStatus.APPROVED, titleQuery, pageRequest);
+    }
+
     public Page<DocumentVersion> reviewQueue(Long reviewerId, int page) {
         User reviewer = findUser(reviewerId);
         userAccessPolicy.requireManagerOrAbove(reviewer);

@@ -106,6 +106,26 @@ class AdminUserIntegrationTest {
     }
 
     @Test
+    void homeRendersDetachedProfileAndAccessibleDocumentsForStaffAndAdmin() throws Exception {
+        Document document = documentService.create("홈에서 열람할 문서", "문서 본문", Position.STAFF, writer.getId());
+        mvc.perform(get("/").with(user("writer").roles("ADMIN")))
+                .andExpect(status().isOk()).andExpect(view().name("home"))
+                .andExpect(model().attribute("isAdmin", false))
+                .andExpect(model().attribute("documentCount", 1L))
+                .andExpect(content().string(containsString("연구개발본부")))
+                .andExpect(content().string(containsString("writer")))
+                .andExpect(content().string(containsString("홈에서 열람할 문서")))
+                .andExpect(content().string(containsString("href=\"/document/detail/" + document.getId() + "\"")))
+                .andExpect(content().string(not(containsString("href=\"/admin/users\""))))
+                .andExpect(content().string(not(containsString(passwordHash))));
+        mvc.perform(get("/").with(user("admin").roles("STAFF")))
+                .andExpect(status().isOk()).andExpect(view().name("home"))
+                .andExpect(model().attribute("isAdmin", true))
+                .andExpect(model().attribute("canReview", true))
+                .andExpect(content().string(containsString("href=\"/admin/users\"")));
+    }
+
+    @Test
     void forgedAdminAuthorityCannotOpenPagesPostActionsOrCallServices() throws Exception {
         for (String path : List.of("/admin/users", "/admin/activity", "/dep/create")) {
             mvc.perform(get(path).with(user("writer").roles("ADMIN")))

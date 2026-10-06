@@ -20,16 +20,40 @@ import java.security.Principal;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.ui.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/document/")
+@RequestMapping("/document")
 public class DocumentController {
     private final DocumentService documentService;
     private final UserRepository userRepository;
+
+    @GetMapping({"", "/", "/list"})
+    @Transactional(readOnly = true)
+    public String documentList(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "20") int size,
+                               @RequestParam(name = "q", defaultValue = "") String query,
+                               Model model, Principal principal) {
+        User viewer = currentUser(principal);
+        String titleQuery = query.strip();
+        if (titleQuery.length() > 100) {
+            titleQuery = titleQuery.substring(0, 100);
+        }
+        Page<DocumentVersion> documentPage = documentService.accessibleDocuments(viewer.getId(), page, size, titleQuery);
+        model.addAttribute("documentPage", documentPage);
+        model.addAttribute("documentVersions", documentPage.getContent());
+        model.addAttribute("canWrite", viewer.getDepartment() != null && viewer.getDepartment().getId() != null);
+        model.addAttribute("departmentName", viewer.getPosition() != null && viewer.getPosition().isAdmin()
+                ? "전체 부서" : viewer.getDepartment() == null ? "부서 미배정" : viewer.getDepartment().getName());
+        model.addAttribute("query", titleQuery);
+        return "documentlist";
+    }
+
     @GetMapping("/write")
     public String writeDocument(@ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest,
                                 Model model, Principal principal) {

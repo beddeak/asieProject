@@ -13,7 +13,7 @@
             <span class="company-mark" aria-hidden="true">A</span>
             <span>Aegis Defense Technologies<small>AEGISVAULT / REVIEW DESK</small></span>
         </div>
-        <span class="environment"><a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리 →</a></span>
+        <span class="environment"><a href="/" th:href="@{/}">메인 홈페이지</a><span sec:authorize="hasRole('ADMIN')"> · <a th:href="@{/admin/users}">사용자 관리 →</a></span></span>
     </header>
     <main class="list-workspace">
         <header class="page-heading">

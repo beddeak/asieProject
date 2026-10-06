@@ -27,6 +27,27 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
     @EntityGraph(attributePaths = {"document.author", "document.department"})
     @Query("""
             select v from DocumentVersion v
+            where v.versionNumber = (select max(latest.versionNumber) from DocumentVersion latest
+                                     where latest.document = v.document)
+              and (:query = '' or locate(lower(:query), lower(v.title)) > 0)
+              and (:admin = true or (
+                  v.document.department.id = :departmentId
+                  and v.document.requiredPosition in :positions
+                  and (v.status = :approvedStatus or v.document.author.id = :viewerId or :reviewer = true)
+              ))
+            """)
+    Page<DocumentVersion> findAccessibleDocuments(@Param("admin") boolean admin,
+                                                   @Param("departmentId") Long departmentId,
+                                                   @Param("positions") List<Position> positions,
+                                                   @Param("viewerId") Long viewerId,
+                                                   @Param("reviewer") boolean reviewer,
+                                                   @Param("approvedStatus") DocumentStatus approvedStatus,
+                                                   @Param("query") String query,
+                                                   Pageable pageable);
+
+    @EntityGraph(attributePaths = {"document.author", "document.department"})
+    @Query("""
+            select v from DocumentVersion v
             where v.status = :status
               and v.versionNumber = (select max(latest.versionNumber) from DocumentVersion latest
                                      where latest.document = v.document)
