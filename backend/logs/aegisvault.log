@@ -1,14 +1,20 @@
-2026-09-15T10:06:22.021+09:00  INFO 26488 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Starting AegisvaultApplicationTests using Java 21.0.11 with PID 26488 (started by seyun in C:\dev\AegisvaultProject\backend)
-2026-09-15T10:06:22.022+09:00  INFO 26488 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : No active profile set, falling back to 1 default profile: "default"
-2026-09-15T10:06:22.730+09:00  INFO 26488 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-09-15T10:06:22.760+09:00  INFO 26488 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 16 ms. Found 0 JPA repository interfaces.
-2026-09-15T10:06:24.168+09:00  INFO 26488 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-09-15T10:06:24.899+09:00  INFO 26488 --- [aegisvault] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
-2026-09-15T10:06:24.904+09:00  INFO 26488 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-09-15T10:06:24.962+09:00  INFO 26488 --- [aegisvault] [Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-09-15T10:06:25.087+09:00  INFO 26488 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
-2026-09-15T10:06:27.548+09:00  INFO 26488 --- [aegisvault] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-09-15T10:06:27.676+09:00  INFO 26488 --- [aegisvault] [Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+2026-10-06T19:30:18.422+09:00  INFO 43468 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.7 with PID 43468 (C:\Users\GIGAFACTORY\asieProject\backend\build\classes\java\main started by GIGAFACTORY in C:\Users\GIGAFACTORY\asieProject\backend)
+2026-10-06T19:30:18.428+09:00  INFO 43468 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-06T19:30:18.460+09:00  INFO 43468 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-06T19:30:18.461+09:00  INFO 43468 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-06T19:30:18.945+09:00  INFO 43468 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-06T19:30:19.002+09:00  INFO 43468 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 47 ms. Found 5 JPA repository interfaces.
+2026-10-06T19:30:19.422+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-06T19:30:19.436+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-06T19:30:19.436+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-06T19:30:19.482+09:00  INFO 43468 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1021 ms
+2026-10-06T19:30:19.552+09:00  INFO 43468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-06T19:30:19.744+09:00  INFO 43468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-06T19:30:19.745+09:00  INFO 43468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-06T19:30:19.818+09:00  INFO 43468 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-06T19:30:19.886+09:00  INFO 43468 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-06T19:30:20.331+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-06T19:30:20.417+09:00  INFO 43468 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
 	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
 	Database driver: H2 JDBC Driver
 	Database dialect: H2Dialect
@@ -20,118 +26,14 @@
 	Pool: DataSourceConnectionProvider
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-09-15T10:06:29.248+09:00  INFO 26488 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-09-15T10:06:29.263+09:00  INFO 26488 --- [aegisvault] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-09-15T10:06:30.640+09:00  WARN 26488 --- [aegisvault] [Test worker] .s.a.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 36d857d8-8912-4f46-9642-e01cdc620db3
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-09-15T10:06:30.694+09:00  INFO 26488 --- [aegisvault] [Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-09-15T10:06:31.059+09:00  INFO 26488 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Started AegisvaultApplicationTests in 9.426 seconds (process running for 11.04)
-2026-09-15T10:06:31.673+09:00  INFO 26488 --- [aegisvault] [SpringApplicationShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-09-15T10:06:31.677+09:00  INFO 26488 --- [aegisvault] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-09-15T10:06:31.685+09:00  INFO 26488 --- [aegisvault] [SpringApplicationShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-09-15T10:06:44.841+09:00  INFO 6468 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 6468 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
-2026-09-15T10:06:44.844+09:00  INFO 6468 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
-2026-09-15T10:06:44.892+09:00  INFO 6468 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
-2026-09-15T10:06:44.892+09:00  INFO 6468 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
-2026-09-15T10:06:45.531+09:00  INFO 6468 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-09-15T10:06:45.551+09:00  INFO 6468 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 10 ms. Found 0 JPA repository interfaces.
-2026-09-15T10:06:46.152+09:00  INFO 6468 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
-2026-09-15T10:06:46.167+09:00  INFO 6468 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-09-15T10:06:46.168+09:00  INFO 6468 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
-2026-09-15T10:06:46.209+09:00  INFO 6468 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1317 ms
-2026-09-15T10:06:46.355+09:00  INFO 6468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-09-15T10:06:46.571+09:00  INFO 6468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
-2026-09-15T10:06:46.574+09:00  INFO 6468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-09-15T10:06:46.598+09:00  INFO 6468 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-09-15T10:06:46.650+09:00  INFO 6468 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
-2026-09-15T10:06:47.093+09:00  INFO 6468 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-09-15T10:06:47.174+09:00  INFO 6468 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
-	Database driver: H2 JDBC Driver
-	Database dialect: H2Dialect
-	Database version: 2.4.240
-	Default catalog/schema: AEGISVAULT/PUBLIC
-	Autocommit mode: undefined/unknown
-	Isolation level: READ_COMMITTED [default READ_COMMITTED]
-	JDBC fetch size: 100
-	Pool: DataSourceConnectionProvider
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-09-15T10:06:47.576+09:00  INFO 6468 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-09-15T10:06:47.585+09:00  INFO 6468 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-09-15T10:06:47.931+09:00  WARN 6468 --- [aegisvault] [restartedMain] .s.a.UserDetailsServiceAutoConfiguration : 
-
-Using generated security password: 9947b355-051e-444d-a320-56fe6f93ea88
-
-This generated password is for development use only. Your security configuration must be updated before running your application in production.
-
-2026-09-15T10:06:47.974+09:00  INFO 6468 --- [aegisvault] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name inMemoryUserDetailsManager
-2026-09-15T10:06:48.170+09:00  WARN 6468 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
-2026-09-15T10:06:48.172+09:00  INFO 6468 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
-2026-09-15T10:06:48.176+09:00  INFO 6468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
-2026-09-15T10:06:48.183+09:00  INFO 6468 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
-2026-09-15T10:06:48.196+09:00  INFO 6468 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
-
-Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
-2026-09-15T10:06:48.210+09:00 ERROR 6468 --- [aegisvault] [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter   : 
-
-***************************
-APPLICATION FAILED TO START
-***************************
-
-Description:
-
-Web server failed to start. Port 8080 was already in use.
-
-Action:
-
-Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
-
-2026-09-30T22:41:39.212+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Starting AegisvaultApplicationTests using Java 21.0.7 with PID 24852 (started by GIGAFACTORY in C:\Users\GIGAFACTORY\asieProject\backend)
-2026-09-30T22:41:39.213+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : No active profile set, falling back to 1 default profile: "default"
-2026-09-30T22:41:39.911+09:00  INFO 24852 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-09-30T22:41:39.993+09:00  INFO 24852 --- [aegisvault] [Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 67 ms. Found 4 JPA repository interfaces.
-2026-09-30T22:41:40.803+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-09-30T22:41:40.936+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
-2026-09-30T22:41:41.719+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-09-30T22:41:41.770+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-09-30T22:41:42.071+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
-2026-09-30T22:41:42.075+09:00  INFO 24852 --- [aegisvault] [Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-09-30T22:41:42.162+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
-	Database driver: H2 JDBC Driver
-	Database dialect: H2Dialect
-	Database version: 2.4.240
-	Default catalog/schema: AEGISVAULT/PUBLIC
-	Autocommit mode: undefined/unknown
-	Isolation level: READ_COMMITTED [default READ_COMMITTED]
-	JDBC fetch size: 100
-	Pool: DataSourceConnectionProvider
-	Minimum pool size: undefined/unknown
-	Maximum pool size: undefined/unknown
-2026-09-30T22:41:43.505+09:00  INFO 24852 --- [aegisvault] [Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-09-30T22:41:43.618+09:00  INFO 24852 --- [aegisvault] [Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-09-30T22:41:43.736+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-09-30T22:41:45.279+09:00  INFO 24852 --- [aegisvault] [Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
-2026-09-30T22:41:46.112+09:00  INFO 24852 --- [aegisvault] [Test worker] c.a.a.AegisvaultApplicationTests         : Started AegisvaultApplicationTests in 7.274 seconds (process running for 8.916)
-2026-09-30T22:41:46.874+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-09-30T22:41:46.875+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-09-30T22:41:46.876+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 1 ms
-2026-09-30T22:41:47.914+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-09-30T22:41:47.914+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-09-30T22:41:47.915+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-09-30T22:41:48.070+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-09-30T22:41:48.070+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-09-30T22:41:48.071+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-09-30T22:41:48.441+09:00  INFO 24852 --- [aegisvault] [Test worker] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name userDetailsService
-2026-09-30T22:41:48.729+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.mock.web.MockServletContext          : Initializing Spring TestDispatcherServlet ''
-2026-09-30T22:41:48.730+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Initializing Servlet ''
-2026-09-30T22:41:48.730+09:00  INFO 24852 --- [aegisvault] [Test worker] o.s.t.web.servlet.TestDispatcherServlet  : Completed initialization in 0 ms
-2026-09-30T22:41:49.894+09:00  INFO 24852 --- [aegisvault] [Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.asie.aegisvault.Document.DocumentReadIntegrationTest]: DocumentReadIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-09-30T22:41:50.098+09:00  INFO 24852 --- [aegisvault] [Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.asie.aegisvault.AegisvaultApplication for test class com.asie.aegisvault.Document.DocumentReadIntegrationTest
-2026-09-30T22:41:50.101+09:00  INFO 24852 --- [aegisvault] [Test worker] t.c.s.AnnotationConfigContextLoaderUtils : Could not detect default configuration classes for test class [com.asie.aegisvault.Document.DocumentReadIntegrationTest]: DocumentReadIntegrationTest does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-2026-09-30T22:41:50.131+09:00  INFO 24852 --- [aegisvault] [Test worker] .b.t.c.SpringBootTestContextBootstrapper : Found @SpringBootConfiguration com.asie.aegisvault.AegisvaultApplication for test class com.asie.aegisvault.Document.DocumentReadIntegrationTest
+2026-10-06T19:30:21.347+09:00  INFO 43468 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-06T19:30:21.410+09:00  INFO 43468 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-06T19:30:21.494+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-06T19:30:22.234+09:00  INFO 43468 --- [aegisvault] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-06T19:30:22.580+09:00  INFO 43468 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-10-06T19:30:22.584+09:00  INFO 43468 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Started AegisvaultApplication in 4.54 seconds (process running for 4.99)
+2026-10-06T19:32:31.597+09:00  INFO 43468 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-06T19:32:31.598+09:00  INFO 43468 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-06T19:32:31.598+09:00  INFO 43468 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-10-06T19:59:08.705+09:00  INFO 43468 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-10] o.apache.tomcat.util.http.parser.Cookie  : A cookie header was received [g_state={"i_l":0,"i_ll":1790267731695,"i_e":{"enable_itp_optimization":24},"i_et":1790267731695};] that contained an invalid cookie. That cookie will be ignored.
+ Note: further occurrences of this error will be logged at DEBUG level.

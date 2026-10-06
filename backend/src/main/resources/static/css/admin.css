@@ -1,4 +1,4 @@
-:root { color-scheme: light; font-family: "Segoe UI", "Malgun Gothic", system-ui, sans-serif; color: #192d40; background: #edf1f4; }
+:root { color-scheme: light; font-family: "Malgun Gothic", "맑은 고딕", sans-serif; color: #192d40; background: #edf1f4; }
 * { box-sizing: border-box; }
 body { margin: 0; min-height: 100vh; }
 a { color: #12675f; text-underline-offset: 4px; }
@@ -54,7 +54,7 @@ td small { display: block; margin-top: 7px; color: #627587; font-size: 11px; ove
 .user-table td:first-child { max-width: 250px; overflow-wrap: anywhere; }
 .user-name { font-size: 14px; }
 .self-tag { margin-left: 6px; color: #12675f; font-size: 10px; white-space: nowrap; }
-.reference { font: 11px ui-monospace, monospace; color: #627587; }
+.reference { font: 11px "Malgun Gothic", "맑은 고딕", sans-serif; color: #627587; }
 .assignment-form { display: grid; grid-template-columns: minmax(80px, 110px) minmax(100px, 150px); gap: 8px; }
 .assignment-form select { width: 100%; min-height: 36px; font-size: 12px; }
 .assignment-form button { grid-column: 1 / -1; justify-self: start; }
