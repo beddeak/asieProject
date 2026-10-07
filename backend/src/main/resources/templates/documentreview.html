@@ -4,17 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문서 검토함 | AegisVault</title>
-    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
-    <link rel="stylesheet" th:href="@{/css/documentreview.css}">
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" href="/css/documentlist.css" th:href="@{/css/documentlist.css}">
+    <link rel="stylesheet" href="/css/documentreview.css" th:href="@{/css/documentreview.css}">
 </head>
-<body class="document-list-page">
-    <header class="workspace-header">
-        <div class="company">
-            <span class="company-mark" aria-hidden="true">A</span>
-            <span>Aegis Defense Technologies<small>AEGISVAULT / REVIEW DESK</small></span>
-        </div>
-        <span class="environment"><a href="/" th:href="@{/}">메인 홈페이지</a><span sec:authorize="hasRole('ADMIN')"> · <a th:href="@{/admin/users}">사용자 관리 →</a></span></span>
-    </header>
+<body class="document-list-page document-review-page">
+    <th:block th:replace="~{fragments/layout :: header('review', true)}"></th:block>
     <main class="list-workspace">
         <header class="page-heading">
             <div>
@@ -24,8 +19,8 @@
             </div>
             <a class="write-button" th:href="@{/document/write}">문서 작성 →</a>
         </header>
-        <p class="review-notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-        <section class="document-register">
+        <p class="notice success-notice review-notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
+        <section class="document-register paper-panel">
             <header class="register-heading">
                 <h2>검토 대기 <span th:text="${reviewPage.totalElements}"></span>건</h2>
                 <span>과장 이상 · 부서 및 열람 등급 확인</span>
@@ -59,6 +54,6 @@
             </nav>
         </section>
     </main>
-    <footer class="workspace-footer"><span>AegisVault · Internal Document Management</span><span>검토 결정은 서버에서 다시 권한을 확인합니다.</span></footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

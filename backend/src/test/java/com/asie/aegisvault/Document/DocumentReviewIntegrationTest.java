@@ -1,8 +1,11 @@
 package com.asie.aegisvault.Document;
 
 import com.asie.aegisvault.Department.Department;
+import com.asie.aegisvault.User.AccountStatus;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
+import com.asie.aegisvault.activity.DocumentAction;
+import com.asie.aegisvault.activity.DocumentActivity;
 import com.asie.aegisvault.security.UserAccessPolicy;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +18,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -83,6 +88,12 @@ class DocumentReviewIntegrationTest {
         Document lower = service.create("사원 문서", "본문", Position.STAFF, manager.getId());
         assertEquals(Position.MANAGER, same.getRequiredPosition());
         assertEquals(Position.STAFF, lower.getRequiredPosition());
+        for (Document created : List.of(same, lower)) {
+            DocumentVersion version = versions.findFirstByDocumentOrderByVersionNumberDesc(created).orElseThrow();
+            assertEquals(DocumentStatus.PENDING_REVIEW, version.getStatus());
+            assertNull(version.getReviewedBy());
+            assertNull(version.getReviewedAt());
+        }
         assertFalse(service.assignablePositions(manager.getId()).contains(Position.EXECUTIVE));
         assertTrue(service.assignablePositions(manager.getId()).contains(Position.MANAGER));
     }
@@ -138,18 +149,70 @@ class DocumentReviewIntegrationTest {
     }
 
     @Test
-    void adminCanReadAllDepartmentsButCannotReviewOwnDocument() {
+    void adminCanReadAllDepartmentsAndOwnCreationIsAlreadyApproved() {
         assertEquals(pending.getId(), service.reviewDetail(pending.getId(), admin.getId()).getId());
         assertEquals(pending.getId(), service.documentdetail(document.getId(), admin.getId()).getId());
         User adminAuthor = user("admin-author", Position.ADMIN, otherDepartment);
         Document own = service.create("관리자 문서", "본문", Position.ADMIN, adminAuthor.getId());
+        entityManager.flush();
+        entityManager.clear();
         DocumentVersion version = versions.findFirstByDocumentOrderByVersionNumberDesc(own).orElseThrow();
+        assertEquals(DocumentStatus.APPROVED, version.getStatus());
+        assertEquals(adminAuthor.getId(), version.getReviewedBy().getId());
+        assertNotNull(version.getReviewedAt());
+        var activity = entityManager.createQuery(
+                        "select a from DocumentActivity a where a.documentId = :documentId order by a.id", DocumentActivity.class)
+                .setParameter("documentId", own.getId()).getResultList();
+        assertEquals(List.of(DocumentAction.CREATED, DocumentAction.APPROVED),
+                activity.stream().map(DocumentActivity::getAction).toList());
+        assertTrue(activity.stream().allMatch(entry -> entry.getActorId().equals(adminAuthor.getId())
+                && entry.getActorPosition() == Position.ADMIN && entry.getVersionId().equals(version.getId())));
         assertTrue(service.reviewQueue(adminAuthor.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertTrue(service.reviewQueue(admin.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
         assertThrows(AccessDeniedException.class, () -> service.reviewDetail(version.getId(), adminAuthor.getId()));
         assertThrows(AccessDeniedException.class, () -> service.approve(version.getId(), adminAuthor.getId()));
         assertThrows(AccessDeniedException.class, () -> service.reject(version.getId(), adminAuthor.getId()));
-        service.approve(version.getId(), admin.getId());
+        assertEquals(HttpStatus.CONFLICT, assertThrows(ResponseStatusException.class,
+                () -> service.reviewDetail(version.getId(), admin.getId())).getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, assertThrows(ResponseStatusException.class,
+                () -> service.approve(version.getId(), admin.getId())).getStatusCode());
+        assertEquals(HttpStatus.CONFLICT, assertThrows(ResponseStatusException.class,
+                () -> service.reject(version.getId(), admin.getId())).getStatusCode());
         assertEquals(DocumentStatus.APPROVED, service.documentdetail(own.getId(), admin.getId()).getStatus());
+    }
+
+    @Test
+    void adminAutoApprovedStaffDocumentIsImmediatelyReadableByEligiblePeers() {
+        User adminAuthor = user("admin-staff-author", Position.ADMIN, department);
+        Document created = service.create("관리자가 등록한 공개 부서 문서", "본문", Position.STAFF, adminAuthor.getId());
+        Document confidential = service.create("관리자가 등록한 과장 등급 문서", "본문", Position.MANAGER, adminAuthor.getId());
+        entityManager.flush();
+        entityManager.clear();
+
+        DocumentVersion visible = service.documentdetail(created.getId(), peer.getId());
+
+        assertEquals(DocumentStatus.APPROVED, visible.getStatus());
+        assertEquals(adminAuthor.getId(), visible.getReviewedBy().getId());
+        assertNotNull(visible.getReviewedAt());
+        assertEquals(List.of(visible.getId()), service.accessibleDocuments(peer.getId(), 0, 20, "")
+                .map(DocumentVersion::getId).getContent());
+        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.getId().equals(visible.getId())));
+        assertThrows(AccessDeniedException.class, () -> service.documentdetail(confidential.getId(), peer.getId()));
+        User outsider = user("outside-peer", Position.STAFF, otherDepartment);
+        assertThrows(AccessDeniedException.class, () -> service.documentdetail(created.getId(), outsider.getId()));
+    }
+
+    @Test
+    void adminAutoApprovalStillRequiresAnActiveAssignedAuthor() {
+        long before = countDocuments();
+        assertThrows(IllegalArgumentException.class,
+                () -> service.create("부서 미배정 관리자 문서", "본문", Position.STAFF, admin.getId()));
+        User inactiveAdmin = user("inactive-admin", Position.ADMIN, department);
+        inactiveAdmin.changeAccountStatus(AccountStatus.BAN);
+        assertThrows(AccessDeniedException.class,
+                () -> service.create("비활성 관리자 문서", "본문", Position.STAFF, inactiveAdmin.getId()));
+        assertEquals(before, countDocuments());
     }
 
     @Test

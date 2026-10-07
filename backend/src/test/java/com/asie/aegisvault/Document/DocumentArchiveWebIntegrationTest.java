@@ -82,7 +82,7 @@ class DocumentArchiveWebIntegrationTest {
                 .andExpect(content().string(containsString("archive-author")))
                 .andExpect(content().string(not(containsString("Unapproved report"))))
                 .andExpect(content().string(containsString("2건")))
-                .andExpect(content().string(containsString("메인 홈페이지")));
+                .andExpect(content().string(containsString("href=\"/\"")));
         assertEquals(0, activities.count());
     }
 

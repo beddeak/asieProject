@@ -358,12 +358,42 @@ class AdminUserIntegrationTest {
     }
 
     @Test
-    void evenAdminCannotApproveTheirOwnDocument() {
-        Document document = documentService.create("관리자 작성", "본문", Position.STAFF, secondAdmin.getId());
-        Long versionId = versions.findFirstByDocumentOrderByVersionNumberDesc(document).orElseThrow().getId();
-        assertThrows(AccessDeniedException.class, () -> documentService.approve(versionId, secondAdmin.getId()));
-        assertEquals(1, activities.count());
-        assertEquals(DocumentStatus.PENDING_REVIEW, versions.findById(versionId).orElseThrow().getStatus());
+    void adminDocumentIsApprovedOnCreationAndCannotBeManuallyReviewedAgain() throws Exception {
+        mvc.perform(post("/document/write").with(user("second-admin").roles("STAFF")).with(csrf())
+                        .param("title", "관리자 자동 승인 문서").param("content", "본문").param("requiredPosition", "STAFF"))
+                .andExpect(status().is3xxRedirection());
+        Document document = documents.findAll().getFirst();
+        var approved = versions.findFirstByDocumentOrderByVersionNumberDesc(document).orElseThrow();
+        Long versionId = approved.getId();
+        assertEquals(DocumentStatus.APPROVED, approved.getStatus());
+        assertEquals(secondAdmin.getId(), approved.getReviewedBy().getId());
+        assertNotNull(approved.getReviewedAt());
+        var audit = activities.findAll(Sort.by("id"));
+        assertEquals(List.of(DocumentAction.CREATED, DocumentAction.APPROVED),
+                audit.stream().map(DocumentActivity::getAction).toList());
+        assertTrue(audit.stream().allMatch(entry -> entry.getActorId().equals(secondAdmin.getId())
+                && entry.getActorPosition() == Position.ADMIN && entry.getDocumentId().equals(document.getId())
+                && entry.getVersionId().equals(versionId)));
+        assertTrue(documentService.reviewQueue(secondAdmin.getId(), 0).isEmpty());
+        assertTrue(documentService.reviewQueue(admin.getId(), 0).isEmpty());
+
+        mvc.perform(get("/document/review/" + versionId).with(user("second-admin")))
+                .andExpect(status().isForbidden());
+        mvc.perform(get("/document/review/" + versionId).with(user("admin")))
+                .andExpect(status().isConflict());
+        for (String decision : List.of("approve", "reject")) {
+            mvc.perform(post("/document/review/" + versionId + "/" + decision)
+                            .with(user("second-admin")).with(csrf()))
+                    .andExpect(status().isForbidden());
+            mvc.perform(post("/document/review/" + versionId + "/" + decision)
+                            .with(user("admin")).with(csrf()))
+                    .andExpect(status().isConflict());
+        }
+        assertEquals(2, activities.count());
+        var unchanged = versions.findFirstByDocumentOrderByVersionNumberDesc(document).orElseThrow();
+        assertEquals(DocumentStatus.APPROVED, unchanged.getStatus());
+        assertEquals(secondAdmin.getId(), unchanged.getReviewedBy().getId());
+        assertEquals(approved.getReviewedAt(), unchanged.getReviewedAt());
     }
 
     @Test

@@ -5,48 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="AegisVault 사내 기술 문서 보관소. 문서 열람, 작성 및 검토를 위한 시작 페이지입니다.">
     <title>기록 보관소 | AegisVault</title>
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
     <link rel="stylesheet" href="/css/home.css" th:href="@{/css/home.css}">
     <script defer src="/js/home.js" th:src="@{/js/home.js}"></script>
 </head>
 <body>
     <a class="skip-link" href="#main-content">본문으로 바로가기</a>
 
-    <header class="masthead">
-        <div class="masthead-inner">
-            <a class="archive-brand" href="/" th:href="@{/}" aria-label="AegisVault 기록 보관소 홈">
-                <svg class="archive-seal" viewBox="0 0 96 96" fill="none" aria-hidden="true">
-                    <path d="M48 4 86 26v44L48 92 10 70V26Z" stroke="currentColor" stroke-width="2"/>
-                    <path d="M48 12 79 30v36L48 84 17 66V30Z" stroke="currentColor" stroke-opacity=".4"/>
-                    <path d="M29 30h38v26c0 11-11 18-19 22-8-4-19-11-19-22Z" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="2"/>
-                    <path d="m36 58 12-24 12 24M41 49h14" stroke="currentColor" stroke-width="3" stroke-linecap="square"/>
-                    <path d="M48 4v8M86 26l-7 4M86 70l-7-4M48 92v-8M10 70l7-4M10 26l7 4" stroke="currentColor" stroke-width="2"/>
-                </svg>
-                <span class="brand-type">
-                    <span class="brand-name">AegisVault</span>
-                    <span class="brand-subtitle">기술 기록 보관소</span>
-                    <span class="brand-caption">AEGIS DEFENSE TECHNOLOGIES</span>
-                </span>
-            </a>
-            <div class="masthead-account">
-                <span class="session-label"><span class="session-dot" aria-hidden="true"></span>사내 접속</span>
-                <p><strong th:text="${homeUser.nickname}">사용자</strong><span> 님</span></p>
-                <form action="/logout" th:action="@{/logout}" method="post">
-                    <button class="logout-link" type="submit">로그아웃</button>
-                </form>
-            </div>
-        </div>
-    </header>
-
-    <nav class="primary-nav" aria-label="주 메뉴">
-        <div class="primary-nav-inner">
-            <a href="/" th:href="@{/}" aria-current="page">보관소 홈</a>
-            <a href="/document/list" th:href="@{/document/list}">문서 목록</a>
-            <a href="/document/write" th:href="@{/document/write}" th:if="${canWrite}" hidden th:hidden="${false}">문서 작성</a>
-            <a href="/document/review" th:href="@{/document/review}" th:if="${canReview}" hidden th:hidden="${false}">문서 검토</a>
-            <a href="/admin/users" th:href="@{/admin/users}" th:if="${isAdmin}" hidden th:hidden="${false}">관리실</a>
-            <a class="nav-guide" href="#archive-guide">이용 안내</a>
-        </div>
-    </nav>
+    <th:block th:replace="~{fragments/layout :: header('home', true)}"></th:block>
 
     <div class="archive-layout">
         <aside class="archive-sidebar" aria-label="보관소 탐색 및 계정 정보">
@@ -66,14 +32,6 @@
                         <ul>
                             <li th:if="${canWrite}"><a href="/document/write" th:href="@{/document/write}">새 문서 작성</a></li>
                             <li th:if="${canReview}"><a href="/document/review" th:href="@{/document/review}">검토 대기함</a></li>
-                        </ul>
-                    </nav>
-                    <nav class="sidebar-group" aria-label="보관소 안내">
-                        <h2>보관소 안내</h2>
-                        <ul>
-                            <li><a href="#archive-guide">문서 이용 절차</a></li>
-                            <li><a href="#operating-principles">기록 관리 원칙</a></li>
-                            <li><a href="#access-policy">접근 권한 안내</a></li>
                         </ul>
                     </nav>
                     <nav class="sidebar-group" aria-label="관리자 메뉴" th:if="${isAdmin}" hidden th:hidden="${false}">
@@ -99,21 +57,9 @@
         </aside>
 
         <main id="main-content" class="archive-paper" tabindex="-1">
-            <div class="page-identifier">
-                <span>보관소 / 메인 페이지</span>
-                <span>ARCHIVE INDEX</span>
-            </div>
-
-            <div class="access-notice" role="note">
-                <span class="notice-symbol" aria-hidden="true">!</span>
-                <p><strong>내부 문서 열람 안내</strong><span>이 보관소는 Aegis Defense Technologies의 사내 기술 기록을 관리합니다. 문서의 열람 범위를 확인하고 업무 목적으로 이용해 주세요.</span></p>
-            </div>
-
             <header class="welcome-heading">
-                <p class="section-kicker">AEGISVAULT DOCUMENT ARCHIVE</p>
-                <h1>기록 보관소에 오신 것을 환영합니다.</h1>
-                <p class="welcome-lead">기록은 기술의 근거입니다.</p>
-                <p class="welcome-description">설계의 판단, 시험의 결과, 검토의 과정을 함께 보관합니다.<br class="desktop-break"> 필요한 문서를 찾고, 다음 기록을 남기는 일은 이곳에서 시작합니다.</p>
+                <h1>기록 보관소</h1>
+                <p class="welcome-description">기술 문서를 검색하고 최신 기록을 확인하세요.</p>
             </header>
 
             <section class="archive-entry" aria-label="문서 찾기">
@@ -177,51 +123,13 @@
                 <div class="register-empty" th:if="${recentDocuments == null or #lists.isEmpty(recentDocuments)}">
                     <span class="empty-reference" aria-hidden="true">—</span>
                     <h3>현재 열람할 수 있는 문서가 없습니다.</h3>
-                    <p>등록된 문서와 계정의 접근 권한에 따라 기록이 이곳에 표시됩니다.</p>
                     <a href="/document/write" th:href="@{/document/write}" th:if="${canWrite}" hidden th:hidden="${false}">새 문서 작성 <span aria-hidden="true">→</span></a>
-                    <a href="#access-policy" th:if="${!canWrite}" hidden th:hidden="${false}">접근 권한 안내 <span aria-hidden="true">→</span></a>
                 </div>
             </section>
 
-            <div class="handbook-grid">
-                <section id="archive-guide" class="handbook-section" aria-labelledby="guide-title">
-                    <div class="section-heading"><h2 id="guide-title">이용 안내</h2><span class="section-code">01 / GUIDE</span></div>
-                    <ol class="guide-list">
-                        <li>
-                            <div><h3>필요한 기록을 찾습니다.</h3><p>문서 목록에서 제목을 검색하고, 상세 페이지에서 내용과 버전을 확인하세요.</p><a href="/document/list" th:href="@{/document/list}">문서 목록 열기 <span aria-hidden="true">→</span></a></div>
-                        </li>
-                        <li>
-                            <div><h3>판단의 근거를 남깁니다.</h3><p>문서 작성 시 제목과 본문을 입력하고, 열람 가능한 최소 직급을 지정하세요.</p><a href="/document/write" th:href="@{/document/write}" th:if="${canWrite}" hidden th:hidden="${false}">문서 작성하기 <span aria-hidden="true">→</span></a></div>
-                        </li>
-                        <li>
-                            <div><h3>검토 결과를 확인합니다.</h3><p>문서 상태에서 진행 상황을 확인하세요. 검토 권한이 있는 계정은 검토함을 이용할 수 있습니다.</p><a href="/document/review" th:href="@{/document/review}" th:if="${canReview}" hidden th:hidden="${false}">검토함 열기 <span aria-hidden="true">→</span></a></div>
-                        </li>
-                    </ol>
-                </section>
-
-                <section id="operating-principles" class="handbook-section" aria-labelledby="principles-title">
-                    <div class="section-heading"><h2 id="principles-title">기록 관리 원칙</h2><span class="section-code">02 / PRINCIPLES</span></div>
-                    <div class="principle-intro"><span class="principle-mark" aria-hidden="true">A / V</span><p>확인할 수 있는 사실을 기록하고,<br>검토할 수 있는 근거를 보관합니다.</p></div>
-                    <ul class="principle-list">
-                        <li><strong>명확한 제목</strong><span>대상과 목적을 알아볼 수 있게 작성합니다.</span></li>
-                        <li><strong>추적 가능한 버전</strong><span>등록일과 버전을 확인해 기록을 구분합니다.</span></li>
-                        <li><strong>필요한 열람 범위</strong><span>업무에 맞는 접근 권한을 설정합니다.</span></li>
-                    </ul>
-                    <div id="access-policy" class="access-policy">
-                        <h3>접근 권한 안내</h3>
-                        <p>문서 열람과 업무 메뉴는 계정의 소속 부서와 직급에 따라 제공됩니다. 계정 정보나 부서 배정이 필요한 경우 관리자에게 문의해 주세요.</p>
-                        <p class="unassigned-note" th:if="${homeUser.departmentName == null}" hidden th:hidden="${false}">현재 계정은 부서가 지정되지 않았습니다. 문서 작성은 부서 배정 후 이용할 수 있습니다.</p>
-                    </div>
-                </section>
-            </div>
-
-            <footer class="paper-footer"><span>AEGISVAULT / INTERNAL DOCUMENT ARCHIVE</span><a href="#main-content">위로 <span aria-hidden="true">↑</span></a></footer>
         </main>
     </div>
 
-    <footer class="site-footer">
-        <p>Aegis Defense Technologies · AegisVault</p>
-        <p>가상의 방산·보안 기술 기업을 위한 문서 관리 프로젝트</p>
-    </footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>문서 활동 기록 | AegisVault</title><link rel="stylesheet" th:href="@{/css/admin.css}"></head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문서 활동 기록 | AegisVault</title>
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
 <body>
 <a class="skip-link" href="#main">본문으로 이동</a>
-<header class="workspace-header"><a class="brand" th:href="@{/}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></header>
+<th:block th:replace="~{fragments/layout :: header('activity', true)}"></th:block>
 <main id="main" class="admin-workspace">
     <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / DOCUMENT AUDIT</p><h1>문서 활동 기록</h1><p class="page-description">모든 부서의 문서 활동을 사용자와 문서별로 확인합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
     <nav class="workspace-nav" aria-label="관리 메뉴"><a th:href="@{/admin/users}">사용자 관리</a><a th:href="@{/admin/activity}" aria-current="page">문서 활동 기록</a><a th:href="@{/admin/users} + '#department-form'">부서 생성</a></nav>
@@ -28,6 +34,6 @@
         <footer class="panel-footer"><p>문서 제목을 누르면 현재 최신 버전을 열람합니다. 삭제된 계정의 기록도 유지됩니다.</p><nav class="pagination" aria-label="활동 기록 페이지" th:if="${activityPage.totalPages > 0}"><a th:if="${activityPage.hasPrevious()}" th:href="@{/admin/activity(page=${activityPage.number - 1},userId=${userId},documentId=${documentId},action=${action},keyword=${keyword})}">← 이전</a><span th:text="${activityPage.number + 1} + ' / ' + ${activityPage.totalPages}"></span><a th:if="${activityPage.hasNext()}" th:href="@{/admin/activity(page=${activityPage.number + 1},userId=${userId},documentId=${documentId},action=${action},keyword=${keyword})}">다음 →</a></nav></footer>
     </section>
 </main>
-<footer class="workspace-footer"><span>AegisVault · Internal Document Management</span><span>DOCUMENT AUDIT / 문서 활동 기록</span></footer>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

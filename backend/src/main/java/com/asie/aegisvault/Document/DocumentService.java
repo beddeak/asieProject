@@ -51,8 +51,15 @@ public class DocumentService {
 
         DocumentVersion version = new DocumentVersion(document,1,title,content);
         version.submitForReview();
+        boolean automaticallyApproved = userAccessPolicy.isAdmin(author);
+        if (automaticallyApproved) {
+            version.approve(author);
+        }
         documentVersionRepository.save(version);
         activityRepository.save(new DocumentActivity(author, version, DocumentAction.CREATED));
+        if (automaticallyApproved) {
+            activityRepository.save(new DocumentActivity(author, version, DocumentAction.APPROVED));
+        }
 
         return document;
     }

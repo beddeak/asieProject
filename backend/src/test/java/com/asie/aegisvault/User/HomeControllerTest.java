@@ -29,6 +29,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
@@ -271,6 +272,7 @@ class HomeControllerTest {
             resolver.setTemplateMode("HTML");
             resolver.setCharacterEncoding("UTF-8");
             SpringTemplateEngine engine = new SpringTemplateEngine();
+            engine.addDialect(new SpringSecurityDialect());
             engine.setTemplateResolver(resolver);
             return engine;
         }

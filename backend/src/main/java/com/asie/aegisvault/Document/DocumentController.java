@@ -59,6 +59,7 @@ public class DocumentController {
                                 Model model, Principal principal) {
         User author = currentUser(principal);
         model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
+        model.addAttribute("automaticallyApproved", author.getPosition().isAdmin());
         return "documentwrite";
     }
     @PostMapping("/write")
@@ -67,13 +68,16 @@ public class DocumentController {
                                 RedirectAttributes redirectAttributes) {
         User author = currentUser(principal);
         model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
+        model.addAttribute("automaticallyApproved", author.getPosition().isAdmin());
         if(bindingResult.hasErrors()) {
             return "documentwrite";
         }
         try {
             Document document = documentService.create(documentCreateRequest.title(), documentCreateRequest.content(),
                     documentCreateRequest.requiredPosition(), author.getId());
-            redirectAttributes.addFlashAttribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다.");
+            redirectAttributes.addFlashAttribute("successMessage", author.getPosition().isAdmin()
+                    ? "관리자 문서가 등록되어 승인 완료되었습니다."
+                    : "문서가 등록되어 검토 대기로 전환되었습니다.");
             return "redirect:/document/detail/" + document.getId();
         }catch(IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());

@@ -4,48 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>사내 로그인 | AegisVault · Aegis Defense Technologies</title>
-    <!-- 회원가입 화면과 공통 디자인을 공유하고, 로그인 전용 스타일만 추가합니다. -->
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
+    <!-- 회원가입 화면과 공통 레이아웃을 공유합니다. -->
     <link rel="stylesheet" href="/css/signup.css" th:href="@{/css/signup.css}">
     <link rel="stylesheet" href="/css/login.css" th:href="@{/css/login.css}">
 </head>
 <body>
-    <header class="site-header">
-        <div class="company">
-            <span class="company-mark" aria-hidden="true">A</span>
-            <span>Aegis Defense Technologies<small>INTERNAL DOCUMENT SYSTEM</small></span>
-        </div>
-        <span class="environment">가상 기업</span>
-    </header>
+    <th:block th:replace="~{fragments/layout :: header('login', false)}"></th:block>
 
-    <main class="registration-layout login-layout">
-        <section class="system-overview" aria-labelledby="system-title">
-            <p class="eyebrow">ENGINEERING / DOCUMENT CONTROL</p>
-            <h1 id="system-title">AegisVault<span>기술의 기록을,<br>신뢰의 기준으로.</span></h1>
-            <p class="system-description">설계부터 시험, 보안 검토까지.<br>Aegis Defense Technologies의 중요 기술 문서를 관리하는 사내 문서 시스템입니다.</p>
-
+    <main id="main-content" class="registration-layout login-layout" tabindex="-1">
+        <aside class="system-overview" aria-labelledby="system-title">
+            <p class="eyebrow">DOCUMENT ARCHIVE</p>
+            <h2 id="system-title">기술 기록 보관소</h2>
+            <p class="system-description">설계부터 시험, 보안 검토까지.<br>사내 기술 문서를 한곳에서 기록하고 확인합니다.</p>
             <div class="document-register">
-                <p class="register-title">관리 문서 <span>DOCUMENT REGISTER</span></p>
+                <p class="register-title">보관하는 기록</p>
                 <ul>
-                    <li><span class="document-code">ENG</span><span>설계서<small>Engineering design</small></span><span class="document-number" aria-hidden="true">01</span></li>
-                    <li><span class="document-code">TST</span><span>시험보고서<small>Test &amp; evaluation</small></span><span class="document-number" aria-hidden="true">02</span></li>
-                    <li><span class="document-code">SEC</span><span>보안검토서<small>Security review</small></span><span class="document-number" aria-hidden="true">03</span></li>
+                    <li><span class="document-code">ENG</span><span>설계서</span></li>
+                    <li><span class="document-code">TST</span><span>시험보고서</span></li>
+                    <li><span class="document-code">SEC</span><span>보안검토서</span></li>
                 </ul>
             </div>
-            <p class="overview-note">AEGIS DEFENSE TECHNOLOGIES / AEGISVAULT</p>
-        </section>
+            <p class="overview-note">열람과 업무 메뉴는 계정의 소속 부서와 직급에 따라 제공됩니다.</p>
+        </aside>
 
         <section class="registration-panel login-panel" aria-labelledby="login-title">
             <div class="login-content">
-                <p class="eyebrow">EMPLOYEE SIGN IN</p>
-                <h2 id="login-title">사내 로그인</h2>
-                <p class="intro">등록한 계정으로 AegisVault에 접속하세요.</p>
+                <header class="page-heading">
+                    <p class="eyebrow">EMPLOYEE SIGN IN</p>
+                    <h1 id="login-title">사내 로그인</h1>
+                    <p class="page-description">등록한 계정으로 AegisVault에 접속하세요.</p>
+                </header>
 
                 <!-- Spring Security의 기본 실패/로그아웃 리다이렉트에 대응합니다. -->
-                <div class="error" role="alert" th:if="${param.error != null}"
+                <div class="notice error" role="alert" th:if="${param.error != null}"
                      hidden th:hidden="${false}">
                     로그인할 수 없습니다. 아이디·비밀번호와 계정 상태를 확인해 주세요.
                 </div>
-                <div class="logout-notice" role="status" th:if="${param.logout != null}"
+                <div class="notice success-notice logout-notice" role="status" th:if="${param.logout != null}"
                      hidden th:hidden="${false}">
                     로그아웃되었습니다. 다시 이용하려면 로그인해 주세요.
                 </div>
@@ -68,7 +64,7 @@
                                placeholder="비밀번호를 입력하세요">
                     </div>
 
-                    <button type="submit">로그인 <span aria-hidden="true">→</span></button>
+                    <button class="button form-submit" type="submit">로그인 <span aria-hidden="true">→</span></button>
                 </form>
 
                 <p class="login">등록된 계정이 없으신가요?<a href="/user/signup" th:href="@{/user/signup}">계정 등록</a></p>
@@ -81,9 +77,6 @@
         </section>
     </main>
 
-    <footer class="site-footer">
-        <span>AegisVault · Internal Document Management</span>
-        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
-    </footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

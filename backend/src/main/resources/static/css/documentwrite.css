@@ -1,144 +1,40 @@
-.document-write-page {
-    margin: 0;
-    min-height: 100vh;
-    background: #edf1f4;
-    color: #192d40;
-    font-family: "Malgun Gothic", "맑은 고딕", sans-serif;
-    font-size: 14px;
-    line-height: 1.6;
-    color-scheme: light;
-}
-
-.document-write-page * { box-sizing: border-box; }
-.document-write-page [hidden] { display: none !important; }
-.document-write-page a { color: #12675f; text-underline-offset: 4px; }
-.workspace-header, .workspace-footer {
-    max-width: 1200px;
-    margin: auto;
-    padding: 26px 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.document-write-page .company { display: flex; align-items: center; gap: 12px; font-weight: 700; }
-.document-write-page .company small { display: block; margin-top: 3px; color: #536577; font-size: 10px; letter-spacing: .12em; }
-.document-write-page .company-mark {
-    display: grid;
-    place-items: center;
-    flex-shrink: 0;
-    width: 36px;
-    height: 40px;
-    background: #172c40;
-    color: #fff;
-    font-size: 23px;
-    clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
-}
-.document-write-page .environment { color: #536577; font-size: 12px; }
-.write-workspace { max-width: 1120px; margin: 18px auto 32px; }
-.page-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 28px; }
-.document-write-page .eyebrow { margin: 0 0 8px; color: #12675f; font-size: 10px; font-weight: 700; letter-spacing: .15em; }
-.page-heading h1 { margin: 0; font-size: 32px; line-height: 1.3; letter-spacing: -.04em; }
-.page-description { margin: 10px 0 0; color: #536577; word-break: keep-all; }
-.draft-badge { display: inline-flex; align-items: center; gap: 8px; flex-shrink: 0; padding: 7px 12px; border: 1px solid #bdcbd5; border-radius: 20px; background: #f7f9fb; font-size: 12px; }
-.draft-badge > span { width: 6px; height: 6px; border-radius: 50%; background: #5f7485; }
+/* Document editor layout. Shared typography, controls and paper surfaces live in common.css. */
+.document-write-page .write-workspace { max-width: 1152px; margin: 28px auto 32px; padding: 0 18px; }
 .workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
-.editor-panel { min-width: 0; overflow: hidden; border: 1px solid #d6dfe6; border-radius: 8px; background: #fff; box-shadow: 0 12px 32px #13283c08; }
-.panel-heading { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; padding: 20px 28px; border-bottom: 1px solid #e3e9ee; }
-.panel-heading h2 { margin: 0; font-size: 15px; font-weight: 650; }
-.panel-heading > span { color: #536577; font-size: 12px; }
-.editor-panel form { padding: 28px; }
-.document-write-page .field { margin-bottom: 24px; }
-.document-write-page .field label { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-weight: 650; }
-.document-write-page .field label span { color: #536577; font-size: 11px; font-weight: 400; }
-.document-write-page .field :is(input, textarea, select) {
-    display: block;
-    width: 100%;
-    min-width: 0;
-    border: 1px solid #a9bac7;
-    border-radius: 4px;
-    padding: 12px 14px;
-    background: #fcfdfe;
-    color: #192d40;
-    font: inherit;
-}
-.document-write-page .field input { min-height: 48px; }
-.document-write-page .field textarea { min-height: 350px; resize: vertical; line-height: 1.9; }
-.document-write-page .field :is(input, textarea)::placeholder { color: #637786; }
-.document-write-page .field [aria-invalid="true"] { border-color: #b64339; }
-.field-hint { margin: 8px 0 0; color: #536577; font-size: 12px; }
-.editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 22px; border-top: 1px solid #e3e9ee; }
-.editor-actions p { margin: 0; color: #536577; font-size: 12px; }
-.editor-actions button {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 24px;
-    min-height: 46px;
-    flex-shrink: 0;
-    padding: 12px 22px;
-    border: 0;
-    border-radius: 4px;
-    background: #12675f;
-    color: #fff;
-    font: inherit;
-    font-weight: 650;
-    cursor: pointer;
-}
-.editor-actions button:hover { background: #0b514b; }
-.document-write-page :is(input, textarea, select, button, a):focus-visible { outline: 3px solid #218477; outline-offset: 3px; }
-.document-write-page .notice { margin: 24px 28px 0; padding: 12px 16px; border: 1px solid; border-radius: 4px; font-size: 13px; overflow-wrap: anywhere; }
-.document-write-page form > .notice { margin: 0 0 24px; }
-.document-write-page .notice p { margin: 0; }
-.document-write-page .notice .notice-title { font-weight: 650; }
-.document-write-page .notice ul { margin: 6px 0 0; padding-left: 20px; }
-.document-write-page .error-notice { border-color: #e2b9b4; background: #fff3f1; color: #9b2922; }
-.document-write-page .success-notice { border-color: #b6d4cc; background: #edf7f3; color: #155a4f; }
-.success-notice a { display: inline-block; margin-top: 6px; font-weight: 650; }
-.metadata-panel { padding: 26px 24px; border-radius: 8px; background: #122638; color: #f0f5f9; }
-.metadata-panel .eyebrow { color: #8bc7c1; }
-.metadata-panel h2 { margin: 0 0 24px; font-size: 19px; font-weight: 650; }
-.document-metadata { margin: 0; }
-.document-metadata > div { padding: 14px 0; border-top: 1px solid #344c60; }
-.document-metadata dt { color: #b8cad7; font-size: 12px; }
-.document-metadata dd { margin: 5px 0 0; font-size: 14px; }
-.document-metadata dd span { margin-left: 6px; color: #adbfcd; font-size: 11px; }
-.metadata-note { margin: 18px 0 0; padding-top: 18px; border-top: 1px solid #344c60; color: #bbcbd7; font-size: 12px; line-height: 1.9; word-break: keep-all; }
-.writing-guide { display: flex; gap: 10px; padding: 22px 4px; }
-.guide-marker { display: grid; place-items: center; width: 18px; height: 18px; flex-shrink: 0; margin-top: 2px; border: 1px solid #647c8d; border-radius: 50%; color: #536577; font-size: 11px; font-weight: 700; }
+.editor-panel { min-width: 0; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 18px 24px; border-bottom: 2px solid var(--burgundy); }
+.panel-heading h2 { margin: 0; }
+.panel-heading > span { color: var(--muted); font-size: 11px; }
+.editor-panel form { padding: 24px; }
+.document-write-page .field { margin-bottom: 22px; }
+.document-write-page .field label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-weight: 700; }
+.document-write-page .field label span { color: var(--muted); font-size: 10px; font-weight: 400; }
+.document-write-page .field :is(input, textarea, select) { display: block; width: 100%; min-width: 0; }
+.document-write-page .field textarea { min-height: 360px; resize: vertical; line-height: 1.9; }
+.editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid var(--rule); }
+.editor-actions p { margin: 0; color: var(--muted); font-size: 11px; }
+.editor-actions button { display: inline-flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 22px; min-height: 42px; }
+.editor-panel > .notice { margin: 20px 24px 0; }
+.document-write-page form > .notice { margin: 0 0 20px; }
+.document-sidebar { display: grid; gap: 16px; min-width: 0; }
+.metadata-note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.writing-guide { display: flex; align-items: flex-start; gap: 10px; padding: 18px; border-left: 3px solid var(--burgundy); }
+.guide-marker { display: grid; place-items: center; flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; border: 1px solid var(--border); color: var(--burgundy); font-size: 11px; font-weight: 700; }
 .writing-guide h2 { margin: 0; font-size: 13px; }
-.writing-guide p { margin: 6px 0 0; color: #536577; font-size: 12px; line-height: 1.9; word-break: keep-all; }
-.workspace-footer { padding-top: 0; color: #536577; font-size: 11px; }
+.writing-guide p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
 
-@media (max-width: 1200px) {
-    .write-workspace { margin: 18px 40px 32px; }
+@media (max-width: 850px) {
+    .workspace-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }
+    .document-write-page .document-metadata { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 22px; }
 }
-
-@media (max-width: 800px) {
-    .workspace-header, .workspace-footer { padding: 24px; flex-wrap: wrap; gap: 12px; }
-    .write-workspace { margin: 12px 24px 0; }
-    .workspace-grid { grid-template-columns: minmax(0, 1fr); }
-    .document-metadata { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
-    .metadata-panel h2 { margin-bottom: 16px; }
-    .writing-guide { padding-bottom: 0; }
-    .workspace-footer { padding-top: 24px; }
-}
-
-@media (max-width: 480px) {
-    .workspace-header, .workspace-footer { padding-right: 16px; padding-left: 16px; }
-    .document-write-page .company { font-size: 12px; }
-    .document-write-page .company small { font-size: 9px; }
-    .write-workspace { margin: 8px 12px 0; }
-    .page-heading { align-items: flex-start; flex-direction: column; gap: 14px; padding: 0 4px; }
-    .page-heading h1 { font-size: 28px; }
-    .panel-heading { padding: 18px; }
-    .editor-panel form { padding: 20px 18px; }
-    .document-write-page .notice { margin: 20px 18px 0; }
-    .document-write-page form > .notice { margin: 0 0 20px; }
+@media (max-width: 520px) {
+    .document-write-page .write-workspace { margin: 18px auto 24px; padding: 0 12px; }
+    .panel-heading { padding: 16px; }
+    .editor-panel form { padding: 18px 16px; }
+    .editor-panel > .notice { margin: 16px 16px 0; }
     .document-write-page .field :is(input, textarea, select) { font-size: 16px; }
     .document-write-page .field textarea { min-height: 300px; }
-    .editor-actions { align-items: stretch; flex-direction: column; gap: 16px; }
+    .editor-actions { align-items: stretch; flex-direction: column; gap: 14px; }
     .editor-actions button { width: 100%; }
-    .metadata-panel { padding: 24px 20px; }
+    .document-write-page .document-metadata { column-gap: 14px; }
 }
