@@ -241,28 +241,14 @@ class AdminUserIntegrationTest {
     }
 
     @Test
-    void documentLimitsApplyToDirectServiceCallsAndHttpWithoutPartialWrites() throws Exception {
-        assertThrows(IllegalArgumentException.class,
-                () -> documentService.create("가".repeat(256), "본문", Position.STAFF, writer.getId()));
-        assertThrows(IllegalArgumentException.class,
-                () -> documentService.create("제목", "가".repeat(100_001), Position.STAFF, writer.getId()));
+    void documentBodyHasNoAdditionalLengthLimit() throws Exception {
+        String body = "가".repeat(100_001);
         mvc.perform(post("/document/write").with(user("writer")).with(csrf())
-                        .param("title", "가".repeat(256)).param("content", "본문").param("requiredPosition", "STAFF"))
-                .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"));
-        mvc.perform(post("/document/write").with(user("writer")).with(csrf())
-                        .param("title", "제목").param("content", "가".repeat(100_001)).param("requiredPosition", "STAFF"))
-                .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("documentCreateRequest", "content"));
-        assertEquals(0, documents.count());
-        assertEquals(0, versions.count());
-        assertEquals(0, activities.count());
-        mvc.perform(post("/document/write").with(user("writer")).with(csrf())
-                        .param("title", "가".repeat(255)).param("content", "나".repeat(100_000)).param("requiredPosition", "STAFF"))
+                        .param("title", "긴 본문 문서").param("content", body).param("requiredPosition", "STAFF"))
                 .andExpect(status().is3xxRedirection());
         assertEquals(1, documents.count());
         assertEquals(1, activities.count());
-        var saved = versions.findAll().getFirst();
-        assertEquals(255, saved.getTitle().length());
-        assertEquals(100_000, saved.getContent().length());
+        assertEquals(body, versions.findAll().getFirst().getContent());
     }
 
     @Test

@@ -37,7 +37,12 @@ public class DocumentService {
 
     @Transactional
     public Document create(String title, String content, Position requiredPosition, Long authorId) {
-        DocumentContentRules.validate(title, content);
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("문서 제목을 입력하세요");
+        }
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("문서 내용을 입력하세요");
+        }
         User author = findUser(authorId);
         userAccessPolicy.requireAssignablePosition(author, requiredPosition);
 

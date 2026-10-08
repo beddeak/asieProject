@@ -27,7 +27,7 @@ public class DocumentVersion {
     @Column(name = "version_number", nullable = false)
     private int versionNumber;
 
-    @Column(nullable = false, length = DocumentContentRules.MAX_TITLE_LENGTH)
+    @Column(nullable = false, length = 255)
     private String title;
 
     @Lob
@@ -56,7 +56,15 @@ public class DocumentVersion {
         if (versionNumber < 1) {
             throw new IllegalArgumentException("버전 번호는 1 이상이어야 합니다");
         }
-        DocumentContentRules.validate(title, content);
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("문서 제목을 입력해주세요");
+        }
+        if (title.length() > 255) {
+            throw new IllegalArgumentException("문서 제목은 255자 이하여야 합니다");
+        }
+        if (content == null || content.isBlank()) {
+            throw new IllegalArgumentException("문서 본문을 입력해주세요");
+        }
 
         this.document = document;
         this.versionNumber = versionNumber;

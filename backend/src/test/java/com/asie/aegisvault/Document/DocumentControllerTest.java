@@ -158,11 +158,11 @@ class DocumentControllerTest {
     }
 
     @Test
-    void titleOver255CharactersIsRejected() throws Exception {
-        mockMvc.perform(write("가".repeat(256), "본문"))
+    void titleOver50CharactersIsRejected() throws Exception {
+        mockMvc.perform(write("가".repeat(51), "본문"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"))
-                .andExpect(content().string(containsString("문서 제목은 255자 이하여야 합니다")));
+                .andExpect(content().string(containsString("문서 제목은 50자 이하여야 합니다")));
         verify(documentService).assignablePositions(7L);
         verifyNoMoreInteractions(documentService);
     }

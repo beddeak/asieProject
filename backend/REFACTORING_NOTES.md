@@ -1,6 +1,6 @@
 # 운영 관점 코드 개선 내역
 
-전체 코드를 점검한 뒤, 목록 조회 시 불필요한 데이터 로딩과 페이지 범위 오류, 문서 입력 규칙 불일치, 부서 생성 후 재전송 문제를 개선했습니다.
+전체 코드를 점검한 뒤, 목록 조회 시 불필요한 데이터 로딩과 페이지 범위 오류, 부서 생성 후 재전송 문제를 개선했습니다.
 
 ## 1. 목록 전용 조회 모델
 
@@ -28,14 +28,12 @@
 
 서비스의 권한 및 검색 조건은 보정 후 재조회에도 그대로 적용합니다. 페이지 크기는 기존의 20건, 활동 기록 30건입니다.
 
-## 3. 문서 입력 규칙 통일
+## 3. 문서 입력 규칙 후속 정리
 
-기존 화면·요청 DTO는 제목을 50자로 제한했지만 엔티티·DB는 255자를 허용했고, 본문에는 길이 제한이 없었습니다.
-`DocumentContentRules`에서 제목 255자, 본문 100,000자라는 공통 규칙을 정의했습니다.
-
-요청 DTO의 Bean Validation, 화면의 `maxlength`와 안내 문구, 서비스 진입점, 엔티티 생성자가 같은 제한을 사용합니다.
-직접 서비스 호출에서도 검증한 다음 저장을 시작하므로 잘못된 입력으로 문서·버전·활동 기록이 일부만 남지 않습니다.
-기존 문서 열람에는 새 입력 제한을 소급 적용하지 않습니다. 스키마 변경이나 데이터 변환은 없습니다.
+사용자 피드백에 따라 별도 `DocumentContentRules` 클래스와 새로 도입한 본문 100,000자 제한을 제거했습니다.
+기존 서비스·엔티티의 빈값 검사를 복원하고 요청 DTO의 `@NotBlank`를 사용합니다.
+제목은 기존 화면·요청 DTO의 50자 제한과 엔티티·DB의 255자 제한으로 복원했습니다.
+본문에는 별도의 글자 수 제한을 추가하지 않습니다. 화면도 기존 입력 안내를 사용합니다.
 
 ## 4. 부서 생성 후 화면 이동
 
@@ -52,25 +50,25 @@
 | 추가 | `src/main/java/com/asie/aegisvault/common/PageQueries.java` | 공통 페이지 범위 보정 |
 | 추가 | `src/main/java/com/asie/aegisvault/Document/dto/ReviewQueueItem.java` | 검토함 조회 전용 DTO |
 | 추가 | `src/main/java/com/asie/aegisvault/admin/UserListItem.java` | 비밀번호를 포함하지 않는 사용자 목록 DTO |
-| 추가 | `src/main/java/com/asie/aegisvault/Document/DocumentContentRules.java` | 공통 문서 입력 제한과 도메인 검증 |
+| 삭제(후속 정리) | `src/main/java/com/asie/aegisvault/Document/DocumentContentRules.java` | 불필요한 별도 규칙 클래스 제거 |
 | 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentVersionRepository.java` | 검토함의 조회 열을 필요한 항목으로 제한 |
 | 수정 | `src/main/java/com/asie/aegisvault/User/UserRepository.java` | 사용자 관리용 프로젝션 및 검색 조건 |
-| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentService.java` | 입력 규칙 적용, 문서 목록·검토함의 페이지 처리 |
+| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentService.java` | 기존 빈값 검사 복원, 문서 목록·검토함의 페이지 처리 |
 | 수정 | `src/main/java/com/asie/aegisvault/admin/AdminUserService.java` | 사용자 목록 DTO, 사용자·활동 기록 페이지 처리 |
 | 수정 | `src/main/java/com/asie/aegisvault/notice/DepartmentNoticeService.java` | 부서 공지의 공통 페이지 처리 |
 | 수정 | `src/main/java/com/asie/aegisvault/admin/AdminUserController.java` | 현재 사용자 엔티티 대신 표시용 값 전달 |
-| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentController.java` | 문서 폼에 공통 입력 제한 전달 |
-| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentVersion.java` | 도메인 생성 시 공통 검증 |
-| 수정 | `src/main/java/com/asie/aegisvault/Document/dto/DocumentCreateRequest.java` | 요청 검증에 공통 제한 적용 |
+| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentController.java` | 추가했던 길이 제한 모델 제거 |
+| 수정 | `src/main/java/com/asie/aegisvault/Document/DocumentVersion.java` | 기존 엔티티 검증 복원 |
+| 수정 | `src/main/java/com/asie/aegisvault/Document/dto/DocumentCreateRequest.java` | 기존 요청 검증 복원, 새 본문 제한 제거 |
 | 수정 | `src/main/java/com/asie/aegisvault/Department/DepartmentController.java` | 생성 후 게시판으로 리다이렉트 |
 | 수정 | `src/main/resources/templates/adminusers.html` | 사용자 목록 DTO와 표시용 모델 반영 |
 | 수정 | `src/main/resources/templates/documentreview.html` | 검토함 DTO 반영 |
-| 수정 | `src/main/resources/templates/documentwrite.html` | 입력 제한과 안내 문구를 서버 값에서 렌더링 |
+| 수정 | `src/main/resources/templates/documentwrite.html` | 기존 제목 제한·본문 안내 복원 |
 | 추가 | `src/test/java/com/asie/aegisvault/support/SqlCapture.java` | 실제 SQL의 조회 열 검증 도구 |
-| 수정 | `src/test/java/com/asie/aegisvault/admin/AdminUserIntegrationTest.java` | SQL·페이지 경계·입력 제한·생성 후 새로고침 검증 |
+| 수정 | `src/test/java/com/asie/aegisvault/admin/AdminUserIntegrationTest.java` | SQL·페이지 경계·긴 본문 저장·생성 후 새로고침 검증 |
 | 수정 | `src/test/java/com/asie/aegisvault/Document/DocumentReviewIntegrationTest.java` | 본문·해시 제외, 권한과 페이지 경계 검증 |
-| 수정 | `src/test/java/com/asie/aegisvault/Document/DocumentControllerTest.java` | 검토함 DTO와 제목 제한 반영 |
-| 수정 | `src/test/java/com/asie/aegisvault/Document/dto/DocumentCreateRequestTest.java` | 입력 제한의 경계값 검증 |
+| 수정 | `src/test/java/com/asie/aegisvault/Document/DocumentControllerTest.java` | 검토함 DTO 반영, 기존 제목 검증 복원 |
+| 수정 | `src/test/java/com/asie/aegisvault/Document/dto/DocumentCreateRequestTest.java` | 기존 요청 검증 테스트 복원 |
 | 수정 | `src/test/java/com/asie/aegisvault/Department/DepartmentControllerTest.java` | 부서 생성 성공 시 이동 주소 검증 |
 | 수정 | `src/test/java/com/asie/aegisvault/notice/DepartmentWorkspaceIntegrationTest.java` | 부서 생성의 리다이렉트 흐름 반영 |
 | 수정 | `ADMIN_GUIDE.md` | 동작·입력 제한·문서 링크 갱신 |
@@ -84,7 +82,7 @@ H2 메모리 DB에서 실제 JPA SQL과 Spring Security·Thymeleaf 렌더링을 
 
 - 목록 SQL에서 비밀번호 해시와 문서 본문이 조회되지 않는지 확인
 - 잘못된 페이지 번호, 빈 결과, 검색 필터, 최신 버전·부서·직급 제한 확인
-- 제목 255자·본문 100,000자 저장 성공과 초과 입력 거절, 저장 전 실패 시 부분 기록 없음 확인
+- 기존 빈값·제목 검증과 100,000자를 넘는 본문의 저장 성공 확인
 - 부서 생성 후 GET 새로고침으로 부서가 추가 생성되지 않는지 확인
 
 Java 21에서 `backend`를 작업 디렉터리로 사용합니다.
