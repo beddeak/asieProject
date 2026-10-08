@@ -82,4 +82,10 @@ public class DepartmentNotice {
     this.title = title.strip();
     this.content = content;
   }
+
+  public void transfer(Department target) {
+    if (scope != Scope.DEPARTMENT || target == null || target.isClosed())
+      throw new IllegalArgumentException("부서 공지는 운영 중인 부서로 이관해야 합니다.");
+    this.department = target;
+  }
 }

@@ -9,6 +9,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DepartmentNoticeRepository extends JpaRepository<DepartmentNotice, Long> {
+  @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+  @Query("select n from DepartmentNotice n where n.department.id=:departmentId order by n.id")
+  java.util.List<DepartmentNotice> lockDepartmentNotices(@Param("departmentId") Long departmentId);
+
   @Query(
       """
       select new com.asie.aegisvault.notice.NoticeSummary(

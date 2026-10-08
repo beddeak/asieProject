@@ -83,7 +83,7 @@ public class WorkflowService {
       String actor, Long projectId, String title, String description, Long baseVersionId) {
     User user = actors.get(actor);
     Project project =
-        access.lock(
+        lock(
             user,
             projectId,
             ProjectRole.OWNER,
@@ -112,7 +112,7 @@ public class WorkflowService {
   @Transactional
   public void assignChange(String actor, Long projectId, Long id, Long assigneeId) {
     User user = actors.get(actor);
-    access.lock(user, projectId, ProjectRole.OWNER, ProjectRole.ENGINEERING);
+    lock(user, projectId, ProjectRole.OWNER, ProjectRole.ENGINEERING);
     EngineeringChange change = change(id);
     sameProject(projectId, change.getProjectId());
     User assignee =
@@ -138,7 +138,7 @@ public class WorkflowService {
   public void resolveChange(
       String actor, Long projectId, Long id, Long nextVersionId, String reason, boolean reject) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.OWNER, ProjectRole.ENGINEERING);
+    Project project = lock(user, projectId, ProjectRole.OWNER, ProjectRole.ENGINEERING);
     EngineeringChange change = change(id);
     sameProject(projectId, change.getProjectId());
     if (!reject) {
@@ -164,7 +164,7 @@ public class WorkflowService {
   @Transactional
   public void addCheck(String actor, Long projectId, String criterion) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.QUALITY);
+    Project project = lock(user, projectId, ProjectRole.QUALITY);
     checks.save(new QualityCheck(projectId, criterion));
     project.markChanged();
     event(
@@ -180,7 +180,7 @@ public class WorkflowService {
   @Transactional
   public void retireCheck(String actor, Long projectId, Long id) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.QUALITY);
+    Project project = lock(user, projectId, ProjectRole.QUALITY);
     QualityCheck check =
         checks.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     sameProject(projectId, check.getProjectId());
@@ -205,7 +205,7 @@ public class WorkflowService {
       String findings,
       Long retestOf) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.QUALITY);
+    Project project = lock(user, projectId, ProjectRole.QUALITY);
     ProjectEvidence.Snapshot snapshot = ready(user, projectId, expectedFingerprint);
     List<QualityCheck> checklist = checks.findByProjectIdAndActiveTrueOrderById(projectId);
     if (checklist.isEmpty()) throw new IllegalArgumentException("시험 기준을 먼저 등록해주세요.");
@@ -246,7 +246,7 @@ public class WorkflowService {
   public void closeDefect(
       String actor, Long projectId, Long id, Long passingRunId, String correctiveAction) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.QUALITY);
+    Project project = lock(user, projectId, ProjectRole.QUALITY);
     Nonconformity defect =
         defects.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     sameProject(projectId, defect.getProjectId());
@@ -275,7 +275,7 @@ public class WorkflowService {
   public void assess(
       String actor, Long projectId, String expectedFingerprint, boolean approved, String findings) {
     User user = actors.get(actor);
-    Project project = access.lock(user, projectId, ProjectRole.SECURITY);
+    Project project = lock(user, projectId, ProjectRole.SECURITY);
     ProjectEvidence.Snapshot snapshot = ready(user, projectId, expectedFingerprint);
     QualityRun run = runs.findFirstByProjectIdOrderByIdDesc(projectId).orElse(null);
     if (run != null && Objects.equals(run.getTesterId(), user.getId()))
@@ -312,8 +312,6 @@ public class WorkflowService {
           || Objects.equals(user.getId(), entry.editorId()))
         throw new AccessDeniedException("문서 작성자는 해당 배포 구성의 독립 검토를 수행할 수 없습니다.");
     }
-    documentAccess.requireScopes(
-        user, documents.forVersions(snapshot.versions().stream().map(v -> v.versionId()).toList()));
     return snapshot;
   }
 
@@ -328,6 +326,12 @@ public class WorkflowService {
       throw new IllegalArgumentException("이 프로젝트의 문서 버전을 선택해주세요.");
     documentAccess.requireRead(user, version);
     return version;
+  }
+
+  private Project lock(User user, Long projectId, ProjectRole... roles) {
+    Project project = access.lock(user, projectId, roles);
+    documentAccess.requireScopes(user, documents.findByProjectId(projectId));
+    return project;
   }
 
   private void reader(String actor, Long projectId) {

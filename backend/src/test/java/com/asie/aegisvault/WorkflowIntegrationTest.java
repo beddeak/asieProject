@@ -14,6 +14,9 @@ import com.asie.aegisvault.account.*;
 import com.asie.aegisvault.attachment.*;
 import com.asie.aegisvault.audit.*;
 import com.asie.aegisvault.notice.AnnouncementService;
+import com.asie.aegisvault.notice.DepartmentNoticeRepository;
+import com.asie.aegisvault.notice.DepartmentNoticeService;
+import com.asie.aegisvault.notice.NoticeForm;
 import com.asie.aegisvault.notification.*;
 import com.asie.aegisvault.project.*;
 import com.asie.aegisvault.release.*;
@@ -69,6 +72,8 @@ class WorkflowIntegrationTest {
   @Autowired PasswordEncoder passwords;
   @Autowired DepartmentLifecycle lifecycle;
   @Autowired AnnouncementService announcements;
+  @Autowired DepartmentNoticeService departmentNotices;
+  @Autowired DepartmentNoticeRepository noticeRepository;
   @Autowired AuditChain audit;
   @Autowired AuditRecordRepository records;
   @Autowired ApplicationEventPublisher events;
@@ -464,6 +469,142 @@ class WorkflowIntegrationTest {
     assertTrue(
         passwords.matches(
             "New-password-43!", users.findById(writer.getId()).orElseThrow().getPassword()));
+  }
+
+  @Test
+  void lostDocumentClearanceBlocksDirectWorkflowMutationsAsWellAsPages() throws Exception {
+    var version = draft(DocumentCategory.DESIGN, SecurityClassification.CONFIDENTIAL);
+    documents.edit(
+        version.getId(),
+        writer.getId(),
+        version.getRevision(),
+        version.getTitle(),
+        "보호 대상 근거",
+        true);
+    documents.approve(version.getId(), engineer.getId());
+    documents.review(version.getId(), security.getId(), true, true, "보안 검토 완료");
+    workflow.addCheck(tester.getNickname(), projectId, "기밀 문서 추적성");
+    String fingerprint = workflow.fingerprint(tester.getNickname(), projectId);
+    Long failed =
+        workflow.test(tester.getNickname(), projectId, fingerprint, Set.of(), "기밀 시험 부적합", null);
+    var defect =
+        defects
+            .findByProjectId(projectId, org.springframework.data.domain.PageRequest.of(0, 20))
+            .getContent()
+            .getFirst();
+    var check = checks.findByProjectIdAndActiveTrueOrderById(projectId).getFirst();
+    Long passed =
+        workflow.test(
+            tester.getNickname(),
+            projectId,
+            fingerprint,
+            Set.of(check.getId()),
+            "기밀 재시험 적합",
+            failed);
+    tx.executeWithoutResult(
+        t ->
+            users
+                .findById(tester.getId())
+                .orElseThrow()
+                .changeClearance(SecurityClassification.INTERNAL));
+    String path = "/projects/" + projectId + "/work";
+    mvc.perform(get(path).param("tab", "defects").with(user(tester.getNickname())))
+        .andExpect(status().isForbidden());
+    mvc.perform(
+            post(path + "/defects/" + defect.getId() + "/close")
+                .with(user(tester.getNickname()))
+                .with(csrf())
+                .param("passingRunId", passed.toString())
+                .param("correctiveAction", "직접 요청으로 종료 시도"))
+        .andExpect(status().isForbidden());
+    assertFalse(defects.findById(defect.getId()).orElseThrow().isClosed());
+    mvc.perform(
+            post(path + "/checks/" + check.getId() + "/retire")
+                .with(user(tester.getNickname()))
+                .with(csrf()))
+        .andExpect(status().isForbidden());
+    assertTrue(checks.findById(check.getId()).orElseThrow().isActive());
+    mvc.perform(
+            post(path + "/checks")
+                .with(user(tester.getNickname()))
+                .with(csrf())
+                .param("criterion", "변경 시도"))
+        .andExpect(status().isForbidden());
+    assertEquals(1, checks.findByProjectIdAndActiveTrueOrderById(projectId).size());
+  }
+
+  @Test
+  void directPasswordChangeRevokesPreviouslyIssuedRecoveryLinks() {
+    accounts.request(writer.getNickname(), writer.getEmail());
+    var recovery = recoveries.findByUserIdAndCompletedAtIsNull(writer.getId()).getFirst();
+    String token = accounts.issue(admin.getNickname(), recovery.getId(), "본인 확인 완료");
+    accounts.change(
+        writer.getNickname(), "Test-password-42!", "Changed-password-43!", "Changed-password-43!");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> accounts.reset(token, "Unwanted-password-44!", "Unwanted-password-44!"));
+    assertTrue(recoveries.findByUserIdAndCompletedAtIsNull(writer.getId()).isEmpty());
+    assertTrue(
+        passwords.matches(
+            "Changed-password-43!", users.findById(writer.getId()).orElseThrow().getPassword()));
+  }
+
+  @Test
+  void rejectedPasswordChangeKeepsTheRecoveryLinkUsable() {
+    accounts.request(writer.getNickname(), writer.getEmail());
+    var recovery = recoveries.findByUserIdAndCompletedAtIsNull(writer.getId()).getFirst();
+    String token = accounts.issue(admin.getNickname(), recovery.getId(), "본인 확인 완료");
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            accounts.change(
+                writer.getNickname(),
+                "wrong-password",
+                "Changed-password-43!",
+                "Changed-password-43!"));
+    accounts.reset(token, "Recovered-password-44!", "Recovered-password-44!");
+    assertTrue(
+        passwords.matches(
+            "Recovered-password-44!", users.findById(writer.getId()).orElseThrow().getPassword()));
+  }
+
+  @Test
+  void departmentTransferKeepsAnnouncementsReadableToTransferredMembers() throws Exception {
+    var form = new NoticeForm();
+    form.setTitle("이관 후에도 필요한 업무 공지");
+    form.setContent("기존 부서의 업무 절차와 근거");
+    Long noticeId = departmentNotices.create(owner.getNickname(), research.getId(), form);
+    var before = departmentNotices.detail(owner.getNickname(), research.getId(), noticeId);
+    Long globalId = announcements.create(admin.getNickname(), "전체 공지", "공통 안내");
+    lifecycle.close(admin.getNickname(), research.getId(), quality.getId(), research.getRevision());
+    var after = departmentNotices.detail(writer.getNickname(), quality.getId(), noticeId);
+    assertEquals(before.title(), after.title());
+    assertEquals(before.content(), after.content());
+    assertEquals(before.authorName(), after.authorName());
+    assertEquals(before.createdAt(), after.createdAt());
+    assertEquals(quality.getId(), after.departmentId());
+    mvc.perform(get("/departments/" + quality.getId()).with(user(writer.getNickname())))
+        .andExpect(status().isOk())
+        .andExpect(content().string(containsString(form.getTitle())));
+    assertEquals("전체 공지", announcements.detail(writer.getNickname(), globalId).getTitle());
+    assertNull(noticeRepository.findById(globalId).orElseThrow().getDepartment());
+  }
+
+  @Test
+  void aDepartmentContainingOnlyNoticesStillRequiresATransferTarget() {
+    var source = departments.saveAndFlush(new Department("공지 보존 " + UUID.randomUUID(), "과거 업무 공지"));
+    var form = new NoticeForm();
+    form.setTitle("보존할 공지");
+    form.setContent("공지 이력을 유실하지 않아야 합니다.");
+    Long noticeId = departmentNotices.create(admin.getNickname(), source.getId(), form);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> lifecycle.close(admin.getNickname(), source.getId(), null, source.getRevision()));
+    assertFalse(departments.findById(source.getId()).orElseThrow().isClosed());
+    lifecycle.close(admin.getNickname(), source.getId(), quality.getId(), source.getRevision());
+    assertEquals(
+        "보존할 공지",
+        departmentNotices.detail(tester.getNickname(), quality.getId(), noticeId).title());
   }
 
   @Test

@@ -4,6 +4,8 @@
 
 기능과 설계 이유는 [FEATURE_CHANGES.md](FEATURE_CHANGES.md)를 참고하세요.
 
+후속 버그 점검으로 추가된 문서는 [BUGFIX_REVIEW.md](BUGFIX_REVIEW.md)이며, 해당 문서에 수정 파일과 재현 조건을 별도로 기록했습니다.
+
 | 구분 | 파일 |
 | --- | --- |
 | 추가 | [README.md](../README.md) |

@@ -74,7 +74,7 @@ public class DepartmentNoticeService {
         notice.getCreatedAt(),
         notice.getUpdatedAt(),
         notice.getVersion(),
-        canManage(user));
+        canManage(user) && !notice.getDepartment().isClosed());
   }
 
   public void requireManager(String actor, Long departmentId) {
@@ -86,9 +86,7 @@ public class DepartmentNoticeService {
   @Transactional
   public Long create(String actor, Long departmentId, NoticeForm form) {
     User user = actor(actor);
-    Department department = readableDepartment(user, departmentId);
-    requireOpen(department);
-    requireManager(user);
+    Department department = writableDepartment(user, departmentId);
     DepartmentNotice notice =
         notices.saveAndFlush(
             new DepartmentNotice(department, user, form.getTitle(), form.getContent()));
@@ -99,8 +97,7 @@ public class DepartmentNoticeService {
   @Transactional
   public void update(String actor, Long departmentId, Long noticeId, NoticeForm form) {
     User user = actor(actor);
-    requireOpen(readableDepartment(user, departmentId));
-    requireManager(user);
+    writableDepartment(user, departmentId);
     DepartmentNotice notice = notice(departmentId, noticeId);
     requireCurrentVersion(notice, form.getVersion());
     notice.updateText(form.getTitle(), form.getContent());
@@ -111,8 +108,7 @@ public class DepartmentNoticeService {
   @Transactional
   public void delete(String actor, Long departmentId, Long noticeId, Long version) {
     User user = actor(actor);
-    requireOpen(readableDepartment(user, departmentId));
-    requireManager(user);
+    writableDepartment(user, departmentId);
     DepartmentNotice notice = notice(departmentId, noticeId);
     requireCurrentVersion(notice, version);
     notices.delete(notice);
@@ -122,6 +118,15 @@ public class DepartmentNoticeService {
 
   private void requireOpen(Department department) {
     if (department.isClosed()) throw new IllegalArgumentException("폐쇄된 부서의 공지는 변경할 수 없습니다.");
+  }
+
+  private Department writableDepartment(User user, Long departmentId) {
+    // Notice changes and department transfers must serialize on the same department lock.
+    departments.lockDepartments(List.of(departmentId));
+    Department department = readableDepartment(user, departmentId);
+    requireOpen(department);
+    requireManager(user);
+    return department;
   }
 
   private void event(User actor, Long id, String action) {

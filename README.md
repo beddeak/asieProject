@@ -11,6 +11,7 @@ Linux/macOS에서는 `cd backend` 후 `bash gradlew bootRun`을 실행합니다.
 
 - [실행·관리자 설정·업무 진행 안내](backend/LOCAL_GUIDE.md)
 - [기능별 변경 파일과 설계 이유](backend/FEATURE_CHANGES.md)
+- [추가 버그 점검·수정 내역](backend/BUGFIX_REVIEW.md)
 - [관리자 권한과 부서 운영](backend/ADMIN_GUIDE.md)
 - [업무 구조와 구현 범위](backend/IMPLEMENTATION_PLAN.md)
 

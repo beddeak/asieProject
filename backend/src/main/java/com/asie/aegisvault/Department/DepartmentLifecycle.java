@@ -3,6 +3,7 @@ package com.asie.aegisvault.Department;
 import com.asie.aegisvault.Document.DocumentRepository;
 import com.asie.aegisvault.User.*;
 import com.asie.aegisvault.audit.AuditEvent;
+import com.asie.aegisvault.notice.DepartmentNoticeRepository;
 import com.asie.aegisvault.project.ProjectRepository;
 import com.asie.aegisvault.security.CurrentUser;
 import java.util.*;
@@ -23,6 +24,7 @@ public class DepartmentLifecycle {
   private final ProjectRepository projects;
   private final DocumentRepository documents;
   private final UserRepository users;
+  private final DepartmentNoticeRepository notices;
   private final ApplicationEventPublisher events;
 
   @Transactional
@@ -59,13 +61,18 @@ public class DepartmentLifecycle {
     var projectRows = projects.lockDepartmentProjects(id);
     var documentRows = documents.lockDepartmentDocuments(id);
     var userRows = users.lockDepartmentUsers(id);
+    var noticeRows = notices.lockDepartmentNotices(id);
     if (target == null
-        && (!projectRows.isEmpty() || !documentRows.isEmpty() || !userRows.isEmpty()))
-      throw new IllegalArgumentException("사용자·문서·프로젝트가 있는 부서는 이관 부서를 지정해야 합니다.");
+        && (!projectRows.isEmpty()
+            || !documentRows.isEmpty()
+            || !userRows.isEmpty()
+            || !noticeRows.isEmpty()))
+      throw new IllegalArgumentException("사용자·문서·프로젝트·공지가 있는 부서는 이관 부서를 지정해야 합니다.");
     if (target != null) {
       projectRows.forEach(p -> p.transfer(target));
       documentRows.forEach(d -> d.transfer(target));
       userRows.forEach(u -> u.assign(u.getPosition(), target));
+      noticeRows.forEach(n -> n.transfer(target));
     }
     source.close();
     events.publishEvent(
@@ -82,7 +89,9 @@ public class DepartmentLifecycle {
                 + ", 문서 "
                 + documentRows.size()
                 + ", 프로젝트 "
-                + projectRows.size()));
+                + projectRows.size()
+                + ", 공지 "
+                + noticeRows.size()));
   }
 
   private void check(Department department, Long revision) {

@@ -102,7 +102,6 @@ public class AccountService {
             .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 복구 링크입니다."));
     if (!request.usable() || target.getAccountStatus() != AccountStatus.ACTIVE) invalid();
     update(target, next, confirmation);
-    recoveries.findByUserIdAndCompletedAtIsNull(target.getId()).forEach(PasswordRecovery::complete);
     events.publishEvent(
         AuditEvent.of(
             target, "PASSWORD_RESET", "USER", target.getId(), null, "일회용 복구 링크로 비밀번호 재설정"));
@@ -115,6 +114,7 @@ public class AccountService {
     if (passwords.matches(next, user.getPassword()))
       throw new IllegalArgumentException("현재와 다른 비밀번호를 입력해주세요.");
     user.changePassword(passwords.encode(next));
+    recoveries.findByUserIdAndCompletedAtIsNull(user.getId()).forEach(PasswordRecovery::complete);
   }
 
   private User admin(String actor) {
