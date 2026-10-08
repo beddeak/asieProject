@@ -20,19 +20,23 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @RequiredArgsConstructor
 @Controller
-@RequestMapping("/document/")
+@RequestMapping("/document")
 public class DocumentController {
   private final DocumentService documentService;
   private final UserRepository userRepository;
   private final DocumentPage documentPage;
 
-  @GetMapping("/list")
+  @GetMapping({"", "/", "/list"})
   public String documentList(
       @ModelAttribute("filter") DocumentFilter filter,
       @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "20") int size,
+      @RequestParam(required = false) String q,
       Model model,
       Principal principal) {
-    var result = documentService.documentList(currentUser(principal).getId(), filter, page);
+    if (q != null) filter.setKeyword(q.strip());
+    model.addAttribute("query", filter.getKeyword());
+    var result = documentService.documentList(currentUser(principal).getId(), filter, page, size);
     model.addAttribute("documentPage", result.documents());
     model.addAttribute("departmentName", result.departmentName());
     model.addAttribute("departmentRequired", result.departmentRequired());
@@ -49,6 +53,7 @@ public class DocumentController {
       Model model,
       Principal principal) {
     User author = currentUser(principal);
+    model.addAttribute("automaticallyApproved", author.getPosition().isAdmin());
     model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
     return "documentwrite";
   }
@@ -61,6 +66,7 @@ public class DocumentController {
       Principal principal,
       RedirectAttributes redirectAttributes) {
     User author = currentUser(principal);
+    model.addAttribute("automaticallyApproved", author.getPosition().isAdmin());
     model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
     if (bindingResult.hasErrors()) {
       return "documentwrite";
@@ -72,7 +78,9 @@ public class DocumentController {
               documentCreateRequest.content(),
               documentCreateRequest.requiredPosition(),
               author.getId());
-      redirectAttributes.addFlashAttribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다.");
+      redirectAttributes.addFlashAttribute(
+          "successMessage",
+          author.getPosition().isAdmin() ? "관리자 문서가 등록되어 승인 완료되었습니다." : "문서가 등록되어 검토 대기로 전환되었습니다.");
       return "redirect:/document/detail/" + document.getId();
     } catch (IllegalArgumentException e) {
       model.addAttribute("errorMessage", e.getMessage());

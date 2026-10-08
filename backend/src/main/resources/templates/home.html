@@ -1,141 +1,137 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>홈 | AegisVault</title>
-    <link rel="stylesheet" th:href="@{/css/documentlist.css}" />
-    <link rel="stylesheet" th:href="@{/css/home.css}" />
-    <link rel="stylesheet" th:href="@{/css/workspace.css}" />
-  </head>
-  <body class="home-page">
-    <a class="skip-link" href="#home-menu">메뉴로 바로가기</a>
-    <header th:replace="~{fragments/shell :: header}"></header>
-    <main class="list-workspace">
-      <header class="page-heading">
-        <div>
-          <p class="eyebrow">AEGISVAULT WORKSPACE</p>
-          <h1>홈</h1>
-          <p class="page-description">
-            부서의 소식과 문서 업무를 한곳에서 시작하세요.
-          </p>
-        </div>
-      </header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AegisVault 사내 기술 문서 보관소. 문서 열람, 작성 및 검토를 위한 시작 페이지입니다.">
+    <title>기록 보관소 | AegisVault</title>
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
+    <link rel="stylesheet" href="/css/home.css" th:href="@{/css/home.css}">
+    <script defer src="/js/home.js" th:src="@{/js/home.js}"></script>
+</head>
+<body>
+    <a class="skip-link" href="#main-content">본문으로 바로가기</a>
 
-      <nav
-        id="home-menu"
-        class="home-menu"
-        aria-label="홈 바로가기"
-        tabindex="-1"
-      >
-        <a class="home-card featured-card" th:href="@{/departments}">
-          <span class="card-label">DEPARTMENT WORKSPACE</span>
-          <h2>부서 탭·공지</h2>
-          <p
-            th:text="${admin ? '전체 부서의 탭과 공지를 확인하고 관리합니다.' : '소속 부서의 공지와 업무 소식을 확인합니다.'}"
-          ></p>
-          <span class="card-action"
-            >부서 게시판 열기 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:href="@{/document/list}">
-          <span class="card-label">DOCUMENT REGISTER</span>
-          <h2>문서 목록</h2>
-          <p>열람 가능한 문서와 최신 검토 현황을 확인합니다.</p>
-          <span class="card-action"
-            >목록 보기 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:if="${canWrite}" th:href="@{/document/new}">
-          <span class="card-label">DOCUMENT WORKSPACE</span>
-          <h2>문서 작성</h2>
-          <p>새 문서를 등록하고 부서에 검토를 요청합니다.</p>
-          <span class="card-action"
-            >새 문서 작성 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:if="${canReview}" th:href="@{/document/review}">
-          <span class="card-label">DOCUMENT REVIEW</span>
-          <h2>문서 검토함</h2>
-          <p>검토 대기 문서를 확인하고 승인 또는 반려합니다.</p>
-          <span class="card-action"
-            >검토함 열기 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:if="${admin}" th:href="@{/admin/users}">
-          <span class="card-label">ADMINISTRATION</span>
-          <h2>사용자·부서 관리</h2>
-          <p>계정과 소속 부서를 관리하고 새 부서를 생성합니다.</p>
-          <span class="card-action"
-            >관리 화면 열기 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:if="${admin}" th:href="@{/admin/activity}">
-          <span class="card-label">DOCUMENT ACTIVITY</span>
-          <h2>문서 활동 기록</h2>
-          <p>문서 작성·열람·검토와 승인 기록을 확인합니다.</p>
-          <span class="card-action"
-            >기록 보기 <span aria-hidden="true">→</span></span
-          >
-        </a>
-        <a class="home-card" th:href="@{/projects}"
-          ><span class="card-label">PROJECT WORKSPACE</span>
-          <h2>프로젝트</h2>
-          <p>참여자·문서·연구개발·품질·보안·배포를 연결합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:href="@{/tasks}"
-          ><span class="card-label">MY TASKS</span>
-          <h2>내 업무</h2>
-          <p>초안과 반려 문서, 검토 대상을 확인합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:href="@{/announcements}"
-          ><span class="card-label">ANNOUNCEMENTS</span>
-          <h2>전체 공지</h2>
-          <p>전체 구성원에게 공유된 공지를 확인합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:href="@{/notifications}"
-          ><span class="card-label">NOTIFICATIONS</span>
-          <h2>업무 알림</h2>
-          <p>담당 업무와 검토·배포 소식을 확인합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:href="@{/access}"
-          ><span class="card-label">TEMPORARY ACCESS</span>
-          <h2>임시 접근 권한</h2>
-          <p>문서 접근을 요청하고 승인 유효기간을 확인합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:if="${admin}" th:href="@{/admin/departments}"
-          ><span class="card-label">ORGANIZATION</span>
-          <h2>부서 운영 관리</h2>
-          <p>부서 이름 변경과 업무 이관·폐쇄를 관리합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:if="${admin}" th:href="@{/admin/audit}"
-          ><span class="card-label">AUDIT TRAIL</span>
-          <h2>전체 감사 로그</h2>
-          <p>보안·운영 기록과 로그 무결성을 확인합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-        <a class="home-card" th:if="${admin}" th:href="@{/admin/recovery}"
-          ><span class="card-label">ACCOUNT RECOVERY</span>
-          <h2>계정 복구 관리</h2>
-          <p>본인 확인을 거쳐 일회용 복구 링크를 발급합니다.</p>
-          <span class="card-action">열기 →</span></a
-        >
-      </nav>
-      <p class="home-guidance" th:if="${!canWrite}">
-        문서를 작성하려면 소속 부서 배정이 필요합니다. 사용자 관리 담당자에게
-        요청해주세요.
-      </p>
-    </main>
+    <th:block th:replace="~{fragments/layout :: header('home', true)}"></th:block>
 
-    <footer class="workspace-footer">
-      <span>AegisVault · Internal Document Management</span>
-      <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
-    </footer>
-  </body>
+    <div class="archive-layout">
+        <aside class="archive-sidebar" aria-label="보관소 탐색 및 계정 정보">
+            <details class="sidebar-directory" open>
+                <summary>보관소 탐색<span aria-hidden="true">INDEX</span></summary>
+                <div class="directory-content">
+                    <nav class="sidebar-group" aria-label="기록 열람">
+                        <h2>기록 열람</h2>
+                        <ul>
+                            <li><a class="current-link" href="/" th:href="@{/}" aria-current="page">보관소 홈</a></li>
+                            <li><a href="/document/list" th:href="@{/document/list}">전체 문서 목록</a></li>
+                            <li><a href="#recent-register">최근 등록 문서</a></li>
+<li><a th:href="@{/departments}">부서 탭·공지</a></li><li><a th:href="@{/announcements}">전체 공지</a></li><li><a th:href="@{/projects}">프로젝트·최종 배포</a></li><li><a th:href="@{/tasks}">내 업무</a></li><li><a th:href="@{/notifications}">업무 알림</a></li><li><a th:href="@{/access}">임시 접근 권한</a></li><li><a th:href="@{/account}">내 계정</a></li>
+                        </ul>
+                    </nav>
+                    <nav class="sidebar-group" aria-label="문서 업무" th:if="${canWrite or canReview}" hidden th:hidden="${false}">
+                        <h2>문서 업무</h2>
+                        <ul>
+                            <li th:if="${canWrite}"><a href="/document/new" th:href="@{/document/new}">새 문서 작성</a></li>
+                            <li th:if="${canReview}"><a href="/document/review" th:href="@{/document/review}">검토 대기함</a></li>
+                        </ul>
+                    </nav>
+                    <nav class="sidebar-group" aria-label="관리자 메뉴" th:if="${isAdmin}" hidden th:hidden="${false}">
+                        <h2>관리실</h2>
+                        <ul>
+                            <li><a href="/admin/users" th:href="@{/admin/users}">사용자 관리</a></li>
+                            <li><a href="/admin/activity" th:href="@{/admin/activity}">문서 활동 이력</a></li><li><a th:href="@{/admin/departments}">부서 운영 관리</a></li><li><a th:href="@{/admin/audit}">전체 감사 로그</a></li><li><a th:href="@{/admin/recovery}">계정 복구 관리</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </details>
+
+            <section class="sidebar-profile" aria-labelledby="profile-title">
+                <h2 id="profile-title">접속 계정</h2>
+                <p class="profile-name" th:text="${homeUser.nickname}">사용자</p>
+                <dl>
+                    <div><dt>소속</dt><dd th:text="${homeUser.departmentName ?: '부서 미지정'}">부서 미지정</dd></div>
+                    <div><dt>직급</dt><dd th:text="${homeUser.positionName}">직급</dd></div>
+                </dl>
+                <p class="profile-note">문서는 계정의 접근 권한에 따라 표시됩니다.</p>
+            </section>
+            <p class="sidebar-imprint">AEGISVAULT<br><span>INTERNAL ARCHIVE</span></p>
+        </aside>
+
+        <main id="main-content" class="archive-paper" tabindex="-1">
+            <header class="welcome-heading">
+                <h1>기록 보관소</h1>
+                <p class="welcome-description">기술 문서를 검색하고 최신 기록을 확인하세요.</p>
+                <p th:if="${!canWrite}">문서 작성에는 소속 부서 배정이 필요합니다. 관리자에게 요청해주세요.</p>
+            </header>
+
+            <section class="archive-entry" aria-label="문서 찾기">
+                <form class="archive-search" action="/document/list" th:action="@{/document/list}" method="get" role="search">
+                    <label for="archive-query">문서 검색</label>
+                    <div class="search-controls">
+                        <input id="archive-query" type="search" name="q" placeholder="문서 제목으로 검색" autocomplete="off">
+                        <button type="submit">검색</button>
+                    </div>
+                </form>
+                <div class="register-summary">
+                    <span>현재 열람 가능한 문서</span>
+                    <a href="/document/list" th:href="@{/document/list}"><strong th:text="${documentCount}">0</strong>건 <span aria-hidden="true">→</span></a>
+                </div>
+            </section>
+
+            <section id="recent-register" class="recent-register" aria-labelledby="register-title">
+                <div class="section-heading">
+                    <h2 id="register-title">최근 등록 문서</h2>
+                    <a href="/document/list" th:href="@{/document/list}">전체 목록 <span aria-hidden="true">→</span></a>
+                </div>
+                <p class="section-description">열람 권한이 있는 문서의 최신 버전을 등록일 순으로 표시합니다.</p>
+                <div class="register-scroll" role="region" aria-label="최근 등록 문서 표" tabindex="0"
+                     th:if="${recentDocuments != null and !#lists.isEmpty(recentDocuments)}" hidden th:hidden="${false}">
+                    <table class="register-table">
+                        <caption class="visually-hidden">최근 등록 문서의 제목, 상태, 작성자 및 최신 버전 등록일</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col" class="document-column">문서 제목</th>
+                                <th scope="col" class="status-column">상태</th>
+                                <th scope="col" class="author-column">작성자</th>
+                                <th scope="col" class="date-column">등록일</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="version : ${recentDocuments}">
+                                <td>
+                                    <a class="document-title" th:href="@{/document/detail/{id}(id=${version.documentId})}" th:text="${version.title}"></a>
+                                    <span class="document-reference" th:text="'DOC-' + ${version.documentId} + ' · v' + ${version.versionNumber}"></span>
+                                </td>
+                                <td>
+                                    <span class="document-status" th:attr="data-status=${version.status}" th:switch="${version.status?.name()}">
+                                        <span th:case="'DRAFT'">초안</span>
+                                        <span th:case="'PENDING_REVIEW'">검토 대기</span>
+                                        <span th:case="'PENDING_SECURITY_APPROVAL'">보안 승인 대기</span>
+                                        <span th:case="'APPROVED'">승인 완료</span>
+                                        <span th:case="'REJECTED'">반려</span>
+                                        <span th:case="'ARCHIVED'">보관</span>
+                                        <span th:case="*">상태 미지정</span>
+                                    </span>
+                                </td>
+                                <td class="author-cell" th:text="${version.authorName}"></td>
+                                <td class="date-cell">
+                                    <time th:if="${version.createdAt != null}" th:attr="datetime=${version.createdAt}" th:text="${#temporals.format(version.createdAt, 'yyyy.MM.dd')}"></time>
+                                    <span th:if="${version.createdAt == null}">—</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="register-empty" th:if="${recentDocuments == null or #lists.isEmpty(recentDocuments)}">
+                    <span class="empty-reference" aria-hidden="true">—</span>
+                    <h3>현재 열람할 수 있는 문서가 없습니다.</h3>
+                    <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite}" hidden th:hidden="${false}">새 문서 작성 <span aria-hidden="true">→</span></a>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
 </html>

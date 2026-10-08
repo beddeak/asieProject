@@ -50,7 +50,10 @@ public class ReleaseService {
     User user = actors.get(actor);
     if (!recipients.existsByReleaseIdAndUserId(id, user.getId()))
       access.read(user, release.getProjectId());
-    documentAccess.requireScopes(user,documents.forVersions(items.findByReleaseIdOrderById(id).stream().map(ReleaseItem::getVersionId).toList()));
+    documentAccess.requireScopes(
+        user,
+        documents.forVersions(
+            items.findByReleaseIdOrderById(id).stream().map(ReleaseItem::getVersionId).toList()));
     return release;
   }
 
@@ -89,7 +92,7 @@ public class ReleaseService {
     var publishedDocuments =
         documents.forVersions(
             decision.snapshot().versions().stream().map(v -> v.versionId()).toList());
-    documentAccess.requireScopes(user,publishedDocuments);
+    documentAccess.requireScopes(user, publishedDocuments);
     for (User target : targets) documentAccess.requireScopes(target, publishedDocuments);
     int number =
         releases

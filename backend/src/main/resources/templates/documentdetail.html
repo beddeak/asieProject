@@ -13,7 +13,11 @@
           ></p>
           <h1 th:text="${documentVersion.title}"></h1>
           <div class="row">
-            <span class="badge" th:text="${documentVersion.status.label}"></span
+            <span
+              class="badge"
+              th:attr="data-status=${documentVersion.status}"
+              th:text="${documentVersion.status.label}"
+            ></span
             ><span th:text="'v'+${documentVersion.versionNumber}"></span
             ><span
               class="muted"

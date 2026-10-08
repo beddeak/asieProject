@@ -71,9 +71,7 @@
               th:text="${documentPage.totalElements} + '건'"
             ></span>
           </div>
-          <span class="register-description"
-            >문서별 최신 버전 · 페이지당 20건</span
-          >
+          <span class="register-description">문서별 최신 버전</span>
         </header>
 
         <form
@@ -84,7 +82,8 @@
         >
           <label
             >제목 검색<input
-              th:field="*{keyword}"
+              name="q"
+              th:value="${filter.keyword}"
               placeholder="문서 제목" /></label
           ><label
             >작성자<input
@@ -207,7 +206,7 @@
             ><span></span><span></span><span></span
           ></span>
           <h3
-            th:text="${departmentRequired ? '소속 부서가 배정되지 않았습니다' : '열람 가능한 문서가 없습니다'}"
+            th:text="${filter.keyword != null and !#strings.isEmpty(filter.keyword) ? '검색 결과가 없습니다' : (departmentRequired ? '소속 부서가 배정되지 않았습니다' : '열람 가능한 문서가 없습니다')}"
           >
             열람 가능한 문서가 없습니다
           </h3>

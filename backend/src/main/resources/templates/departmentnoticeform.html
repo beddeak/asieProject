@@ -1,26 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${editing ? '공지 수정 | AegisVault' : '공지 작성 | AegisVault'}"></title>
-    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
-    <link rel="stylesheet" th:href="@{/css/departmentworkspace.css}">
-</head>
-<body class="document-list-page department-workspace-page">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title
+      th:text="${editing ? '공지 수정 | AegisVault' : '공지 작성 | AegisVault'}"
+    ></title>
+    <link rel="stylesheet" th:href="@{/css/documentlist.css}" />
+    <link rel="stylesheet" th:href="@{/css/departmentworkspace.css}" />
+  </head>
+  <body class="document-list-page department-workspace-page">
     <header th:replace="~{fragments/departmentnavigation :: header}"></header>
     <main class="list-workspace notice-editor-workspace">
-        <nav th:replace="~{fragments/departmentnavigation :: tabs(${workspace})}"></nav>
-        <header class="page-heading"><div><p class="eyebrow" th:text="${workspace.selected.name}"></p><h1 th:text="${editing ? '공지 수정' : '새 공지 작성'}"></h1><p class="page-description">등록한 공지는 해당 부서원에게 바로 표시됩니다.</p></div><a class="secondary-button" th:href="@{/departments/{id}(id=${workspace.selected.id})}">부서 공지로 돌아가기</a></header>
-        <section class="register-panel notice-editor">
-            <form th:action="@{${formAction}}" th:object="${noticeForm}" method="post">
-                <div class="notice-errors" role="alert" th:if="${#fields.hasErrors('*')}"><p th:each="error : ${#fields.errors('*')}" th:text="${error}"></p></div>
-                <input type="hidden" th:if="${editing}" th:field="*{version}">
-                <div class="notice-field"><label for="title">공지 제목</label><input id="title" type="text" th:field="*{title}" maxlength="255" required placeholder="공지 제목을 입력하세요" th:attr="aria-invalid=${#fields.hasErrors('title')}"></div>
-                <div class="notice-field"><label for="content">공지 내용</label><textarea id="content" th:field="*{content}" rows="14" maxlength="10000" required placeholder="부서원에게 전달할 내용을 입력하세요" aria-describedby="content-hint" th:attr="aria-invalid=${#fields.hasErrors('content')}"></textarea><p id="content-hint">일반 텍스트로 최대 10,000자까지 작성할 수 있습니다.</p></div>
-                <div class="notice-editor-actions"><a th:href="@{/departments/{id}(id=${workspace.selected.id})}">취소</a><button class="notice-primary" type="submit" th:text="${editing ? '수정 저장' : '공지 등록'}"></button></div>
-            </form>
-        </section>
+      <nav
+        th:replace="~{fragments/departmentnavigation :: tabs(${workspace})}"
+      ></nav>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${workspace.selected.name}"></p>
+          <h1 th:text="${editing ? '공지 수정' : '새 공지 작성'}"></h1>
+          <p class="page-description">
+            등록한 공지는 해당 부서원에게 바로 표시됩니다.
+          </p>
+        </div>
+        <a
+          class="secondary-button"
+          th:href="@{/departments/{id}(id=${workspace.selected.id})}"
+          >부서 공지로 돌아가기</a
+        >
+      </header>
+      <section class="register-panel notice-editor">
+        <form
+          th:action="@{${formAction}}"
+          th:object="${noticeForm}"
+          method="post"
+        >
+          <div
+            class="notice-errors"
+            role="alert"
+            th:if="${#fields.hasErrors('*')}"
+          >
+            <p th:each="error : ${#fields.errors('*')}" th:text="${error}"></p>
+          </div>
+          <input type="hidden" th:if="${editing}" th:field="*{version}" />
+          <div class="notice-field">
+            <label for="title">공지 제목</label
+            ><input
+              id="title"
+              type="text"
+              th:field="*{title}"
+              maxlength="255"
+              required
+              placeholder="공지 제목을 입력하세요"
+              th:attr="aria-invalid=${#fields.hasErrors('title')}"
+            />
+          </div>
+          <div class="notice-field">
+            <label for="content">공지 내용</label
+            ><textarea
+              id="content"
+              th:field="*{content}"
+              rows="14"
+              maxlength="10000"
+              required
+              placeholder="부서원에게 전달할 내용을 입력하세요"
+              aria-describedby="content-hint"
+              th:attr="aria-invalid=${#fields.hasErrors('content')}"
+            ></textarea>
+            <p id="content-hint">
+              일반 텍스트로 최대 10,000자까지 작성할 수 있습니다.
+            </p>
+          </div>
+          <div class="notice-editor-actions">
+            <a th:href="@{/departments/{id}(id=${workspace.selected.id})}"
+              >취소</a
+            ><button
+              class="notice-primary"
+              type="submit"
+              th:text="${editing ? '수정 저장' : '공지 등록'}"
+            ></button>
+          </div>
+        </form>
+      </section>
     </main>
-</body>
+  </body>
 </html>

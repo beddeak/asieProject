@@ -170,6 +170,56 @@ class WorkflowIntegrationTest {
   }
 
   @Test
+  void adminSubmissionImmediatelyApprovesEveryClassificationIncludingProjectVersions() {
+    for (var classification : SecurityClassification.values()) {
+      Document doc =
+          documents.create(
+              new DocumentCommand(
+                  "관리자 " + classification,
+                  "확정 본문",
+                  Position.STAFF,
+                  projectId,
+                  DocumentCategory.DESIGN,
+                  classification,
+                  false),
+              admin.getId());
+      var first = versions.findFirstByDocumentOrderByVersionNumberDesc(doc).orElseThrow();
+      assertEquals(DocumentStatus.APPROVED, first.getStatus());
+      assertEquals(admin.getId(), first.getReviewedBy().getId());
+      assertEquals(
+          "AUTO_APPROVED",
+          documents
+              .comments(first.getId(), admin.getId(), 0)
+              .getContent()
+              .getFirst()
+              .getDecision());
+      Long secondId = documents.newVersion(doc.getId(), admin.getId(), first.getId());
+      var second = versions.findById(secondId).orElseThrow();
+      assertEquals(DocumentStatus.DRAFT, second.getStatus());
+      documents.edit(secondId, admin.getId(), second.getRevision(), "개정 확정", "v2 근거", true);
+      assertEquals(DocumentStatus.APPROVED, versions.findById(secondId).orElseThrow().getStatus());
+    }
+    var draftDoc =
+        documents.create(
+            new DocumentCommand(
+                "관리자 초안",
+                "",
+                Position.STAFF,
+                projectId,
+                DocumentCategory.OTHER,
+                SecurityClassification.RESTRICTED,
+                true),
+            admin.getId());
+    var draft = versions.findFirstByDocumentOrderByVersionNumberDesc(draftDoc).orElseThrow();
+    assertEquals(DocumentStatus.DRAFT, draft.getStatus());
+    assertTrue(documents.comments(draft.getId(), admin.getId(), 0).isEmpty());
+    var gate = releases.gate(owner.getNickname(), projectId);
+    assertFalse(gate.ready());
+    assertTrue(gate.blockers().stream().anyMatch(reason -> reason.contains("품질")));
+    assertTrue(gate.blockers().stream().anyMatch(reason -> reason.contains("보안")));
+  }
+
+  @Test
   void projectMembershipAndClassificationAreEnforcedForListHistoryAndFiles() throws Exception {
     var version = draft(DocumentCategory.DESIGN, SecurityClassification.CONFIDENTIAL);
     var file = new MockMultipartFile("file", "evidence.txt", "text/plain", "evidence".getBytes());

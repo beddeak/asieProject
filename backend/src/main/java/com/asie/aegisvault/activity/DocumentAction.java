@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum DocumentAction {
-    CREATED("작성·검토 요청"),
+    CREATED("문서 작성"),
     READ("문서 열람"),
     REVIEW_OPENED("검토 화면 열람"),
     APPROVED("승인"),

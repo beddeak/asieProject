@@ -14,10 +14,8 @@ public class Pagination {
   private final HttpServletRequest request;
 
   public String link(String parameter, int page) {
-    return UriComponentsBuilder.fromPath(request.getRequestURI())
-        .query(request.getQueryString())
-        .replaceQueryParam(parameter, page)
-        .build(true)
-        .toUriString();
+    var uri = UriComponentsBuilder.fromPath(request.getRequestURI());
+    request.getParameterMap().forEach((name, values) -> uri.queryParam(name, (Object[]) values));
+    return uri.replaceQueryParam(parameter, page).build().encode().toUriString();
   }
 }

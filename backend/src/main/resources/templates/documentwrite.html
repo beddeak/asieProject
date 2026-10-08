@@ -4,34 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>문서 작성 | AegisVault</title>
+    <link rel="stylesheet" href="/css/common.css" th:href="@{/css/common.css}">
     <link rel="stylesheet" href="/css/documentwrite.css" th:href="@{/css/documentwrite.css}">
 </head>
 <body class="document-write-page">
-    <header class="workspace-header">
-        <div class="company">
-            <span class="company-mark" aria-hidden="true">A</span>
-            <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
-        </div>
-        <span class="environment"><a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리 →</a></span>
-    </header>
+    <th:block th:replace="~{fragments/layout :: header('write', true)}"></th:block>
 
     <main class="write-workspace">
         <header class="page-heading">
             <div>
                 <p class="eyebrow">DOCUMENT WORKSPACE</p>
                 <h1>새 문서 작성</h1>
-                <p class="page-description">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
+                <p class="page-description" th:text="${automaticallyApproved} ? '관리자가 작성한 문서는 등록 즉시 승인됩니다.' : '기술의 근거를 기록하고, 다음 검토를 준비합니다.'">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
             </div>
-            <nav class="page-actions" aria-label="문서 탐색">
-                <a class="draft-badge" th:href="@{/}">홈</a>
-                <a class="draft-badge" th:href="@{/departments}">부서 탭·공지</a>
-                <a class="draft-badge" th:href="@{/document/list}">문서 목록 →</a>
-                <a class="draft-badge" th:href="@{/document/review}">검토함 →</a>
-            </nav>
+            <a class="button" th:href="@{/document/review}">검토함 →</a>
         </header>
 
         <div class="workspace-grid">
-            <section class="editor-panel" aria-labelledby="editor-title">
+            <section class="editor-panel paper-panel" aria-labelledby="editor-title">
                 <header class="panel-heading">
                     <h2 id="editor-title">문서 내용</h2>
                     <span>제목과 본문은 필수입니다.</span>
@@ -88,39 +78,37 @@
                     </div>
 
                     <footer class="editor-actions">
-                        <p>자동 저장되지 않습니다.<br>등록하면 해당 부서의 검토를 요청합니다.</p>
-                        <button type="submit">등록 및 검토 요청 <span aria-hidden="true">→</span></button>
+                        <p>자동 저장되지 않습니다.<br><span th:text="${automaticallyApproved} ? '등록하면 승인 완료 상태로 보관됩니다.' : '등록하면 해당 부서의 검토를 요청합니다.'">등록하면 해당 부서의 검토를 요청합니다.</span></p>
+                        <button type="submit"><span th:text="${automaticallyApproved} ? '문서 등록' : '등록 및 검토 요청'">등록 및 검토 요청</span> <span aria-hidden="true">→</span></button>
                     </footer>
                 </form>
             </section>
 
             <aside class="document-sidebar" aria-label="문서 작성 정보">
-                <section class="metadata-panel" aria-labelledby="metadata-title">
+                <section class="metadata-panel paper-panel" aria-labelledby="metadata-title">
                     <p class="eyebrow">DOCUMENT DETAILS</p>
                     <h2 id="metadata-title">등록 정보</h2>
                     <dl class="document-metadata">
                         <div><dt>버전</dt><dd>01 <span>최초 작성</span></dd></div>
-                        <div><dt>등록 후 상태</dt><dd>검토 대기 <span>PENDING_REVIEW</span></dd></div>
+                        <div><dt>등록 후 상태</dt><dd><th:block th:text="${automaticallyApproved} ? '승인 완료' : '검토 대기'">검토 대기</th:block> <span th:text="${automaticallyApproved} ? 'APPROVED' : 'PENDING_REVIEW'">PENDING_REVIEW</span></dd></div>
                         <div><dt>작성자</dt><dd>로그인 계정</dd></div>
                         <div><dt>담당 부서</dt><dd>작성자의 소속 부서</dd></div>
                     </dl>
                     <p class="metadata-note">작성자와 부서는 로그인 정보에서 자동으로 확인합니다. 부서가 배정된 계정만 작성할 수 있습니다.</p>
                 </section>
 
-                <section class="writing-guide" aria-labelledby="guide-title">
+                <section class="writing-guide paper-panel" aria-labelledby="guide-title">
                     <span class="guide-marker" aria-hidden="true">i</span>
                     <div>
                         <h2 id="guide-title">저장 전 확인</h2>
-                        <p>승인 전에는 작성자, 열람 등급을 충족하는 해당 부서 검토자와 ADMIN만 볼 수 있습니다. ADMIN을 포함한 모든 검토자는 자신의 문서를 승인할 수 없습니다.</p>
+                        <p th:if="${automaticallyApproved}">등록 즉시 승인되므로 문서 내용과 열람 가능한 최소 직급을 확인해 주세요.</p>
+                        <p th:unless="${automaticallyApproved}">승인 전에는 작성자, 열람 등급을 충족하는 해당 부서 검토자와 ADMIN만 볼 수 있습니다. 검토함에서 수동으로 승인할 때는 ADMIN을 포함한 모든 검토자가 자신의 문서를 승인할 수 없습니다.</p>
                     </div>
                 </section>
             </aside>
         </div>
     </main>
 
-    <footer class="workspace-footer">
-        <span>AegisVault · Internal Document Management</span>
-        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
-    </footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

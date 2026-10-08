@@ -1,4 +1,13 @@
-.document-register { overflow: hidden; border: 1px solid #d6dfe6; border-radius: 8px; background: #fff; }
-.table-scroll { overflow-x: auto; }
-.review-notice { padding: 14px 18px; border: 1px solid #b6d4cc; border-radius: 5px; background: #edf7f3; color: #155a4f; }
-.review-pagination { display: flex; align-items: center; justify-content: center; gap: 24px; padding: 20px; }
+/* Review desk differences from the archive register. */
+.document-register { min-width: 0; }
+.document-review-page .register-heading > span { color: var(--muted); font-size: 11px; }
+.document-review-page .document-table .title-column { width: 36%; }
+.document-review-page .document-table th:nth-child(2) { width: 17%; }
+.document-review-page .document-table th:nth-child(3) { width: 14%; }
+.document-review-page .document-table th:nth-child(4) { width: 15%; }
+.document-review-page .document-table th:nth-child(5) { width: 18%; }
+.review-pagination { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 24px; padding: 18px 24px; border-top: 1px solid var(--rule); font-size: 12px; }
+
+@media (max-width: 520px) {
+    .review-pagination { gap: 18px; padding: 16px; }
+}

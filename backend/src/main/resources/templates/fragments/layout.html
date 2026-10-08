@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+<th:block th:fragment="header(activePage, signedIn)">
+    <header class="masthead">
+        <div class="masthead-inner">
+            <a class="archive-brand" href="/" th:href="@{/}" aria-label="AegisVault 기록 보관소 홈">
+                <svg class="archive-seal" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+                    <path d="M48 4 86 26v44L48 92 10 70V26Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M48 12 79 30v36L48 84 17 66V30Z" stroke="currentColor" stroke-opacity=".4"/>
+                    <path d="M29 30h38v26c0 11-11 18-19 22-8-4-19-11-19-22Z" fill="currentColor" fill-opacity=".08" stroke="currentColor" stroke-width="2"/>
+                    <path d="m36 58 12-24 12 24M41 49h14" stroke="currentColor" stroke-width="3"/>
+                    <path d="M48 4v8M86 26l-7 4M86 70l-7-4M48 92v-8M10 70l7-4M10 26l7 4" stroke="currentColor" stroke-width="2"/>
+                </svg>
+                <span class="brand-type">
+                    <span class="brand-name">AegisVault</span>
+                    <span class="brand-subtitle">기술 기록 보관소</span>
+                    <span class="brand-caption">AEGIS DEFENSE TECHNOLOGIES</span>
+                </span>
+            </a>
+            <div class="masthead-account" th:if="${signedIn}">
+                <span class="session-label">사내 접속</span>
+                <p><strong th:if="${homeUser != null}" th:text="${homeUser.nickname}"></strong><strong th:unless="${homeUser != null}" sec:authentication="name">사용자</strong><span> 님</span></p>
+                <form action="/logout" th:action="@{/logout}" method="post"><button class="logout-link" type="submit">로그아웃</button></form>
+            </div>
+            <span class="masthead-guest" th:unless="${signedIn}">INTERNAL DOCUMENT ARCHIVE</span>
+        </div>
+    </header>
+    <nav class="primary-nav" aria-label="주 메뉴">
+        <div class="primary-nav-inner">
+            <th:block th:if="${signedIn}">
+                <a href="/" th:href="@{/}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">보관소 홈</a>
+                <a th:href="@{/projects}">프로젝트</a><a th:href="@{/departments}">부서</a><a th:href="@{/tasks}">내 업무</a>
+                <a href="/document/list" th:href="@{/document/list}" th:attr="aria-current=${activePage == 'documents' or activePage == 'detail' ? 'page' : null}">문서 목록</a>
+                <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite == null or canWrite}" th:attr="aria-current=${activePage == 'write' ? 'page' : null}">문서 작성</a>
+                <a href="/document/review" th:href="@{/document/review}" th:if="${canReview == null or canReview}" sec:authorize="hasAnyRole('MANAGER', 'DEPUTY_GENERAL_MANAGER', 'GENERAL_MANAGER', 'EXECUTIVE', 'ADMIN')" th:attr="aria-current=${activePage == 'review' ? 'page' : null}">문서 검토</a>
+                <a href="/admin/users" th:href="@{/admin/users}" th:if="${isAdmin == null or isAdmin}" sec:authorize="hasRole('ADMIN')" th:attr="aria-current=${activePage == 'admin' or activePage == 'activity' or activePage == 'department' ? 'page' : null}">관리실</a>
+            </th:block>
+            <th:block th:unless="${signedIn}">
+                <a href="/user/login" th:href="@{/user/login}" th:attr="aria-current=${activePage == 'login' ? 'page' : null}">로그인</a>
+                <a href="/user/signup" th:href="@{/user/signup}" th:attr="aria-current=${activePage == 'signup' ? 'page' : null}">계정 등록</a>
+            </th:block>
+        </div>
+    </nav>
+</th:block>
+<footer class="site-footer" th:fragment="footer"><span>Aegis Defense Technologies · AegisVault</span></footer>
+</body>
+</html>

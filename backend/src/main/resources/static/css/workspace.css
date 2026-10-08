@@ -1,21 +1,11 @@
+@import url("common.css");
+
 :root {
-  --ink: #182b36;
-  --muted: #61717b;
-  --line: #dae2e5;
-  --paper: #fff;
-  --bg: #f3f6f7;
-  --brand: #11675e;
-  --brand-dark: #0b4741;
-  --danger: #9f303b;
-  --radius: 12px;
-  font-family:
-    Inter,
-    Pretendard,
-    "Noto Sans KR",
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    sans-serif;
+  --line: var(--rule);
+  --bg: var(--canvas);
+  --brand: var(--burgundy);
+  --brand-dark: var(--burgundy-dark);
+  --radius: 4px;
   color: var(--ink);
   background: var(--bg);
   font-size: 15px;
@@ -78,7 +68,7 @@ button.danger {
   padding: 0.4rem;
 }
 .quiet:hover {
-  background: #e9f1ef;
+  background: var(--soft);
   color: var(--brand);
 }
 :focus-visible {
@@ -89,7 +79,7 @@ input,
 select,
 textarea {
   width: 100%;
-  border: 1px solid #aebfc6;
+  border: 1px solid var(--border);
   border-radius: 7px;
   padding: 0.65rem 0.8rem;
   color: var(--ink);
@@ -195,7 +185,7 @@ p:last-child {
   gap: 0.7rem;
 }
 .counter {
-  background: #e5f1ed;
+  background: #f3e9e9;
   border-radius: 30px;
   padding: 0.05rem 0.4rem;
   font-size: 0.75rem;
@@ -296,7 +286,7 @@ p:last-child {
 }
 .tabs a:hover,
 .tabs a[aria-current="page"] {
-  background: #e3eeeb;
+  background: #f3e9e9;
   color: var(--brand);
   font-weight: 650;
 }
@@ -312,7 +302,7 @@ th {
   font-size: 0.77rem;
   letter-spacing: 0.03em;
   color: var(--muted);
-  background: #f6f8f9;
+  background: var(--soft);
   white-space: nowrap;
 }
 th,
@@ -443,7 +433,7 @@ td a {
   margin: 0;
 }
 .timeline li {
-  border-left: 2px solid #c8dbd5;
+  border-left: 2px solid var(--border);
   padding: 0 0 1.5rem 1.3rem;
   position: relative;
 }

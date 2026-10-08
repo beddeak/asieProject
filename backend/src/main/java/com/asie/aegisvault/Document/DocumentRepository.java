@@ -30,5 +30,6 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
   @Query("select distinct d from DocumentVersion v join v.document d where v.id in :versionIds")
   java.util.List<Document> forVersions(@Param("versionIds") java.util.List<Long> versionIds);
+
   java.util.List<Document> findByProjectId(Long projectId);
 }

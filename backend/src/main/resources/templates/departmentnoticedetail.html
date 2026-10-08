@@ -1,25 +1,78 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title th:text="${notice.title} + ' | 부서 공지'"></title>
-    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
-    <link rel="stylesheet" th:href="@{/css/departmentworkspace.css}">
-</head>
-<body class="document-list-page department-workspace-page">
+    <link rel="stylesheet" th:href="@{/css/documentlist.css}" />
+    <link rel="stylesheet" th:href="@{/css/departmentworkspace.css}" />
+  </head>
+  <body class="document-list-page department-workspace-page">
     <header th:replace="~{fragments/departmentnavigation :: header}"></header>
     <main class="list-workspace notice-editor-workspace">
-        <nav class="page-actions notice-breadcrumb" aria-label="공지 탐색"><a th:href="@{/departments/{id}(id=${notice.departmentId})}" th:text="'← ' + ${notice.departmentName} + ' 공지 목록'"></a></nav>
-        <p class="notice-feedback" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-        <article class="register-panel notice-article" aria-labelledby="notice-title">
-            <header><p class="eyebrow" th:text="${notice.departmentName} + ' · 부서 공지'"></p><h1 id="notice-title" th:text="${notice.title}"></h1><div class="notice-meta"><span th:text="${notice.authorName}"></span><span>등록 <time th:attr="datetime=${notice.createdAt}" th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"></time></span><span th:if="${notice.version > 0}">수정 <time th:attr="datetime=${notice.updatedAt}" th:text="${#temporals.format(notice.updatedAt, 'yyyy.MM.dd HH:mm')}"></time></span></div></header>
-            <div class="notice-content" th:text="${notice.content}"></div>
-        </article>
-        <nav class="notice-management" th:if="${notice.canManage}" aria-label="공지 관리">
-            <a class="secondary-button" th:href="@{/departments/{departmentId}/notices/{id}/edit(departmentId=${notice.departmentId},id=${notice.id})}">공지 수정</a>
-            <details class="notice-delete"><summary>공지 삭제</summary><form th:action="@{/departments/{departmentId}/notices/{id}/delete(departmentId=${notice.departmentId},id=${notice.id})}" method="post"><input type="hidden" name="version" th:value="${notice.version}"><p>이 공지를 삭제합니다.</p><button class="notice-danger" type="submit">삭제 확인</button></form></details>
-        </nav>
+      <nav class="page-actions notice-breadcrumb" aria-label="공지 탐색">
+        <a
+          th:href="@{/departments/{id}(id=${notice.departmentId})}"
+          th:text="'← ' + ${notice.departmentName} + ' 공지 목록'"
+        ></a>
+      </nav>
+      <p
+        class="notice-feedback"
+        role="status"
+        th:if="${successMessage != null}"
+        th:text="${successMessage}"
+      ></p>
+      <article
+        class="register-panel notice-article"
+        aria-labelledby="notice-title"
+      >
+        <header>
+          <p
+            class="eyebrow"
+            th:text="${notice.departmentName} + ' · 부서 공지'"
+          ></p>
+          <h1 id="notice-title" th:text="${notice.title}"></h1>
+          <div class="notice-meta">
+            <span th:text="${notice.authorName}"></span
+            ><span
+              >등록
+              <time
+                th:attr="datetime=${notice.createdAt}"
+                th:text="${#temporals.format(notice.createdAt, 'yyyy.MM.dd HH:mm')}"
+              ></time></span
+            ><span th:if="${notice.version > 0}"
+              >수정
+              <time
+                th:attr="datetime=${notice.updatedAt}"
+                th:text="${#temporals.format(notice.updatedAt, 'yyyy.MM.dd HH:mm')}"
+              ></time
+            ></span>
+          </div>
+        </header>
+        <div class="notice-content" th:text="${notice.content}"></div>
+      </article>
+      <nav
+        class="notice-management"
+        th:if="${notice.canManage}"
+        aria-label="공지 관리"
+      >
+        <a
+          class="secondary-button"
+          th:href="@{/departments/{departmentId}/notices/{id}/edit(departmentId=${notice.departmentId},id=${notice.id})}"
+          >공지 수정</a
+        >
+        <details class="notice-delete">
+          <summary>공지 삭제</summary>
+          <form
+            th:action="@{/departments/{departmentId}/notices/{id}/delete(departmentId=${notice.departmentId},id=${notice.id})}"
+            method="post"
+          >
+            <input type="hidden" name="version" th:value="${notice.version}" />
+            <p>이 공지를 삭제합니다.</p>
+            <button class="notice-danger" type="submit">삭제 확인</button>
+          </form>
+        </details>
+      </nav>
     </main>
-</body>
+  </body>
 </html>

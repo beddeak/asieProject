@@ -50,6 +50,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.server.ResponseStatusException;
@@ -507,6 +508,7 @@ class DocumentControllerTest {
       resolver.setTemplateMode("HTML");
       resolver.setCharacterEncoding("UTF-8");
       SpringTemplateEngine engine = new SpringTemplateEngine();
+      engine.addDialect(new org.thymeleaf.extras.springsecurity6.dialect.SpringSecurityDialect());
       engine.setTemplateResolver(resolver);
       return engine;
     }
@@ -523,5 +525,149 @@ class DocumentControllerTest {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
       registry.addResourceHandler("/css/**").addResourceLocations("classpath:/static/css/");
     }
+  }
+
+  @Test
+  void adminFormShowsImmediateApprovalAndKeepsCsrf() throws Exception {
+    mockAdmin();
+    mockMvc
+        .perform(get("/document/write").with(user("admin").roles("ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(view().name("documentwrite"))
+        .andExpect(model().attribute("automaticallyApproved", true))
+        .andExpect(content().string(containsString("관리자가 작성한 문서는 등록 즉시 승인됩니다.")))
+        .andExpect(content().string(containsString("문서 등록")))
+        .andExpect(content().string(containsString("승인 완료")))
+        .andExpect(content().string(containsString("APPROVED")))
+        .andExpect(content().string(not(containsString("PENDING_REVIEW"))))
+        .andExpect(content().string(not(containsString("등록 및 검토 요청"))))
+        .andExpect(content().string(containsString("name=\"_csrf\"")));
+    verify(documentService).assignablePositions(11L);
+    verifyNoMoreInteractions(documentService);
+  }
+
+  @Test
+  void adminPostUsesCurrentAuthorAndShowsApprovedDetailAfterRedirect() throws Exception {
+    User admin = mockAdmin();
+    Document saved = new Document(admin, admin.getDepartment(), Position.STAFF);
+    ReflectionTestUtils.setField(saved, "id", 42L);
+    DocumentVersion approvedVersion = new DocumentVersion(saved, 1, "관리자 기록", "확정된 기록입니다.");
+    ReflectionTestUtils.setField(approvedVersion, "status", DocumentStatus.APPROVED);
+    when(documentService.create("관리자 기록", "확정된 기록입니다.", Position.STAFF, 11L)).thenReturn(saved);
+    when(documentService.documentdetail(42L, 11L)).thenReturn(approvedVersion);
+
+    MvcResult result =
+        mockMvc
+            .perform(
+                post("/document/write")
+                    .with(user("admin").roles("ADMIN"))
+                    .with(csrf())
+                    .param("title", "관리자 기록")
+                    .param("content", "확정된 기록입니다.")
+                    .param("requiredPosition", "STAFF")
+                    .param("authorId", "999")
+                    .param("status", "PENDING_REVIEW")
+                    .param("automaticallyApproved", "false"))
+            .andExpect(status().is3xxRedirection())
+            .andExpect(redirectedUrl("/document/detail/42"))
+            .andExpect(flash().attribute("successMessage", "관리자 문서가 등록되어 승인 완료되었습니다."))
+            .andReturn();
+
+    mockMvc
+        .perform(
+            get("/document/detail/42")
+                .with(user("admin").roles("ADMIN"))
+                .flashAttrs(result.getFlashMap())
+                .param("viewerId", "999"))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("documentVersion", approvedVersion))
+        .andExpect(content().string(containsString("관리자 문서가 등록되어 승인 완료되었습니다.")))
+        .andExpect(content().string(containsString("확정된 기록입니다.")))
+        .andExpect(content().string(containsString("data-status=\"APPROVED\"")))
+        .andExpect(content().string(containsString("승인 완료")));
+    verify(documentService).create("관리자 기록", "확정된 기록입니다.", Position.STAFF, 11L);
+    verify(documentService).documentdetail(42L, 11L);
+  }
+
+  @Test
+  void adminValidationFailureKeepsAutomaticApprovalForm() throws Exception {
+    mockAdmin();
+    mockMvc
+        .perform(
+            post("/document/write")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf())
+                .param("title", " ")
+                .param("content", "입력한 본문")
+                .param("requiredPosition", "STAFF"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("documentwrite"))
+        .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"))
+        .andExpect(model().attribute("automaticallyApproved", true))
+        .andExpect(content().string(containsString("입력한 본문")))
+        .andExpect(content().string(containsString("관리자가 작성한 문서는 등록 즉시 승인됩니다.")))
+        .andExpect(content().string(not(containsString("PENDING_REVIEW"))));
+    verify(documentService).assignablePositions(11L);
+    verifyNoMoreInteractions(documentService);
+  }
+
+  @Test
+  void adminServiceFailureKeepsAutomaticApprovalForm() throws Exception {
+    mockAdmin();
+    when(documentService.create("관리자 기록", "유지할 본문", Position.STAFF, 11L))
+        .thenThrow(new IllegalArgumentException("문서를 등록할 수 없습니다."));
+    mockMvc
+        .perform(
+            post("/document/write")
+                .with(user("admin").roles("ADMIN"))
+                .with(csrf())
+                .param("title", "관리자 기록")
+                .param("content", "유지할 본문")
+                .param("requiredPosition", "STAFF"))
+        .andExpect(status().isOk())
+        .andExpect(view().name("documentwrite"))
+        .andExpect(model().attribute("automaticallyApproved", true))
+        .andExpect(content().string(containsString("문서를 등록할 수 없습니다.")))
+        .andExpect(content().string(containsString("유지할 본문")))
+        .andExpect(content().string(containsString("관리자가 작성한 문서는 등록 즉시 승인됩니다.")))
+        .andExpect(content().string(not(containsString("등록 및 검토 요청"))));
+  }
+
+  @Test
+  void staleAdminAuthorityCannotChangeCurrentNonadminApprovalPath() throws Exception {
+    Document saved = mock(Document.class);
+    when(saved.getId()).thenReturn(42L);
+    when(documentService.create("일반 기록", "검토할 본문", Position.STAFF, 7L)).thenReturn(saved);
+    mockMvc
+        .perform(get("/document/write").with(user("writer").roles("ADMIN")))
+        .andExpect(status().isOk())
+        .andExpect(model().attribute("automaticallyApproved", false))
+        .andExpect(content().string(containsString("등록 및 검토 요청")))
+        .andExpect(content().string(not(containsString("관리자가 작성한 문서는 등록 즉시 승인됩니다."))));
+    mockMvc
+        .perform(
+            post("/document/write")
+                .with(user("writer").roles("ADMIN"))
+                .with(csrf())
+                .param("title", "일반 기록")
+                .param("content", "검토할 본문")
+                .param("requiredPosition", "STAFF")
+                .param("automaticallyApproved", "true")
+                .param("status", "APPROVED"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrl("/document/detail/42"))
+        .andExpect(flash().attribute("successMessage", "문서가 등록되어 검토 대기로 전환되었습니다."));
+    verify(documentService).create("일반 기록", "검토할 본문", Position.STAFF, 7L);
+  }
+
+  private User mockAdmin() {
+    Department department = new Department("보안관리부", "관리자 소속 부서");
+    ReflectionTestUtils.setField(department, "id", 3L);
+    User admin = new User("admin", "admin@example.com", "test-password-hash");
+    ReflectionTestUtils.setField(admin, "id", 11L);
+    admin.assign(Position.ADMIN, department);
+    when(userRepository.findByNickname("admin")).thenReturn(Optional.of(admin));
+    when(documentService.assignablePositions(11L)).thenReturn(List.of(Position.values()));
+    return admin;
   }
 }

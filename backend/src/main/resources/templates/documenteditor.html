@@ -10,11 +10,15 @@
           <p class="eyebrow">DOCUMENT EDITOR</p>
           <h1 th:text="${versionId==null?'문서 초안 작성':'초안 편집'}"></h1>
           <p class="muted">
-            초안에서 내용을 작성하고 파일을 첨부한 뒤 검토를 요청하세요.
+            초안에서 내용을 작성하고 파일을 첨부한 뒤 제출하세요.
           </p>
         </div>
         <a th:href="@{/document/list}">문서 목록</a>
       </header>
+      <p class="notice" th:if="${workspaceAccount.admin}">
+        관리자 작성 문서는 제출 즉시 승인됩니다. 초안 저장 시에는 승인되지
+        않으며, 프로젝트 배포의 품질·보안 검사는 별도로 진행됩니다.
+      </p>
       <section class="card">
         <form
           class="form-grid"
@@ -80,7 +84,13 @@
           <div class="actions">
             <button class="secondary" name="submit" value="false">
               초안 저장</button
-            ><button name="submit" value="true">저장 후 검토 요청</button>
+            ><button
+              name="submit"
+              value="true"
+              th:text="${workspaceAccount.admin ? '저장 후 즉시 승인' : '저장 후 검토 요청'}"
+            >
+              저장 후 검토 요청
+            </button>
           </div>
         </form>
       </section>

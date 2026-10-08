@@ -77,15 +77,15 @@ public class DocumentService {
     documents.save(document);
     DocumentVersion version =
         DocumentVersion.draft(document, 1, command.title(), command.content(), actor);
-    if (!command.draft()) version.submitForReview();
     versions.save(version);
     changed(document);
     activities.save(new DocumentActivity(actor, version, DocumentAction.CREATED));
+    if (!command.draft()) submit(version, actor);
     event(
         actor,
         version,
         command.draft() ? "DOCUMENT_DRAFTED" : "DOCUMENT_SUBMITTED",
-        reviewers(document));
+        version.getStatus() == DocumentStatus.PENDING_REVIEW ? reviewers(document) : List.of());
     return document;
   }
 
@@ -118,13 +118,17 @@ public class DocumentService {
   }
 
   public DocumentListResult documentList(Long viewerId, DocumentFilter filter, int page) {
+    return documentList(viewerId, filter, page, 20);
+  }
+
+  public DocumentListResult documentList(Long viewerId, DocumentFilter filter, int page, int size) {
     User actor = user(viewerId);
     boolean admin = accounts.isAdmin(actor);
     boolean assigned = actor.getDepartment() != null;
     Page<DocumentListItem> result =
         PageQueries.fetch(
             page,
-            20,
+            Math.clamp(size, 1, 50),
             filter.ordering(),
             pageable ->
                 versions.findVisibleLatestVersions(
@@ -153,6 +157,13 @@ public class DocumentService {
         !admin && !assigned,
         assigned,
         actor.getPosition().isAtLeast(Position.MANAGER));
+  }
+
+  public Page<DocumentListItem> accessibleDocuments(
+      Long viewerId, int page, int size, String query) {
+    DocumentFilter filter = new DocumentFilter();
+    filter.setKeyword(query == null ? "" : query.strip());
+    return documentList(viewerId, filter, page, size).documents();
   }
 
   public Page<DocumentListItem> history(Long documentId, Long viewerId, int page) {
@@ -215,13 +226,24 @@ public class DocumentService {
     if (!Objects.equals(revision, version.getRevision()))
       conflict("문서가 변경되었습니다. 새로고침 후 다시 저장해주세요.");
     version.editDraft(title, content, actor);
-    if (submit) version.submitForReview();
+    if (submit) submit(version, actor);
     changed(version.getDocument());
     event(
         actor,
         version,
         submit ? "DOCUMENT_SUBMITTED" : "DOCUMENT_DRAFT_UPDATED",
-        submit ? reviewers(version.getDocument()) : List.of());
+        submit && version.getStatus() == DocumentStatus.PENDING_REVIEW
+            ? reviewers(version.getDocument())
+            : List.of());
+  }
+
+  private void submit(DocumentVersion version, User actor) {
+    version.submitForReview();
+    if (!accounts.isAdmin(actor)) return;
+    version.approve(actor);
+    notes.save(new ReviewNote(version, actor, "AUTO_APPROVED", "관리자 작성 문서 즉시 승인 정책에 따라 승인되었습니다."));
+    activities.save(new DocumentActivity(actor, version, DocumentAction.APPROVED));
+    event(actor, version, "DOCUMENT_AUTO_APPROVED", List.of());
   }
 
   @Transactional
