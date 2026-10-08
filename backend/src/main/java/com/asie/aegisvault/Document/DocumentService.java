@@ -1,211 +1,485 @@
 package com.asie.aegisvault.Document;
 
+import com.asie.aegisvault.Department.Department;
+import com.asie.aegisvault.Document.dto.*;
+import com.asie.aegisvault.User.*;
+import com.asie.aegisvault.activity.*;
+import com.asie.aegisvault.audit.AuditEvent;
+import com.asie.aegisvault.common.*;
+import com.asie.aegisvault.project.*;
+import com.asie.aegisvault.security.*;
+import java.time.Instant;
+import java.util.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-
-import com.asie.aegisvault.Department.Department;
-import com.asie.aegisvault.Document.dto.DocumentListItem;
-import com.asie.aegisvault.Document.dto.DocumentListResult;
-import com.asie.aegisvault.Document.dto.ReviewQueueItem;
-import com.asie.aegisvault.common.PageQueries;
-import com.asie.aegisvault.User.User;
-import com.asie.aegisvault.User.UserRepository;
-import com.asie.aegisvault.User.Position;
-import com.asie.aegisvault.security.UserAccessPolicy;
-import com.asie.aegisvault.activity.DocumentAction;
-import com.asie.aegisvault.activity.DocumentActivity;
-import com.asie.aegisvault.activity.DocumentActivityRepository;
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class DocumentService {
-    private final DocumentVersionRepository documentVersionRepository;
-    private final DocumentRepository documentRepository;
-    private final UserRepository userRepository;
-    private final UserAccessPolicy userAccessPolicy;
-    private final DocumentActivityRepository activityRepository;
+  private final DocumentVersionRepository versions;
+  private final DocumentRepository documents;
+  private final UserRepository users;
+  private final UserAccessPolicy accounts;
+  private final DocumentActivityRepository activities;
+  private final DocumentAccess access;
+  private final DocumentLocks locks;
+  private final ProjectAccess projects;
+  private final ProjectMemberRepository members;
+  private final ReviewNoteRepository notes;
+  private final ApplicationEventPublisher events;
+  private final com.asie.aegisvault.attachment.AttachmentRepository attachments;
+  private final com.asie.aegisvault.Department.DepartmentRepository departments;
 
-    @Transactional
-    public Document create(String title, String content, Position requiredPosition, Long authorId) {
-        if (title == null || title.isBlank()) {
-            throw new IllegalArgumentException("문서 제목을 입력하세요");
-        }
-        if (content == null || content.isBlank()) {
-            throw new IllegalArgumentException("문서 내용을 입력하세요");
-        }
-        User author = findUser(authorId);
-        userAccessPolicy.requireAssignablePosition(author, requiredPosition);
+  @Transactional
+  public Document create(String title, String content, Position position, Long authorId) {
+    return create(
+        new DocumentCommand(
+            title,
+            content,
+            position,
+            null,
+            DocumentCategory.OTHER,
+            SecurityClassification.INTERNAL,
+            false),
+        authorId);
+  }
 
-        Department department = author.getDepartment();
-        if (department == null) {
-            throw new IllegalArgumentException("부서를 찾을 수 가 없습니다");
-        }
-        Document document = new Document(author, department, requiredPosition);
-        document = documentRepository.save(document);
+  @Transactional
+  public Document create(DocumentCommand command, Long authorId) {
+    User actor = user(authorId);
+    accounts.requireAssignablePosition(actor, command.requiredPosition());
+    if (command.classification() == null
+        || !accounts.isAdmin(actor) && !actor.getClearance().permits(command.classification()))
+      throw new AccessDeniedException("보유한 보안 등급 범위에서 문서를 생성해주세요.");
+    if (command.projectId() == null && actor.getDepartment() != null)
+      departments.lockDepartments(List.of(actor.getDepartment().getId()));
+    Project project =
+        command.projectId() == null
+            ? null
+            : projects.lock(
+                actor,
+                command.projectId(),
+                ProjectRole.OWNER,
+                ProjectRole.ENGINEERING,
+                ProjectRole.CONTRIBUTOR);
+    Department department = project == null ? actor.getDepartment() : project.getDepartment();
+    if (department == null || department.isClosed())
+      throw new IllegalArgumentException("운영 중인 담당 부서가 필요합니다.");
+    Document document = new Document(actor, department, command.requiredPosition());
+    document.organize(project, command.category(), command.classification());
+    documents.save(document);
+    DocumentVersion version =
+        DocumentVersion.draft(document, 1, command.title(), command.content(), actor);
+    if (!command.draft()) version.submitForReview();
+    versions.save(version);
+    changed(document);
+    activities.save(new DocumentActivity(actor, version, DocumentAction.CREATED));
+    event(
+        actor,
+        version,
+        command.draft() ? "DOCUMENT_DRAFTED" : "DOCUMENT_SUBMITTED",
+        reviewers(document));
+    return document;
+  }
 
-        DocumentVersion version = new DocumentVersion(document,1,title,content);
-        version.submitForReview();
-        documentVersionRepository.save(version);
-        activityRepository.save(new DocumentActivity(author, version, DocumentAction.CREATED));
+  @Transactional
+  public DocumentVersion documentdetail(Long documentId, Long viewerId) {
+    User actor = user(viewerId);
+    Document document = document(documentId);
+    access.requireScope(actor, document);
+    return read(actor, latest(document));
+  }
 
-        return document;
-    }
-    @Transactional
-    public DocumentVersion documentdetail(Long documentId, Long viewerId) {
-        User viewer = findUser(viewerId);
-        Document document = documentRepository.findById(documentId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서를 찾을 수 없습니다."));
+  @Transactional
+  public DocumentVersion versionDetail(Long versionId, Long viewerId) {
+    return read(user(viewerId), version(versionId));
+  }
 
-        validateReadPermission(viewer, document);
+  private DocumentVersion read(User actor, DocumentVersion version) {
+    access.requireRead(actor, version);
+    activities.save(new DocumentActivity(actor, version, DocumentAction.READ));
+    event(actor, version, "DOCUMENT_READ", List.of());
+    return version;
+  }
 
-        DocumentVersion version = documentVersionRepository.findFirstByDocumentOrderByVersionNumberDesc(document)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
-        if (!userAccessPolicy.isAdmin(viewer) && version.getStatus() != DocumentStatus.APPROVED
-                && !isAuthor(viewer, document)
-                && !viewer.getPosition().isAtLeast(Position.MANAGER)) {
-            throw new AccessDeniedException("승인 전·반려 문서는 작성자와 검토자만 열람할 수 있습니다.");
-        }
-        activityRepository.save(new DocumentActivity(viewer, version, DocumentAction.READ));
-        return version;
-    }
+  public List<Position> assignablePositions(Long userId) {
+    return accounts.assignablePositions(user(userId));
+  }
 
-    public List<Position> assignablePositions(Long userId) {
-        return userAccessPolicy.assignablePositions(findUser(userId));
-    }
+  public DocumentListResult documentList(Long viewerId, int page) {
+    return documentList(viewerId, new DocumentFilter(), page);
+  }
 
-    public DocumentListResult documentList(Long viewerId, int page) {
-        User viewer = findUser(viewerId);
-        List<Position> positions = userAccessPolicy.assignablePositions(viewer);
-        boolean admin = userAccessPolicy.isAdmin(viewer);
-        boolean reviewer = viewer.getPosition().isAtLeast(Position.MANAGER);
-        Department department = viewer.getDepartment();
-        boolean assigned = department != null && department.getId() != null;
-        String departmentName = admin ? "전체 부서" : assigned ? department.getName() : "소속 부서 미배정";
-        var sort = Sort.by(Sort.Direction.DESC, "createdAt", "id");
-        if (!admin && !assigned) {
-            return new DocumentListResult(Page.empty(PageRequest.of(0, 20, sort)),
-                    departmentName, true, false, reviewer);
-        }
-        Long departmentId = admin ? null : department.getId();
-        Page<DocumentListItem> documents = PageQueries.fetch(page, 20, sort,
-                pageable -> documentVersionRepository.findVisibleLatestVersions(admin, departmentId, positions,
-                        reviewer, viewer.getId(), DocumentStatus.APPROVED, pageable));
-        return new DocumentListResult(documents, departmentName, false, assigned, reviewer);
-    }
+  public DocumentListResult documentList(Long viewerId, DocumentFilter filter, int page) {
+    User actor = user(viewerId);
+    boolean admin = accounts.isAdmin(actor);
+    boolean assigned = actor.getDepartment() != null;
+    Page<DocumentListItem> result =
+        PageQueries.fetch(
+            page,
+            20,
+            filter.ordering(),
+            pageable ->
+                versions.findVisibleLatestVersions(
+                    admin,
+                    departmentId(actor),
+                    accounts.assignablePositions(actor),
+                    actor.getPosition().isAtLeast(Position.MANAGER),
+                    securityReviewer(actor),
+                    actor.getId(),
+                    clearances(actor),
+                    Instant.now(),
+                    SearchText.contains(filter.getKeyword()),
+                    SearchText.contains(filter.getAuthor()),
+                    filter.getStatus(),
+                    filter.getCategory(),
+                    filter.getProjectId(),
+                    filter.getDepartmentId(),
+                    filter.isArchived(),
+                    filter.isMine(),
+                    filter.isReviewOnly(),
+                    filter.isSecurityOnly(),
+                    pageable));
+    return new DocumentListResult(
+        result,
+        admin ? "전체 부서" : assigned ? actor.getDepartment().getName() : "소속 부서 미배정",
+        !admin && !assigned,
+        assigned,
+        actor.getPosition().isAtLeast(Position.MANAGER));
+  }
 
-    public Page<ReviewQueueItem> reviewQueue(Long reviewerId, int page) {
-        User reviewer = findUser(reviewerId);
-        userAccessPolicy.requireManagerOrAbove(reviewer);
-        boolean admin = userAccessPolicy.isAdmin(reviewer);
-        Department department = reviewer.getDepartment();
-        if (!admin && (department == null || department.getId() == null)) {
-            throw new AccessDeniedException("소속 부서가 배정되어야 검토할 수 있습니다.");
-        }
-        var positions = userAccessPolicy.assignablePositions(reviewer);
-        return PageQueries.fetch(page, 20, Sort.by(Sort.Direction.DESC, "createdAt", "id"),
-                pageable -> documentVersionRepository.findReviewQueue(DocumentStatus.PENDING_REVIEW,
-                        admin ? null : department.getId(), positions, reviewer.getId(), pageable));
-    }
+  public Page<DocumentListItem> history(Long documentId, Long viewerId, int page) {
+    User actor = user(viewerId);
+    access.requireScope(actor, document(documentId));
+    return PageQueries.fetch(
+        page,
+        20,
+        Sort.by(Sort.Direction.DESC, "versionNumber"),
+        pageable ->
+            versions.history(
+                documentId,
+                accounts.isAdmin(actor),
+                departmentId(actor),
+                accounts.assignablePositions(actor),
+                actor.getPosition().isAtLeast(Position.MANAGER),
+                securityReviewer(actor),
+                actor.getId(),
+                clearances(actor),
+                Instant.now(),
+                pageable));
+  }
 
-    @Transactional
-    public DocumentVersion reviewDetail(Long versionId, Long reviewerId) {
-        User reviewer = findUser(reviewerId);
-        userAccessPolicy.requireManagerOrAbove(reviewer);
-        DocumentVersion version = documentVersionRepository.findForDisplayById(versionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
-        validateReviewPermission(reviewer, version.getDocument());
-        requirePendingLatestVersion(version);
-        activityRepository.save(new DocumentActivity(reviewer, version, DocumentAction.REVIEW_OPENED));
-        return version;
-    }
+  @Transactional
+  public Long newVersion(Long documentId, Long actorId, Long expectedVersionId) {
+    User actor = user(actorId);
+    Document document = locks.lock(documentId);
+    access.requireEdit(actor, document);
+    DocumentVersion previous = latest(document);
+    if (!Objects.equals(previous.getId(), expectedVersionId)) conflict("다른 버전이 생성되었습니다. 새로고침해주세요.");
+    if (previous.getStatus() == DocumentStatus.DRAFT
+        || previous.getStatus() == DocumentStatus.PENDING_REVIEW
+        || previous.getStatus() == DocumentStatus.PENDING_SECURITY_APPROVAL)
+      conflict("현재 초안 또는 검토를 먼저 완료해주세요.");
+    document.reopen();
+    DocumentVersion next =
+        versions.save(
+            DocumentVersion.draft(
+                document,
+                previous.getVersionNumber() + 1,
+                previous.getTitle(),
+                previous.getContent(),
+                actor));
+    attachments.saveAll(
+        attachments.findByVersionIdOrderById(previous.getId()).stream()
+            .map(a -> a.copy(next.getId()))
+            .toList());
+    changed(document);
+    event(actor, next, "DOCUMENT_VERSION_CREATED", List.of());
+    return next.getId();
+  }
 
-    @Transactional
-    public void approve(Long versionId, Long reviewerId) {
-        review(versionId, reviewerId, true);
-    }
+  @Transactional
+  public void edit(
+      Long versionId, Long actorId, Long revision, String title, String content, boolean submit) {
+    User actor = user(actorId);
+    DocumentVersion version = lockedVersion(versionId);
+    access.requireEdit(actor, version.getDocument());
+    requireLatest(version);
+    if (!Objects.equals(revision, version.getRevision()))
+      conflict("문서가 변경되었습니다. 새로고침 후 다시 저장해주세요.");
+    version.editDraft(title, content, actor);
+    if (submit) version.submitForReview();
+    changed(version.getDocument());
+    event(
+        actor,
+        version,
+        submit ? "DOCUMENT_SUBMITTED" : "DOCUMENT_DRAFT_UPDATED",
+        submit ? reviewers(version.getDocument()) : List.of());
+  }
 
-    @Transactional
-    public void reject(Long versionId, Long reviewerId) {
-        review(versionId, reviewerId, false);
-    }
+  @Transactional
+  public void archive(Long documentId, Long actorId, Long expectedVersionId) {
+    User actor = user(actorId);
+    Document document = locks.lock(documentId);
+    access.requireEdit(actor, document);
+    DocumentVersion latest = latest(document);
+    if (document.isArchived() || !Objects.equals(latest.getId(), expectedVersionId))
+      conflict("문서 상태가 변경되었습니다. 새로고침해주세요.");
+    latest.archive();
+    document.archive();
+    changed(document);
+    event(actor, latest, "DOCUMENT_ARCHIVED", List.of());
+  }
 
-    private void review(Long versionId, Long reviewerId, boolean approve) {
-        User reviewer = findUser(reviewerId);
-        userAccessPolicy.requireManagerOrAbove(reviewer);
-        DocumentVersion version = documentVersionRepository.findForReviewById(versionId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
-        validateReviewPermission(reviewer, version.getDocument());
-        requirePendingLatestVersion(version);
-        if (approve) {
-            version.approve(reviewer);
-        } else {
-            version.reject(reviewer);
-        }
-        activityRepository.save(new DocumentActivity(reviewer, version,
-                approve ? DocumentAction.APPROVED : DocumentAction.REJECTED));
-    }
+  public Page<ReviewQueueItem> reviewQueue(Long reviewerId, int page) {
+    User actor = user(reviewerId);
+    accounts.requireManagerOrAbove(actor);
+    return PageQueries.fetch(
+        page,
+        20,
+        Sort.by(Sort.Direction.DESC, "createdAt", "id"),
+        pageable ->
+            versions.findReviewQueue(
+                DocumentStatus.PENDING_REVIEW,
+                departmentId(actor),
+                accounts.assignablePositions(actor),
+                actor.getId(),
+                accounts.isAdmin(actor),
+                clearances(actor),
+                pageable));
+  }
 
-    private void requirePendingLatestVersion(DocumentVersion version) {
-        if (version.getStatus() != DocumentStatus.PENDING_REVIEW) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "이미 처리되었거나 검토 대기 상태가 아닌 문서입니다.");
-        }
-        DocumentVersion latest = documentVersionRepository
-                .findFirstByDocumentOrderByVersionNumberDesc(version.getDocument())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
-        if (!version.getId().equals(latest.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "최신 버전만 검토할 수 있습니다.");
-        }
-    }
+  @Transactional
+  public DocumentVersion reviewDetail(Long versionId, Long reviewerId) {
+    User actor = user(reviewerId);
+    DocumentVersion version = version(versionId);
+    access.requireReview(actor, version, false);
+    requirePending(version, DocumentStatus.PENDING_REVIEW);
+    activities.save(new DocumentActivity(actor, version, DocumentAction.REVIEW_OPENED));
+    return version;
+  }
 
-    private User findUser(Long userId) {
-        if (userId == null) {
-            throw new AccessDeniedException("사용자 정보를 확인할 수 없습니다.");
-        }
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
-        userAccessPolicy.requireActive(user);
-        return user;
-    }
+  @Transactional
+  public void approve(Long versionId, Long reviewerId) {
+    review(versionId, reviewerId, true, false, "");
+  }
 
-    private boolean isAuthor(User user, Document document) {
-        return document.getAuthor() != null && user.getId() != null
-                && user.getId().equals(document.getAuthor().getId());
-    }
+  @Transactional
+  public void reject(Long versionId, Long reviewerId, String reason) {
+    review(versionId, reviewerId, false, false, reason);
+  }
 
-    private void validateReviewPermission(User reviewer, Document document) {
-        userAccessPolicy.requireManagerOrAbove(reviewer);
-        validateReadPermission(reviewer, document);
-        if (isAuthor(reviewer, document)) {
-            throw new AccessDeniedException("자신이 작성한 문서는 다른 검토자가 처리해야 합니다.");
-        }
-    }
+  @Transactional
+  public void review(
+      Long versionId, Long actorId, boolean approved, boolean security, String reason) {
+    User actor = user(actorId);
+    DocumentVersion version = lockedVersion(versionId);
+    access.requireReview(actor, version, security);
+    requirePending(
+        version,
+        security ? DocumentStatus.PENDING_SECURITY_APPROVAL : DocumentStatus.PENDING_REVIEW);
+    if (!approved && (reason == null || reason.isBlank()))
+      throw new IllegalArgumentException("반려 사유를 입력해주세요.");
+    if (security) version.securityDecision(actor, approved);
+    else if (!approved) version.reject(actor);
+    else if (version.getDocument().getClassification() != SecurityClassification.INTERNAL)
+      version.sendToSecurity(actor);
+    else version.approve(actor);
+    notes.save(
+        new ReviewNote(
+            version,
+            actor,
+            (security ? "SECURITY_" : "") + (approved ? "APPROVED" : "REJECTED"),
+            reason));
+    activities.save(
+        new DocumentActivity(
+            actor, version, approved ? DocumentAction.APPROVED : DocumentAction.REJECTED));
+    var recipients = new ArrayList<Long>();
+    recipients.add(version.getDocument().getAuthor().getId());
+    if (version.getEditorId() != null) recipients.add(version.getEditorId());
+    if (version.getStatus() == DocumentStatus.PENDING_SECURITY_APPROVAL
+        && version.getDocument().getProject() != null)
+      recipients.addAll(
+          members.recipients(
+              version.getDocument().getProject().getId(), List.of(ProjectRole.SECURITY)));
+    changed(version.getDocument());
+    event(actor, version, security ? "DOCUMENT_SECURITY_DECIDED" : "DOCUMENT_REVIEWED", recipients);
+  }
 
-    private void validateReadPermission(User viewer, Document document) {
+  public Page<ReviewNote> comments(Long versionId, Long actorId, int page) {
+    DocumentVersion version = version(versionId);
+    access.requireRead(user(actorId), version);
+    return PageQueries.fetch(
+        page,
+        20,
+        Sort.by(Sort.Direction.DESC, "id"),
+        pageable -> notes.findByVersionId(versionId, pageable));
+  }
 
-        if (userAccessPolicy.isAdmin(viewer)) {
-            return;
-        }
+  @Transactional
+  public void comment(Long versionId, Long actorId, String content) {
+    User actor = user(actorId);
+    DocumentVersion version = lockedVersion(versionId);
+    access.requireRead(actor, version);
+    if (content == null || content.isBlank()) throw new IllegalArgumentException("검토 의견을 입력해주세요.");
+    notes.save(new ReviewNote(version, actor, "COMMENT", content));
+    event(actor, version, "DOCUMENT_COMMENTED", List.of(version.getDocument().getAuthor().getId()));
+  }
 
-        Department viewerDepartment = viewer.getDepartment();
-        Department documentDepartment = document.getDepartment();
-        if (viewerDepartment == null || documentDepartment == null
-                || viewerDepartment.getId() == null
-                || !viewerDepartment.getId().equals(documentDepartment.getId())) {
-            throw new AccessDeniedException("해당 문서를 열람할 권한이 없습니다.");
-        }
-        if (viewer.getPosition() == null || document.getRequiredPosition() == null
-                || !viewer.getPosition().isAtLeast(document.getRequiredPosition())) {
-            throw new AccessDeniedException("문서 열람에 필요한 직급을 충족하지 않습니다.");
-        }
-    }
+  public Actions actions(Long versionId, Long actorId) {
+    User actor = user(actorId);
+    DocumentVersion version = version(versionId);
+    access.requireRead(actor, version);
+    return actions(actor, version);
+  }
+
+  public Actions actions(User actor, DocumentVersion version) {
+    Long actorId = actor.getId();
+    Document document = version.getDocument();
+    boolean open =
+        !document.getDepartment().isClosed()
+            && (document.getProject() == null
+                || document.getProject().getStatus() != ProjectStatus.CLOSED);
+    boolean current =
+        Objects.equals(versions.latestId(document.getId()).orElse(null), version.getId());
+    boolean independent =
+        !version.writtenBy(actorId) && !Objects.equals(document.getAuthor().getId(), actorId);
+    boolean edit = open && current && access.canEdit(actor, document);
+    return new Actions(
+        edit && version.getStatus() == DocumentStatus.DRAFT,
+        edit
+            && (version.getStatus() == DocumentStatus.APPROVED
+                || version.getStatus() == DocumentStatus.REJECTED
+                || version.getStatus() == DocumentStatus.ARCHIVED),
+        edit
+            && !document.isArchived()
+            && version.getStatus() != DocumentStatus.PENDING_REVIEW
+            && version.getStatus() != DocumentStatus.PENDING_SECURITY_APPROVAL,
+        open
+            && current
+            && independent
+            && access.canReview(actor, document)
+            && version.getStatus() == DocumentStatus.PENDING_REVIEW,
+        open
+            && current
+            && independent
+            && access.canSecure(actor, document)
+            && version.getStatus() == DocumentStatus.PENDING_SECURITY_APPROVAL
+            && (version.getReviewedBy() == null
+                || !Objects.equals(actorId, version.getReviewedBy().getId())));
+  }
+
+  public record Actions(
+      boolean edit, boolean newVersion, boolean archive, boolean review, boolean security) {}
+
+  private User user(Long id) {
+    if (id == null) throw new AccessDeniedException("사용자 정보를 확인할 수 없습니다.");
+    User user =
+        users.findById(id).orElseThrow(() -> new AccessDeniedException("사용자 정보를 확인할 수 없습니다."));
+    accounts.requireActive(user);
+    return user;
+  }
+
+  private Document document(Long id) {
+    return documents
+        .findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서를 찾을 수 없습니다."));
+  }
+
+  private DocumentVersion version(Long id) {
+    return versions
+        .findForDisplayById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
+  }
+
+  private DocumentVersion latest(Document document) {
+    return versions
+        .findFirstByDocumentOrderByVersionNumberDesc(document)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
+  }
+
+  private DocumentVersion lockedVersion(Long id) {
+    Long documentId =
+        versions
+            .documentId(id)
+            .orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "문서 버전을 찾을 수 없습니다."));
+    locks.lock(documentId);
+    return version(id);
+  }
+
+  private void requireLatest(DocumentVersion version) {
+    if (!Objects.equals(latest(version.getDocument()).getId(), version.getId()))
+      conflict("최신 버전에서 처리해주세요.");
+  }
+
+  private void requirePending(DocumentVersion version, DocumentStatus expected) {
+    if (version.getStatus() != expected || version.getDocument().isArchived())
+      conflict("이미 처리되었거나 검토 대기 상태가 아닙니다.");
+    requireLatest(version);
+  }
+
+  private void changed(Document document) {
+    if (document.getProject() != null) document.getProject().markChanged();
+  }
+
+  private void event(User actor, DocumentVersion version, String action, List<Long> recipients) {
+    Document d = version.getDocument();
+    events.publishEvent(
+        AuditEvent.of(
+                actor,
+                action,
+                "DOCUMENT_VERSION",
+                version.getId(),
+                d.getProject() == null ? null : d.getProject().getId(),
+                "문서 #"
+                    + d.getId()
+                    + " v"
+                    + version.getVersionNumber()
+                    + " · "
+                    + version.getStatus())
+            .notify(recipients, "/document/versions/" + version.getId()));
+  }
+
+  private List<Long> reviewers(Document document) {
+    if (document.getProject() != null)
+      return members.recipients(
+          document.getProject().getId(), List.of(ProjectRole.OWNER, ProjectRole.ENGINEERING));
+    return users.reviewers(
+        document.getDepartment().getId(),
+        Arrays.stream(Position.values())
+            .filter(
+                p -> p.isAtLeast(Position.MANAGER) && p.isAtLeast(document.getRequiredPosition()))
+            .toList(),
+        Arrays.stream(SecurityClassification.values())
+            .filter(c -> c.permits(document.getClassification()))
+            .toList());
+  }
+
+  private static Long departmentId(User user) {
+    return user.getDepartment() == null ? null : user.getDepartment().getId();
+  }
+
+  private boolean securityReviewer(User actor) {
+    return accounts.isAdmin(actor)
+        || actor.getPosition().isAtLeast(Position.MANAGER)
+            && actor.getClearance() != SecurityClassification.INTERNAL;
+  }
+
+  private List<SecurityClassification> clearances(User user) {
+    return Arrays.stream(SecurityClassification.values())
+        .filter(c -> accounts.isAdmin(user) || user.getClearance().permits(c))
+        .toList();
+  }
+
+  private static void conflict(String message) {
+    throw new ResponseStatusException(HttpStatus.CONFLICT, message);
+  }
 }

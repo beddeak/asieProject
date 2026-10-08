@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('전체 공지 상세')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace narrow">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">COMPANY ANNOUNCEMENT</p>
+          <h1 th:text="${notice.title}"></h1>
+          <p
+            class="muted"
+            th:text="${notice.author.nickname}+' · '+${notice.createdAt}"
+          ></p>
+        </div>
+        <a th:href="@{/announcements}">전체 공지 목록</a>
+      </header>
+      <article class="card text" th:text="${notice.content}"></article>
+      <section class="card" th:if="${workspaceAccount.admin}">
+        <details>
+          <summary>공지 수정</summary>
+          <form
+            class="form-grid"
+            th:action="@{/announcements/{id}(id=${notice.id})}"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="revision"
+              th:value="${notice.version}"
+            /><label
+              >제목<input
+                name="title"
+                th:value="${notice.title}"
+                maxlength="255"
+                required /></label
+            ><label
+              >내용<textarea
+                name="content"
+                maxlength="10000"
+                required
+                th:text="${notice.content}"
+              ></textarea></label
+            ><button>수정 저장</button>
+          </form>
+        </details>
+        <form
+          th:action="@{/announcements/{id}/delete(id=${notice.id})}"
+          method="post"
+          data-confirm="전체 공지를 삭제할까요?"
+        >
+          <input
+            type="hidden"
+            name="revision"
+            th:value="${notice.version}"
+          /><button class="danger">공지 삭제</button>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

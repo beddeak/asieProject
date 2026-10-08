@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('계정 복구 관리')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">ACCOUNT ADMINISTRATION</p>
+          <h1>계정 복구 관리</h1>
+          <p class="muted">
+            요청자의 신원을 별도로 확인한 뒤 복구 링크를 발급하세요. 링크는
+            본인에게만 전달해야 합니다.
+          </p>
+        </div>
+        <a th:href="@{/admin/users}">사용자 관리</a>
+      </header>
+      <section class="notice success" th:if="${recoveryLink!=null}">
+        <h2>일회용 복구 링크</h2>
+        <a th:href="${recoveryLink}" th:text="${recoveryLink}"></a>
+        <p>
+          30분 후 만료됩니다. 이 화면을 떠나면 발급한 링크를 다시 표시하지
+          않습니다.
+        </p>
+      </section>
+      <article class="card" th:each="r:${requests}">
+        <h2 th:text="${r.nickname}+' (#'+${r.userId}+')'"></h2>
+        <small th:text="'접수: '+${r.requestedAt}"></small
+        ><small
+          th:if="${r.expiresAt!=null}"
+          th:text="'기존 링크 만료: '+${r.expiresAt}"
+        ></small>
+        <form
+          class="form-grid"
+          th:action="@{/admin/recovery/{id}(id=${r.id})}"
+          method="post"
+        >
+          <label
+            >본인 확인 근거<textarea
+              name="verification"
+              placeholder="확인 일시, 확인 방법, 확인 담당자"
+              required
+            ></textarea></label
+          ><button>복구 링크 발급·재발급</button>
+        </form>
+      </article>
+      <p class="empty" th:if="${requests.empty}">
+        처리할 복구 요청이 없습니다.
+      </p>
+      <nav th:replace="~{fragments/shell :: pager(${requests},'page')}"></nav>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

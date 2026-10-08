@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('내 계정')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace narrow">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">MY ACCOUNT</p>
+          <h1>내 계정</h1>
+        </div>
+      </header>
+      <section class="card">
+        <dl class="details">
+          <dt>로그인 아이디</dt>
+          <dd th:text="${workspaceAccount.name}"></dd>
+          <dt>사용자 번호</dt>
+          <dd th:text="${workspaceAccount.id}"></dd>
+          <dt>소속 부서</dt>
+          <dd th:text="${workspaceAccount.department}"></dd>
+          <dt>직급</dt>
+          <dd th:text="${workspaceAccount.position}"></dd>
+          <dt>보안 등급</dt>
+          <dd th:text="${workspaceAccount.clearance}"></dd>
+        </dl>
+      </section>
+      <section class="card">
+        <h2>비밀번호 변경</h2>
+        <p class="muted">
+          8자 이상, UTF-8 기준 72바이트 이내로 입력하세요. 변경하면 모든 기존
+          로그인 세션이 해제됩니다.
+        </p>
+        <form class="form-grid" th:action="@{/account/password}" method="post">
+          <label
+            >현재 비밀번호<input
+              name="current"
+              type="password"
+              autocomplete="current-password"
+              required /></label
+          ><label
+            >새 비밀번호<input
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required /></label
+          ><label
+            >새 비밀번호 확인<input
+              name="confirmation"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              required /></label
+          ><button>비밀번호 변경</button>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

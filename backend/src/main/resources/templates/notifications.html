@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('알림')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">INBOX</p>
+          <h1>업무 알림</h1>
+          <p class="muted">
+            참여자 배정, 문서 검토, 배포와 회수 소식을 확인하세요.
+          </p>
+        </div>
+        <form th:action="@{/notifications/read-all}" method="post">
+          <button class="secondary">모두 읽음</button>
+        </form>
+      </header>
+      <nav class="tabs">
+        <a th:href="@{/notifications(unread=true)}">읽지 않은 알림</a
+        ><a th:href="@{/notifications(unread=false)}">전체 알림</a>
+      </nav>
+      <section class="card">
+        <article class="card" th:each="n:${notifications}">
+          <small th:text="${n.createdAt}"></small>
+          <p th:text="${n.message}"></p>
+          <form
+            th:action="@{/notifications/{id}/read(id=${n.id})}"
+            method="post"
+          >
+            <button class="secondary">내용 확인</button>
+          </form>
+        </article>
+        <p class="empty" th:if="${notifications.empty}">
+          확인할 알림이 없습니다.
+        </p>
+        <nav
+          th:replace="~{fragments/shell :: pager(${notifications},'page')}"
+        ></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

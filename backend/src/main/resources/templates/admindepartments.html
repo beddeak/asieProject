@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('부서 관리')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">ORGANIZATION</p>
+          <h1>부서 관리</h1>
+          <p class="muted">
+            부서를 생성하면 공통 부서 탭이 자동으로 연결됩니다.
+          </p>
+        </div>
+        <a class="button" th:href="@{/dep/create}">부서 생성</a>
+      </header>
+      <article class="card" th:each="d:${departments}">
+        <h2>
+          <a th:href="@{/departments/{id}(id=${d.id})}" th:text="${d.name}"></a>
+          <span class="badge" th:text="${d.closed?'폐쇄':'운영 중'}"></span>
+        </h2>
+        <p th:text="${d.description}"></p>
+        <details th:if="${!d.closed}">
+          <summary>부서 정보 수정</summary>
+          <form
+            class="form-grid"
+            th:action="@{/admin/departments/{id}(id=${d.id})}"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="revision"
+              th:value="${d.revision}"
+            /><label
+              >부서 이름<input
+                name="name"
+                maxlength="255"
+                th:value="${d.name}"
+                required /></label
+            ><label
+              >부서 설명<textarea
+                name="description"
+                maxlength="2000"
+                th:text="${d.description}"
+              ></textarea></label
+            ><button>수정 저장</button>
+          </form>
+        </details>
+        <details th:if="${!d.closed}">
+          <summary>업무 이관 후 부서 폐쇄</summary>
+          <p class="muted">
+            사용자·문서·프로젝트를 선택한 부서로 이관합니다. 기존 부서 공지와
+            감사 기록은 보존됩니다.
+          </p>
+          <form
+            class="form-grid"
+            th:action="@{/admin/departments/{id}/close(id=${d.id})}"
+            method="post"
+            data-confirm="소속 업무를 이관하고 이 부서를 폐쇄할까요?"
+          >
+            <input
+              type="hidden"
+              name="revision"
+              th:value="${d.revision}"
+            /><label
+              >이관받을 부서<select name="targetId">
+                <option value="">이관 없이 폐쇄 · 빈 부서만 가능</option>
+                <option
+                  th:each="target:${departments}"
+                  th:if="${!target.closed and target.id!=d.id}"
+                  th:value="${target.id}"
+                  th:text="${target.name}"
+                ></option></select></label
+            ><button class="danger">부서 폐쇄</button>
+          </form>
+        </details>
+      </article>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

@@ -1,78 +1,141 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>홈 | AegisVault</title>
-    <link rel="stylesheet" th:href="@{/css/documentlist.css}">
-    <link rel="stylesheet" th:href="@{/css/home.css}">
-</head>
-<body class="home-page">
+    <link rel="stylesheet" th:href="@{/css/documentlist.css}" />
+    <link rel="stylesheet" th:href="@{/css/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/workspace.css}" />
+  </head>
+  <body class="home-page">
     <a class="skip-link" href="#home-menu">메뉴로 바로가기</a>
-    <header class="workspace-header">
-        <a class="company home-brand" th:href="@{/}" aria-label="AegisVault 홈">
-            <span class="company-mark" aria-hidden="true">A</span>
-            <span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span>
-        </a>
-        <div class="home-account">
-            <span><strong th:text="${accountName}"></strong> · <span th:text="${positionName}"></span></span>
-            <form th:action="@{/logout}" method="post"><button type="submit">로그아웃</button></form>
-        </div>
-    </header>
-
+    <header th:replace="~{fragments/shell :: header}"></header>
     <main class="list-workspace">
-        <header class="page-heading">
-            <div>
-                <p class="eyebrow">AEGISVAULT WORKSPACE</p>
-                <h1>홈</h1>
-                <p class="page-description">부서의 소식과 문서 업무를 한곳에서 시작하세요.</p>
-            </div>
-        </header>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">AEGISVAULT WORKSPACE</p>
+          <h1>홈</h1>
+          <p class="page-description">
+            부서의 소식과 문서 업무를 한곳에서 시작하세요.
+          </p>
+        </div>
+      </header>
 
-        <nav id="home-menu" class="home-menu" aria-label="홈 바로가기" tabindex="-1">
-            <a class="home-card featured-card" th:href="@{/departments}">
-                <span class="card-label">DEPARTMENT WORKSPACE</span>
-                <h2>부서 탭·공지</h2>
-                <p th:text="${admin ? '전체 부서의 탭과 공지를 확인하고 관리합니다.' : '소속 부서의 공지와 업무 소식을 확인합니다.'}"></p>
-                <span class="card-action">부서 게시판 열기 <span aria-hidden="true">→</span></span>
-            </a>
-            <a class="home-card" th:href="@{/document/list}">
-                <span class="card-label">DOCUMENT REGISTER</span>
-                <h2>문서 목록</h2>
-                <p>열람 가능한 문서와 최신 검토 현황을 확인합니다.</p>
-                <span class="card-action">목록 보기 <span aria-hidden="true">→</span></span>
-            </a>
-            <a class="home-card" th:if="${canWrite}" th:href="@{/document/write}">
-                <span class="card-label">DOCUMENT WORKSPACE</span>
-                <h2>문서 작성</h2>
-                <p>새 문서를 등록하고 부서에 검토를 요청합니다.</p>
-                <span class="card-action">새 문서 작성 <span aria-hidden="true">→</span></span>
-            </a>
-            <a class="home-card" th:if="${canReview}" th:href="@{/document/review}">
-                <span class="card-label">DOCUMENT REVIEW</span>
-                <h2>문서 검토함</h2>
-                <p>검토 대기 문서를 확인하고 승인 또는 반려합니다.</p>
-                <span class="card-action">검토함 열기 <span aria-hidden="true">→</span></span>
-            </a>
-            <a class="home-card" th:if="${admin}" th:href="@{/admin/users}">
-                <span class="card-label">ADMINISTRATION</span>
-                <h2>사용자·부서 관리</h2>
-                <p>계정과 소속 부서를 관리하고 새 부서를 생성합니다.</p>
-                <span class="card-action">관리 화면 열기 <span aria-hidden="true">→</span></span>
-            </a>
-            <a class="home-card" th:if="${admin}" th:href="@{/admin/activity}">
-                <span class="card-label">DOCUMENT ACTIVITY</span>
-                <h2>문서 활동 기록</h2>
-                <p>문서 작성·열람·검토와 승인 기록을 확인합니다.</p>
-                <span class="card-action">기록 보기 <span aria-hidden="true">→</span></span>
-            </a>
-        </nav>
-        <p class="home-guidance" th:if="${!canWrite}">문서를 작성하려면 소속 부서 배정이 필요합니다. 사용자 관리 담당자에게 요청해주세요.</p>
+      <nav
+        id="home-menu"
+        class="home-menu"
+        aria-label="홈 바로가기"
+        tabindex="-1"
+      >
+        <a class="home-card featured-card" th:href="@{/departments}">
+          <span class="card-label">DEPARTMENT WORKSPACE</span>
+          <h2>부서 탭·공지</h2>
+          <p
+            th:text="${admin ? '전체 부서의 탭과 공지를 확인하고 관리합니다.' : '소속 부서의 공지와 업무 소식을 확인합니다.'}"
+          ></p>
+          <span class="card-action"
+            >부서 게시판 열기 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:href="@{/document/list}">
+          <span class="card-label">DOCUMENT REGISTER</span>
+          <h2>문서 목록</h2>
+          <p>열람 가능한 문서와 최신 검토 현황을 확인합니다.</p>
+          <span class="card-action"
+            >목록 보기 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:if="${canWrite}" th:href="@{/document/new}">
+          <span class="card-label">DOCUMENT WORKSPACE</span>
+          <h2>문서 작성</h2>
+          <p>새 문서를 등록하고 부서에 검토를 요청합니다.</p>
+          <span class="card-action"
+            >새 문서 작성 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:if="${canReview}" th:href="@{/document/review}">
+          <span class="card-label">DOCUMENT REVIEW</span>
+          <h2>문서 검토함</h2>
+          <p>검토 대기 문서를 확인하고 승인 또는 반려합니다.</p>
+          <span class="card-action"
+            >검토함 열기 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:if="${admin}" th:href="@{/admin/users}">
+          <span class="card-label">ADMINISTRATION</span>
+          <h2>사용자·부서 관리</h2>
+          <p>계정과 소속 부서를 관리하고 새 부서를 생성합니다.</p>
+          <span class="card-action"
+            >관리 화면 열기 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:if="${admin}" th:href="@{/admin/activity}">
+          <span class="card-label">DOCUMENT ACTIVITY</span>
+          <h2>문서 활동 기록</h2>
+          <p>문서 작성·열람·검토와 승인 기록을 확인합니다.</p>
+          <span class="card-action"
+            >기록 보기 <span aria-hidden="true">→</span></span
+          >
+        </a>
+        <a class="home-card" th:href="@{/projects}"
+          ><span class="card-label">PROJECT WORKSPACE</span>
+          <h2>프로젝트</h2>
+          <p>참여자·문서·연구개발·품질·보안·배포를 연결합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:href="@{/tasks}"
+          ><span class="card-label">MY TASKS</span>
+          <h2>내 업무</h2>
+          <p>초안과 반려 문서, 검토 대상을 확인합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:href="@{/announcements}"
+          ><span class="card-label">ANNOUNCEMENTS</span>
+          <h2>전체 공지</h2>
+          <p>전체 구성원에게 공유된 공지를 확인합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:href="@{/notifications}"
+          ><span class="card-label">NOTIFICATIONS</span>
+          <h2>업무 알림</h2>
+          <p>담당 업무와 검토·배포 소식을 확인합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:href="@{/access}"
+          ><span class="card-label">TEMPORARY ACCESS</span>
+          <h2>임시 접근 권한</h2>
+          <p>문서 접근을 요청하고 승인 유효기간을 확인합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:if="${admin}" th:href="@{/admin/departments}"
+          ><span class="card-label">ORGANIZATION</span>
+          <h2>부서 운영 관리</h2>
+          <p>부서 이름 변경과 업무 이관·폐쇄를 관리합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:if="${admin}" th:href="@{/admin/audit}"
+          ><span class="card-label">AUDIT TRAIL</span>
+          <h2>전체 감사 로그</h2>
+          <p>보안·운영 기록과 로그 무결성을 확인합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+        <a class="home-card" th:if="${admin}" th:href="@{/admin/recovery}"
+          ><span class="card-label">ACCOUNT RECOVERY</span>
+          <h2>계정 복구 관리</h2>
+          <p>본인 확인을 거쳐 일회용 복구 링크를 발급합니다.</p>
+          <span class="card-action">열기 →</span></a
+        >
+      </nav>
+      <p class="home-guidance" th:if="${!canWrite}">
+        문서를 작성하려면 소속 부서 배정이 필요합니다. 사용자 관리 담당자에게
+        요청해주세요.
+      </p>
     </main>
 
     <footer class="workspace-footer">
-        <span>AegisVault · Internal Document Management</span>
-        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
+      <span>AegisVault · Internal Document Management</span>
+      <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
     </footer>
-</body>
+  </body>
 </html>

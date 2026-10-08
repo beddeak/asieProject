@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 개요')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="'PROJECT #'+${project.id}"></p>
+          <h1 th:text="${project.name}"></h1>
+          <p
+            class="muted"
+            th:text="${project.departmentName}+' · '+${project.status.label}"
+          ></p>
+        </div>
+        <div class="row">
+          <a
+            class="button secondary"
+            th:if="${project.canManage}"
+            th:href="@{/projects/{id}/edit(id=${project.id})}"
+            >정보 수정</a
+          ><a
+            class="button"
+            th:if="${project.canWrite}"
+            th:href="@{/document/new(projectId=${project.id})}"
+            >프로젝트 문서 작성</a
+          >
+        </div>
+      </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      <div class="grid">
+        <section class="card">
+          <h2>프로젝트 개요</h2>
+          <p
+            class="text"
+            th:text="${project.description?:'등록된 설명이 없습니다.'}"
+          ></p>
+          <p
+            class="muted"
+            th:text="'목표 완료일: '+${project.targetDate?:'미정'}"
+          ></p>
+          <form
+            class="actions"
+            th:if="${project.canManage}"
+            th:action="@{/projects/{id}/status(id=${project.id})}"
+            method="post"
+          >
+            <button
+              th:if="${project.status.name()=='PLANNING'}"
+              name="action"
+              value="start"
+            >
+              진행 시작</button
+            ><button
+              th:if="${project.status.name()=='ACTIVE'}"
+              name="action"
+              value="review"
+            >
+              배포 검토로 전환</button
+            ><button class="danger" name="action" value="close">
+              프로젝트 종료
+            </button>
+          </form>
+          <p class="muted">
+            문서나 검토 결과가 바뀌면 배포 전 다시 검토 상태로 전환해야 합니다.
+          </p>
+        </section>
+        <section class="card">
+          <h2>필수 문서</h2>
+          <ul>
+            <li
+              th:each="r:${project.requirements}"
+              th:text="${r.category.label}+' · 최소 '+${r.minimumCount}+'건'"
+            ></li>
+          </ul>
+          <form
+            class="toolbar"
+            th:if="${project.canManage}"
+            th:action="@{/projects/{id}/requirements(id=${project.id})}"
+            method="post"
+          >
+            <label
+              >문서 분류<select name="category">
+                <option
+                  th:each="c:${categories}"
+                  th:value="${c}"
+                  th:text="${c.label}"
+                ></option></select></label
+            ><label
+              >최소 수량<input
+                name="count"
+                type="number"
+                min="0"
+                value="1"
+                required /></label
+            ><button class="secondary">기준 적용</button>
+          </form>
+          <small
+            >수량 0을 적용하면 해당 분류의 필수 조건을 해제합니다. 기준 변경 시
+            품질·보안 검토가 다시 필요합니다.</small
+          >
+        </section>
+      </div>
+      <section class="card">
+        <h2>연결된 문서</h2>
+        <div th:replace="~{fragments/shell :: documents(${documents})}"></div>
+        <nav
+          th:replace="~{fragments/shell :: pager(${documents},'page')}"
+        ></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

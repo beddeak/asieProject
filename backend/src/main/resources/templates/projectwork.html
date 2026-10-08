@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 업무')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${project.name}"></p>
+          <h1>프로젝트 업무</h1>
+          <p class="muted">
+            승인된 문서를 기준으로 변경·시험·검토 근거를 연결합니다.
+          </p>
+        </div>
+      </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      <nav class="tabs" aria-label="업무 종류">
+        <a
+          th:each="t:${ {'changes','quality','defects','security','release'} }"
+          th:href="@{/projects/{id}/work(id=${project.id},tab=${t})}"
+          th:attr="aria-current=${tab==t?'page':null}"
+          th:text="${t=='changes'?'변경 요청':t=='quality'?'품질시험':t=='defects'?'부적합·시정 조치':t=='security'?'보안 검토':'최종 배포'}"
+        ></a>
+      </nav>
+      <div th:if="${tab=='changes'}">
+        <section class="card">
+          <h2>연구개발 변경 요청</h2>
+          <form class="toolbar" method="get">
+            <input type="hidden" name="tab" value="changes" /><label
+              >연결할 승인 문서 검색<input
+                name="documentKeyword"
+                th:value="${documentKeyword}"
+                placeholder="문서 제목" /></label
+            ><button class="secondary">문서 찾기</button>
+          </form>
+          <nav
+            th:replace="~{fragments/shell :: pager(${documentChoices},'documentPage')}"
+          ></nav>
+          <nav
+            th:replace="~{fragments/shell :: pager(${memberChoices},'memberPage')}"
+          ></nav>
+          <p class="muted">
+            승인된 기준 문서를 선택하세요. 변경을 반영한 승인 후속 버전을
+            연결해야 해결할 수 있습니다.
+          </p>
+          <details
+            th:if="${project.canWrite or project.canQuality or project.canSecurity}"
+          >
+            <summary>변경 요청 등록</summary>
+            <form
+              class="form-grid"
+              th:action="@{/projects/{id}/work/changes(id=${project.id})}"
+              method="post"
+            >
+              <label>제목<input name="title" maxlength="200" required /></label
+              ><label
+                >기준 문서 버전<select name="baseVersionId" required>
+                  <option value="">기준 문서 선택</option>
+                  <option
+                    th:each="v:${documentChoices}"
+                    th:value="${v.versionId}"
+                    th:text="${v.title}+' · v'+${v.versionNumber}"
+                  ></option></select></label
+              ><label
+                >변경 배경·영향 범위<textarea
+                  name="description"
+                  required
+                ></textarea></label
+              ><button>변경 요청</button>
+            </form>
+          </details>
+        </section>
+        <article class="card" th:each="c:${changes}">
+          <div class="row">
+            <h2 th:text="'#'+${c.id}+' '+${c.title}"></h2>
+            <span class="badge" th:text="${c.status}"></span>
+          </div>
+          <small
+            th:text="${c.requesterName}+' · '+${c.createdAt}+' · 담당: '+${c.assigneeName?:'미배정'}"
+          ></small>
+          <p class="text" th:text="${c.description}"></p>
+          <a th:href="@{/document/versions/{id}(id=${c.baseVersionId})}"
+            >기준 문서 버전</a
+          >
+          <p th:if="${c.resolvedVersionId!=null}">
+            <a th:href="@{/document/versions/{id}(id=${c.resolvedVersionId})}"
+              >해결에 연결된 새 버전</a
+            >
+          </p>
+          <p class="text" th:text="${c.resolution}"></p>
+          <details
+            th:if="${project.canEngineer and (c.status.name()=='OPEN' or c.status.name()=='IN_PROGRESS')}"
+          >
+            <summary>담당자 배정·요청 처리</summary>
+            <form
+              class="toolbar"
+              th:action="@{/projects/{p}/work/changes/{id}/assign(p=${project.id},id=${c.id})}"
+              method="post"
+            >
+              <label
+                >연구개발 담당자<select name="userId" required>
+                  <option value="">담당자 선택</option>
+                  <option
+                    th:each="m:${memberChoices}"
+                    th:if="${m.role.name()=='OWNER' or m.role.name()=='ENGINEERING'}"
+                    th:value="${m.userId}"
+                    th:text="${m.nickname}+' · '+${m.role.label}"
+                  ></option></select></label
+              ><button class="secondary">배정</button>
+            </form>
+            <form
+              class="form-grid"
+              th:action="@{/projects/{p}/work/changes/{id}/resolve(p=${project.id},id=${c.id})}"
+              method="post"
+            >
+              <label
+                >변경을 반영한 후속 버전<select name="versionId">
+                  <option value="">
+                    후속 버전 선택 · 요청 반려 시 생략 가능
+                  </option>
+                  <option
+                    th:each="v:${documentChoices}"
+                    th:value="${v.versionId}"
+                    th:text="${v.title}+' · v'+${v.versionNumber}"
+                  ></option></select></label
+              ><label
+                >처리 사유<textarea name="reason" required></textarea>
+              </label>
+              <div class="row">
+                <button name="reject" value="false">해결 완료</button
+                ><button class="danger" name="reject" value="true">
+                  요청 반려
+                </button>
+              </div>
+            </form>
+          </details>
+        </article>
+        <p class="empty" th:if="${changes.empty}">
+          등록된 변경 요청이 없습니다.
+        </p>
+        <nav th:replace="~{fragments/shell :: pager(${changes},'page')}"></nav>
+      </div>
+      <div th:if="${tab=='quality'}">
+        <section class="card">
+          <h2>시험 체크리스트</h2>
+          <p class="muted">
+            문서가 모두 승인된 후 시험합니다. 체크하지 않은 항목은 부적합으로
+            기록되며, 시험 근거는 필수입니다.
+          </p>
+          <form
+            class="toolbar"
+            th:if="${project.canQuality}"
+            th:action="@{/projects/{id}/work/checks(id=${project.id})}"
+            method="post"
+          >
+            <label
+              >시험 기준<input
+                name="criterion"
+                maxlength="300"
+                placeholder="예: 요구사항과 설계 결과의 추적성이 확인된다"
+                required /></label
+            ><button>기준 추가</button>
+          </form>
+          <ul>
+            <li th:each="c:${checks}">
+              <span th:text="${c.criterion}"></span>
+              <form
+                th:if="${project.canQuality}"
+                th:action="@{/projects/{p}/work/checks/{id}/retire(p=${project.id},id=${c.id})}"
+                method="post"
+              >
+                <button class="quiet">이 기준 종료</button>
+              </form>
+            </li>
+          </ul>
+          <p th:if="${checks.empty}" class="empty">
+            먼저 시험 기준을 등록해주세요.
+          </p>
+        </section>
+        <section class="card" th:if="${project.canQuality and !checks.empty}">
+          <h2>시험 결과 등록</h2>
+          <form
+            class="form-grid"
+            th:action="@{/projects/{id}/work/tests(id=${project.id})}"
+            method="post"
+          >
+            <input type="hidden" name="fingerprint" th:value="${fingerprint}" />
+            <fieldset>
+              <legend>적합한 항목을 선택하세요</legend>
+              <label class="check" th:each="c:${checks}"
+                ><input
+                  type="checkbox"
+                  name="passedChecks"
+                  th:value="${c.id}" /><span th:text="${c.criterion}"></span
+              ></label>
+            </fieldset>
+            <label
+              >시험 환경·수행 내용·결과 근거<textarea
+                name="evidence"
+                required
+              ></textarea></label
+            ><label
+              >재시험 대상 시험 번호 <small>최초 시험이면 비워두세요.</small
+              ><select name="retestOf">
+                <option value="">최초 시험</option>
+                <option
+                  th:each="r:${runs}"
+                  th:if="${!r.passed}"
+                  th:value="${r.id}"
+                  th:text="'시험 #'+${r.id}+' · '+${r.testerName}+' · '+${r.createdAt}"
+                ></option></select></label
+            ><button>시험 결과 확정</button>
+          </form>
+        </section>
+        <section class="card">
+          <h2>시험 이력</h2>
+          <article class="card" th:each="r:${runs}">
+            <h3>
+              <a
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${r.id})}"
+                th:text="'시험 #'+${r.id}"
+              ></a>
+              <span
+                class="badge"
+                th:classappend="${r.passed?'good':'bad'}"
+                th:text="${r.passed?'적합':'부적합'}"
+              ></span>
+            </h3>
+            <small th:text="${r.testerName}+' · '+${r.createdAt}"></small>
+            <p class="text" th:text="${r.evidence}"></p>
+            <small
+              th:if="${r.retestOf!=null}"
+              th:text="'재시험 대상: #'+${r.retestOf}"
+            ></small>
+          </article>
+          <p class="empty" th:if="${runs.empty}">
+            확정된 시험 결과가 없습니다.
+          </p>
+          <nav th:replace="~{fragments/shell :: pager(${runs},'page')}"></nav>
+        </section>
+      </div>
+      <div th:if="${tab=='defects'}">
+        <p class="notice">
+          부적합은 현재 문서 구성에 대한 적합 재시험과 시정 조치가 있어야 종료할
+          수 있습니다.
+        </p>
+        <article class="card" th:each="d:${defects}">
+          <h2 th:text="'부적합 #'+${d.id}+' · 시험 #'+${d.failedRunId}"></h2>
+          <span
+            class="badge"
+            th:text="${d.closed?'해결 완료':'해결 대기'}"
+          ></span>
+          <p class="text" th:text="${d.description}"></p>
+          <p class="text" th:text="${d.correctiveAction}"></p>
+          <small
+            th:if="${d.closed}"
+            th:text="${d.closedBy}+' · '+${d.closedAt}+' · 적합 재시험 #'+${d.passingRunId}"
+          ></small>
+          <form
+            class="form-grid"
+            th:if="${project.canQuality and !d.closed}"
+            th:action="@{/projects/{p}/work/defects/{id}/close(p=${project.id},id=${d.id})}"
+            method="post"
+          >
+            <label
+              >적합 재시험 번호<input
+                type="number"
+                name="passingRunId"
+                min="1"
+                required /></label
+            ><label
+              >원인 분석·시정 조치<textarea
+                name="correctiveAction"
+                required
+              ></textarea></label
+            ><button>시정 조치 완료</button>
+          </form>
+        </article>
+        <p class="empty" th:if="${defects.empty}">등록된 부적합이 없습니다.</p>
+        <nav th:replace="~{fragments/shell :: pager(${defects},'page')}"></nav>
+      </div>
+      <div th:if="${tab=='security'}">
+        <section class="card" th:if="${project.canSecurity}">
+          <h2>배포 구성 보안 검토</h2>
+          <p class="muted">
+            문서 작성자·품질시험 수행자와 다른 보안 담당자가 검토합니다. 검토 후
+            문서 또는 필수 조건이 변경되면 재검토가 필요합니다.
+          </p>
+          <form
+            class="form-grid"
+            th:action="@{/projects/{id}/work/security(id=${project.id})}"
+            method="post"
+          >
+            <input
+              type="hidden"
+              name="fingerprint"
+              th:value="${fingerprint}"
+            /><label
+              >검토 범위·접근 통제·잔여 위험·판단 근거<textarea
+                name="findings"
+                required
+              ></textarea>
+            </label>
+            <div class="row">
+              <button name="approved" value="true">보안 승인</button
+              ><button class="danger" name="approved" value="false">
+                보안 반려
+              </button>
+            </div>
+          </form>
+        </section>
+        <article class="card" th:each="a:${assessments}">
+          <h2 th:text="'보안 검토 #'+${a.id}"></h2>
+          <span
+            class="badge"
+            th:classappend="${a.approved?'good':'bad'}"
+            th:text="${a.approved?'승인':'반려'}"
+          ></span
+          ><small th:text="${a.reviewerName}+' · '+${a.createdAt}"></small>
+          <p class="text" th:text="${a.findings}"></p>
+        </article>
+        <p class="empty" th:if="${assessments.empty}">
+          등록된 보안 검토가 없습니다.
+        </p>
+        <nav
+          th:replace="~{fragments/shell :: pager(${assessments},'page')}"
+        ></nav>
+      </div>
+      <div th:if="${tab=='release'}">
+        <section class="card">
+          <h2>최종 배포 게이트</h2>
+          <p
+            th:class="${gate.ready()?'notice success':'notice danger'}"
+            th:text="${gate.ready()?'필수 조건을 충족했습니다. 수신자를 지정해 배포할 수 있습니다.':'아래 항목을 해결한 뒤 배포할 수 있습니다.'}"
+          ></p>
+          <ul>
+            <li th:each="b:${gate.blockers}" th:text="${b}"></li>
+          </ul>
+          <p class="muted">
+            확정 시 첨부파일 무결성과 최신 조건을 다시 검사합니다. 배포된 버전
+            목록은 고정됩니다.
+          </p>
+          <form
+            class="form-grid"
+            th:if="${gate.ready() and project.canManage}"
+            th:action="@{/projects/{id}/work/release(id=${project.id})}"
+            method="post"
+            data-confirm="현재 문서 구성을 지정된 수신자에게 배포할까요?"
+          >
+            <input
+              type="hidden"
+              name="fingerprint"
+              th:value="${gate.snapshot.fingerprint}"
+            /><label
+              >수신자 로그인 아이디
+              <small
+                >참여자 화면에서 계정을 확인하고 쉼표로 구분하세요. 모든 배포
+                문서를 읽을 수 있는 활성 계정만 지정됩니다.</small
+              ><input
+                name="recipientNames"
+                placeholder="예: engineer.kim, qa.park"
+                required /></label
+            ><label>배포 설명<textarea name="notes" required></textarea></label
+            ><button>배포 확정</button>
+          </form>
+        </section>
+        <section class="card">
+          <h2>배포 이력</h2>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>배포</th>
+                  <th>확정자</th>
+                  <th>배포 시각</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="r:${releases}">
+                  <td>
+                    <a
+                      th:href="@{/releases/{id}(id=${r.id})}"
+                      th:text="'배포 '+${r.releaseNumber}"
+                    ></a>
+                  </td>
+                  <td th:text="${r.releasedBy}"></td>
+                  <td th:text="${r.releasedAt}"></td>
+                  <td th:text="${r.recalledAt==null?'배포 중':'회수됨'}"></td>
+                </tr>
+                <tr th:if="${releases.empty}">
+                  <td colspan="4" class="empty">
+                    아직 확정된 배포가 없습니다.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <nav
+            th:replace="~{fragments/shell :: pager(${releases},'page')}"
+          ></nav>
+        </section>
+      </div>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

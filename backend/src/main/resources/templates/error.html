@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head
+    th:replace="~{fragments/shell :: head('요청을 처리할 수 없습니다')}"
+  ></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace narrow">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <section class="card">
+        <p class="eyebrow" th:text="'REQUEST · '+${status?:'ERROR'}"></p>
+        <h1>요청을 처리할 수 없습니다</h1>
+        <p
+          role="alert"
+          th:text="${errorMessage?:'요청 정보를 확인한 후 다시 시도해주세요.'}"
+        ></p>
+        <div class="actions">
+          <a class="button" th:href="@{/}">홈으로 이동</a
+          ><a class="button secondary" th:href="@{/document/list}">문서 목록</a
+          ><a th:href="@{/user/login}">다시 로그인</a>
+        </div>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

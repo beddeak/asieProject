@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 참여자')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${project.name}"></p>
+          <h1>참여자와 역할</h1>
+        </div>
+      </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      <section class="card">
+        <h2>참여자</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>계정</th>
+                <th>이메일</th>
+                <th>역할</th>
+                <th th:if="${project.canManage}">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="m:${members}">
+                <td th:text="${m.nickname}+' (#'+${m.userId}+')'"></td>
+                <td th:text="${m.email}"></td>
+                <td th:text="${m.role.label}"></td>
+                <td th:if="${project.canManage}">
+                  <form
+                    class="row"
+                    th:action="@{/projects/{id}/members(id=${project.id})}"
+                    method="post"
+                  >
+                    <input
+                      type="hidden"
+                      name="userId"
+                      th:value="${m.userId}"
+                    /><label
+                      ><span class="sr-only">변경할 역할</span
+                      ><select name="role">
+                        <option
+                          th:each="r:${roles}"
+                          th:value="${r}"
+                          th:text="${r.label}"
+                          th:selected="${r==m.role}"
+                        ></option></select></label
+                    ><button class="secondary">변경</button>
+                  </form>
+                  <form
+                    th:action="@{/projects/{id}/members/{userId}/remove(id=${project.id},userId=${m.userId})}"
+                    method="post"
+                    data-confirm="이 참여자의 프로젝트 접근을 해제할까요?"
+                  >
+                    <button class="quiet">참여 해제</button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <nav th:replace="~{fragments/shell :: pager(${members},'page')}"></nav>
+      </section>
+      <section class="card" th:if="${project.canManage}">
+        <h2>참여자 추가</h2>
+        <form class="toolbar" method="get">
+          <label
+            >계정 검색<input
+              name="keyword"
+              th:value="${keyword}"
+              placeholder="로그인 아이디" /></label
+          ><button>검색</button>
+        </form>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>계정</th>
+                <th>부서·직급</th>
+                <th>역할 배정</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="u:${candidates}">
+                <td th:text="${u.nickname}+' (#'+${u.id}+')'"></td>
+                <td
+                  th:text="${u.department?:'미배정'}+' · '+${u.position.displayName}"
+                ></td>
+                <td>
+                  <form
+                    class="row"
+                    th:action="@{/projects/{id}/members(id=${project.id})}"
+                    method="post"
+                  >
+                    <input
+                      type="hidden"
+                      name="userId"
+                      th:value="${u.id}"
+                    /><label
+                      ><span class="sr-only">배정할 역할</span
+                      ><select name="role">
+                        <option
+                          th:each="r:${roles}"
+                          th:value="${r}"
+                          th:text="${r.label}"
+                        ></option></select></label
+                    ><button>배정</button>
+                  </form>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <nav
+          th:replace="~{fragments/shell :: pager(${candidates},'candidatePage')}"
+        ></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

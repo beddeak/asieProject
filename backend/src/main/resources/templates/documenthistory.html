@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('문서 버전 이력')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="'DOC #'+${documentId}"></p>
+          <h1>문서 버전 이력</h1>
+        </div>
+        <a th:href="@{/document/detail/{id}(id=${documentId})}">최신 버전</a>
+      </header>
+      <section class="card">
+        <div th:replace="~{fragments/shell :: documents(${history})}"></div>
+        <nav th:replace="~{fragments/shell :: pager(${history},'page')}"></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

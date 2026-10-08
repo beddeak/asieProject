@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('문서 편집')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">DOCUMENT EDITOR</p>
+          <h1 th:text="${versionId==null?'문서 초안 작성':'초안 편집'}"></h1>
+          <p class="muted">
+            초안에서 내용을 작성하고 파일을 첨부한 뒤 검토를 요청하세요.
+          </p>
+        </div>
+        <a th:href="@{/document/list}">문서 목록</a>
+      </header>
+      <section class="card">
+        <form
+          class="form-grid"
+          th:object="${form}"
+          th:action="${versionId==null}?@{/document/drafts}:@{/document/versions/{id}/edit(id=${versionId})}"
+          method="post"
+        >
+          <p
+            class="notice danger"
+            th:if="${#fields.hasAnyErrors()}"
+            th:each="e:${#fields.allErrors()}"
+            th:text="${e}"
+          ></p>
+          <input type="hidden" th:field="*{revision}" /><label
+            >제목<input th:field="*{title}" maxlength="50" required
+          /></label>
+          <div class="form-grid two" th:if="${versionId==null}">
+            <div>
+              <span class="muted">문서 소속</span>
+              <p th:if="${project!=null}" th:text="${project.name}"></p>
+              <p th:if="${project==null}">
+                소속 부서 문서 ·
+                <a th:href="@{/projects}"
+                  >프로젝트 문서 작성은 프로젝트에서 시작하세요.</a
+                >
+              </p>
+              <input type="hidden" th:field="*{projectId}" />
+            </div>
+            <label
+              >문서 분류<select th:field="*{category}">
+                <option
+                  th:each="c:${categories}"
+                  th:value="${c}"
+                  th:text="${c.label}"
+                ></option></select></label
+            ><label
+              >최소 열람 직급<select th:field="*{requiredPosition}">
+                <option
+                  th:each="p:${availablePositions}"
+                  th:value="${p}"
+                  th:text="${p.displayName}"
+                ></option></select></label
+            ><label
+              >보안 등급<select th:field="*{classification}">
+                <option
+                  th:each="c:${classifications}"
+                  th:value="${c}"
+                  th:text="${c.label}"
+                ></option></select
+            ></label>
+          </div>
+          <label
+            >본문<textarea
+              th:field="*{content}"
+              rows="20"
+              placeholder="문서 목적, 적용 범위, 상세 내용과 근거를 작성하세요."
+            ></textarea>
+          </label>
+          <p class="muted">
+            첨부파일은 초안을 저장한 다음 상세 화면에서 추가할 수 있습니다. 검토
+            요청 후에는 새 버전으로 수정합니다.
+          </p>
+          <div class="actions">
+            <button class="secondary" name="submit" value="false">
+              초안 저장</button
+            ><button name="submit" value="true">저장 후 검토 요청</button>
+          </div>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

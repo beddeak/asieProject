@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('내 업무')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">MY WORKSPACE</p>
+          <h1>내 업무</h1>
+          <p class="muted">
+            초안과 반려 문서를 정리하고 검토 대상을 확인하세요.
+          </p>
+        </div>
+        <a th:href="@{/notifications}">업무 알림</a>
+      </header>
+      <nav class="tabs">
+        <a th:href="@{/tasks(tab='drafts')}">내 초안</a
+        ><a th:href="@{/tasks(tab='rejected')}">반려 문서</a
+        ><a th:href="@{/tasks(tab='review')}">기술 검토</a
+        ><a th:href="@{/tasks(tab='security')}">보안 검토</a>
+      </nav>
+      <section class="card">
+        <div th:replace="~{fragments/shell :: documents(${documents})}"></div>
+        <nav
+          th:replace="~{fragments/shell :: pager(${documents},'page')}"
+        ></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

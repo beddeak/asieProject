@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title)">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title th:text="${title}+' | AegisVault'">AegisVault</title>
+    <link rel="stylesheet" th:href="@{/css/workspace.css}" />
+    <script defer th:src="@{/js/workspace.js}"></script>
+  </head>
+  <body>
+    <header th:fragment="header" class="app-header">
+      <a class="skip" href="#main">본문 바로가기</a
+      ><a class="brand" th:href="@{/}"
+        ><span class="brand-mark">A</span
+        ><span>AegisVault<small>DOCUMENT &amp; PROJECT CONTROL</small></span></a
+      >
+      <nav aria-label="주 메뉴">
+        <a th:href="@{/}">홈</a><a th:href="@{/document/list}">문서</a
+        ><a th:href="@{/projects}">프로젝트</a
+        ><a th:href="@{/departments}">부서</a
+        ><a th:href="@{/announcements}">전체 공지</a
+        ><a th:href="@{/tasks}">내 업무</a><a th:href="@{/access}">임시 접근</a>
+      </nav>
+      <div class="account-nav" th:if="${workspaceAccount!=null}">
+        <a th:href="@{/notifications}"
+          >알림
+          <span class="counter" th:text="${workspaceAccount.unread}">0</span></a
+        ><a th:if="${workspaceAccount.admin}" th:href="@{/admin/users}">관리</a
+        ><a th:href="@{/account}" th:text="${workspaceAccount.name}">계정</a>
+        <form th:action="@{/logout}" method="post">
+          <button class="quiet" type="submit">로그아웃</button>
+        </form>
+      </div>
+    </header>
+    <footer th:fragment="footer" class="app-footer">
+      <span>AegisVault · 문서와 업무의 이력을 연결합니다.</span
+      ><span>표시 시각: UTC</span>
+    </footer>
+    <div th:fragment="messages">
+      <p
+        class="notice success"
+        role="status"
+        th:if="${successMessage!=null}"
+        th:text="${successMessage}"
+      ></p>
+      <p
+        class="notice danger"
+        role="alert"
+        th:if="${errorMessage!=null}"
+        th:text="${errorMessage}"
+      ></p>
+    </div>
+    <nav
+      th:fragment="pager(page,parameter)"
+      class="pagination"
+      aria-label="페이지 이동"
+      th:with="previous=${@pagination.link(parameter,page.number-1)},next=${@pagination.link(parameter,page.number+1)}"
+      th:if="${page.totalPages>1}"
+    >
+      <a th:if="${page.hasPrevious()}" th:href="${previous}">← 이전</a
+      ><span
+        th:text="${page.number+1}+' / '+${page.totalPages}+' 페이지 · '+${page.totalElements}+'건'"
+      ></span
+      ><a th:if="${page.hasNext()}" th:href="${next}">다음 →</a>
+    </nav>
+    <nav
+      th:fragment="projectNav(project)"
+      class="tabs"
+      aria-label="프로젝트 메뉴"
+    >
+      <a th:href="@{/projects/{id}(id=${project.id})}">개요·문서</a
+      ><a th:href="@{/projects/{id}/members(id=${project.id})}">참여자</a
+      ><a th:href="@{/projects/{id}/work(id=${project.id})}"
+        >연구개발·품질·보안</a
+      ><a th:href="@{/projects/{id}/work(id=${project.id},tab='release')}"
+        >최종 배포</a
+      ><a th:href="@{/projects/{id}/timeline(id=${project.id})}">타임라인</a>
+    </nav>
+    <div th:fragment="documents(page)" class="table-wrap">
+      <table>
+        <caption class="sr-only">
+          문서 목록
+        </caption>
+        <thead>
+          <tr>
+            <th>문서</th>
+            <th>분류</th>
+            <th>상태</th>
+            <th>작성자</th>
+            <th>버전</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="v:${page.content}">
+            <td>
+              <a
+                th:href="@{/document/versions/{id}(id=${v.versionId})}"
+                th:text="${v.title}"
+              ></a
+              ><small
+                th:text="'DOC #'+${v.documentId}+' · 버전 ID '+${v.versionId}"
+              ></small>
+            </td>
+            <td th:text="${v.category.label}"></td>
+            <td><span class="badge" th:text="${v.status.label}"></span></td>
+            <td th:text="${v.authorName}"></td>
+            <td th:text="'v'+${v.versionNumber}"></td>
+          </tr>
+          <tr th:if="${page.empty}">
+            <td colspan="5" class="empty">
+              표시할 문서가 없습니다. 검색 조건과 열람 권한을 확인해주세요.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

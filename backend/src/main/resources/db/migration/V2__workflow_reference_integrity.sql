@@ -1,0 +1,32 @@
+-- Aggregate references remain scalar IDs in Java; the database enforces their existence.
+-- Accounts are disabled and projects are closed instead of deleting their history.
+ALTER TABLE attachment ADD CONSTRAINT fk_attachment_version FOREIGN KEY (version_id) REFERENCES document_version(id);
+ALTER TABLE attachment ADD CONSTRAINT fk_attachment_uploader FOREIGN KEY (uploaded_by) REFERENCES users(id);
+ALTER TABLE engineering_change ADD CONSTRAINT fk_change_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE engineering_change ADD CONSTRAINT fk_change_base FOREIGN KEY (base_version_id) REFERENCES document_version(id);
+ALTER TABLE engineering_change ADD CONSTRAINT fk_change_resolution FOREIGN KEY (resolved_version_id) REFERENCES document_version(id);
+ALTER TABLE engineering_change ADD CONSTRAINT fk_change_requester FOREIGN KEY (requester_id) REFERENCES users(id);
+ALTER TABLE engineering_change ADD CONSTRAINT fk_change_assignee FOREIGN KEY (assignee_id) REFERENCES users(id);
+ALTER TABLE quality_check ADD CONSTRAINT fk_quality_check_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE quality_run ADD CONSTRAINT fk_quality_run_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE quality_run ADD CONSTRAINT fk_quality_tester FOREIGN KEY (tester_id) REFERENCES users(id);
+ALTER TABLE quality_run ADD CONSTRAINT fk_quality_retest FOREIGN KEY (retest_of) REFERENCES quality_run(id);
+ALTER TABLE quality_result ADD CONSTRAINT fk_quality_result_run FOREIGN KEY (run_id) REFERENCES quality_run(id);
+ALTER TABLE quality_result ADD CONSTRAINT fk_quality_result_check FOREIGN KEY (check_id) REFERENCES quality_check(id);
+ALTER TABLE nonconformity ADD CONSTRAINT fk_nonconformity_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE nonconformity ADD CONSTRAINT fk_nonconformity_failed FOREIGN KEY (failed_run_id) REFERENCES quality_run(id);
+ALTER TABLE nonconformity ADD CONSTRAINT fk_nonconformity_passed FOREIGN KEY (passing_run_id) REFERENCES quality_run(id);
+ALTER TABLE security_assessment ADD CONSTRAINT fk_security_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE security_assessment ADD CONSTRAINT fk_security_reviewer FOREIGN KEY (reviewer_id) REFERENCES users(id);
+ALTER TABLE project_release ADD CONSTRAINT fk_release_project FOREIGN KEY (project_id) REFERENCES project(id);
+ALTER TABLE project_release ADD CONSTRAINT fk_release_quality FOREIGN KEY (quality_run_id) REFERENCES quality_run(id);
+ALTER TABLE project_release ADD CONSTRAINT fk_release_security FOREIGN KEY (security_assessment_id) REFERENCES security_assessment(id);
+ALTER TABLE release_item ADD CONSTRAINT fk_release_item_release FOREIGN KEY (release_id) REFERENCES project_release(id);
+ALTER TABLE release_item ADD CONSTRAINT fk_release_item_version FOREIGN KEY (version_id) REFERENCES document_version(id);
+ALTER TABLE release_recipient ADD CONSTRAINT fk_recipient_release FOREIGN KEY (release_id) REFERENCES project_release(id);
+ALTER TABLE release_recipient ADD CONSTRAINT fk_recipient_user FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE temporary_access ADD CONSTRAINT fk_temporary_document FOREIGN KEY (document_id) REFERENCES document(id);
+ALTER TABLE temporary_access ADD CONSTRAINT fk_temporary_user FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE temporary_access ADD CONSTRAINT fk_temporary_approver FOREIGN KEY (approved_by) REFERENCES users(id);
+ALTER TABLE password_recovery ADD CONSTRAINT fk_recovery_user FOREIGN KEY (user_id) REFERENCES users(id);
+ALTER TABLE notification ADD CONSTRAINT fk_notification_recipient FOREIGN KEY (recipient_id) REFERENCES users(id);

@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('전체 공지')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">COMPANY ANNOUNCEMENTS</p>
+          <h1>전체 공지</h1>
+          <p class="muted">
+            모든 구성원에게 공유되는 공지입니다. 부서 공지는 부서 탭에서
+            확인하세요.
+          </p>
+        </div>
+        <a th:href="@{/departments}">부서 공지</a>
+      </header>
+      <section class="card">
+        <form class="toolbar">
+          <label
+            >공지 검색<input
+              name="keyword"
+              th:value="${keyword}"
+              placeholder="제목 검색" /></label
+          ><button>검색</button>
+        </form>
+        <table>
+          <thead>
+            <tr>
+              <th>제목</th>
+              <th>작성자</th>
+              <th>등록일</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="n:${announcements}">
+              <td>
+                <a
+                  th:href="@{/announcements/{id}(id=${n.id})}"
+                  th:text="${n.title}"
+                ></a>
+              </td>
+              <td th:text="${n.authorName}"></td>
+              <td th:text="${n.createdAt}"></td>
+            </tr>
+            <tr th:if="${announcements.empty}">
+              <td colspan="3" class="empty">등록된 전체 공지가 없습니다.</td>
+            </tr>
+          </tbody>
+        </table>
+        <nav
+          th:replace="~{fragments/shell :: pager(${announcements},'page')}"
+        ></nav>
+      </section>
+      <section class="card" th:if="${workspaceAccount.admin}">
+        <details>
+          <summary>전체 공지 작성</summary>
+          <form class="form-grid" th:action="@{/announcements}" method="post">
+            <label>제목<input name="title" maxlength="255" required /></label
+            ><label
+              >내용<textarea
+                name="content"
+                maxlength="10000"
+                required
+              ></textarea></label
+            ><button>전체 공지 등록</button>
+          </form>
+        </details>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

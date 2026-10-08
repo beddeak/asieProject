@@ -1,151 +1,243 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>문서 상세 | AegisVault</title>
-    <link rel="stylesheet" href="../static/css/documentlist.css" th:href="@{/css/documentlist.css}">
-    <link rel="stylesheet" href="../static/css/documentdetail.css" th:href="@{/css/documentdetail.css}">
-</head>
-<body class="document-detail-page">
-    <a class="skip-link" href="#document-detail">문서 내용으로 바로가기</a>
-    <header class="workspace-header">
-        <div class="company">
-            <span class="company-mark" aria-hidden="true">A</span>
-            <span>Aegis Defense Technologies<small>AEGISVAULT / DOCUMENT CONTROL</small></span>
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('문서 상세')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p
+            class="eyebrow"
+            th:text="'DOC #'+${documentVersion.document.id}+' · VERSION ID '+${documentVersion.id}"
+          ></p>
+          <h1 th:text="${documentVersion.title}"></h1>
+          <div class="row">
+            <span class="badge" th:text="${documentVersion.status.label}"></span
+            ><span th:text="'v'+${documentVersion.versionNumber}"></span
+            ><span
+              class="muted"
+              th:text="${documentVersion.document.classification.label}"
+            ></span>
+          </div>
         </div>
-        <span class="environment"><a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">사용자 관리 →</a></span>
-    </header>
-
-    <main id="document-detail" class="detail-workspace" tabindex="-1">
-        <nav class="detail-navigation" aria-label="문서 탐색">
-            <a class="back-link" href="/document/list" th:href="${reviewMode == true} ? @{/document/review} : @{/document/list}">
-                <span aria-hidden="true">←</span>
-                <span th:text="${reviewMode == true} ? '검토함으로 돌아가기' : '문서 목록으로 돌아가기'">문서 목록으로 돌아가기</span>
-            </a>
-            <a th:href="@{/}">홈</a>
-            <a th:href="@{/document/review}">검토함</a>
-            <a th:href="@{/departments}">부서 탭·공지</a>
-            <span class="navigation-caption">DOCUMENT VIEWER</span>
-        </nav>
-
-        <p class="review-notice" role="status" th:if="${successMessage != null}" th:text="${successMessage}"></p>
-        <div class="detail-layout" th:if="${documentVersion != null and errorMessage == null}"
-             hidden th:hidden="${false}">
-            <article class="document-sheet" aria-labelledby="document-title">
-                <header class="document-heading">
-                    <div class="document-identifiers">
-                        <p class="eyebrow" th:text="'DOCUMENT / ' + ${documentVersion.document.id}"></p>
-                        <span class="version-tag" th:text="'v' + ${documentVersion.versionNumber}"></span>
-                    </div>
-                    <h1 id="document-title" th:text="${documentVersion.title}"></h1>
-                    <p class="document-department" th:text="${documentVersion.document.department.name}"></p>
-                </header>
-
-                <section class="document-body" aria-labelledby="body-title">
-                    <h2 id="body-title">문서 본문</h2>
-                    <div class="document-content" th:text="${documentVersion.content}"></div>
-                </section>
-
-                <footer class="sheet-footer">
-                    <span>AEGIS DEFENSE TECHNOLOGIES</span>
-                    <span th:text="'DOC · ' + ${documentVersion.document.id}"></span>
-                </footer>
-            </article>
-
-            <aside class="detail-sidebar" aria-label="문서 정보">
-                <section class="metadata-panel" aria-labelledby="metadata-title">
-                    <p class="eyebrow">DOCUMENT DETAILS</p>
-                    <h2 id="metadata-title">문서 정보</h2>
-                    <div class="document-status">
-                        <span class="metadata-label">현재 버전 상태</span>
-                        <span class="status-badge" th:attr="data-status=${documentVersion.status}"
-                              th:switch="${documentVersion.status?.name()}">
-                            <span th:case="'DRAFT'">초안</span>
-                            <span th:case="'PENDING_REVIEW'">검토 대기</span>
-                            <span th:case="'PENDING_SECURITY_APPROVAL'">보안 승인 대기</span>
-                            <span th:case="'APPROVED'">승인 완료</span>
-                            <span th:case="'REJECTED'">반려</span>
-                            <span th:case="'ARCHIVED'">보관</span>
-                            <span th:case="*">상태 미지정</span>
-                        </span>
-                    </div>
-                    <dl class="document-metadata">
-                        <div>
-                            <dt>최소 열람 직급</dt>
-                            <dd th:text="${documentVersion.document.requiredPosition.displayName} + ' 이상'"></dd>
-                        </div>
-                        <div>
-                            <dt>문서 번호</dt>
-                            <dd th:text="'DOC · ' + ${documentVersion.document.id}"></dd>
-                        </div>
-                        <div>
-                            <dt>작성자</dt>
-                            <dd th:text="${documentVersion.document.author.nickname}"></dd>
-                        </div>
-                        <div>
-                            <dt>담당 부서</dt>
-                            <dd th:text="${documentVersion.document.department.name}"></dd>
-                        </div>
-                        <div>
-                            <dt>열람 중인 버전</dt>
-                            <dd th:text="'v' + ${documentVersion.versionNumber}"></dd>
-                        </div>
-                        <div>
-                            <dt>문서 최초 작성일</dt>
-                            <dd>
-                                <time th:if="${documentVersion.document.createdAt != null}"
-                                      th:attr="datetime=${documentVersion.document.createdAt}"
-                                      th:text="${#temporals.format(documentVersion.document.createdAt, 'yyyy.MM.dd HH:mm')}"></time>
-                                <span th:if="${documentVersion.document.createdAt == null}">—</span>
-                            </dd>
-                        </div>
-                        <div>
-                            <dt>현재 버전 등록일</dt>
-                            <dd>
-                                <time th:if="${documentVersion.createdAt != null}"
-                                      th:attr="datetime=${documentVersion.createdAt}"
-                                      th:text="${#temporals.format(documentVersion.createdAt, 'yyyy.MM.dd HH:mm')}"></time>
-                                <span th:if="${documentVersion.createdAt == null}">—</span>
-                            </dd>
-                        </div>
-                    </dl>
-                </section>
-                <section class="review-actions" th:if="${reviewMode == true}">
-                    <h2>검토 결정</h2>
-                    <p>본문과 열람 등급을 확인한 뒤 결정해주세요.</p>
-                    <form th:action="@{/document/review/{id}/approve(id=${documentVersion.id})}" method="post">
-                        <button class="approve-button" type="submit">문서 승인</button>
-                    </form>
-                    <form th:action="@{/document/review/{id}/reject(id=${documentVersion.id})}" method="post">
-                        <button class="reject-button" type="submit">문서 반려</button>
-                    </form>
-                </section>
-                <section class="review-actions" th:if="${documentVersion.reviewedBy != null}">
-                    <h2>검토 이력</h2>
-                    <p th:text="${documentVersion.reviewedBy.nickname}"></p>
-                    <time th:text="${#temporals.format(documentVersion.reviewedAt, 'yyyy.MM.dd HH:mm')}"></time>
-                </section>
-                <div class="reading-note">
-                    <span class="info-mark" aria-hidden="true">i</span>
-                    <p>제목·본문·상태는 열람 중인 버전을 기준으로 표시됩니다.</p>
-                </div>
-            </aside>
-        </div>
-
-        <section class="unavailable-panel" aria-labelledby="unavailable-title"
-                 th:if="${documentVersion == null or errorMessage != null}">
-            <p class="eyebrow">DOCUMENT VIEWER</p>
-            <h1 id="unavailable-title" th:text="${errorMessage != null ? '문서를 표시할 수 없습니다' : '문서 연결을 기다리고 있습니다'}">문서 연결을 기다리고 있습니다</h1>
-            <p th:if="${errorMessage == null}">조회한 문서를 연결하면 제목과 본문이 이곳에 표시됩니다.</p>
-            <p class="detail-error" role="alert" th:if="${errorMessage != null}"
-               th:text="${errorMessage}" hidden th:hidden="${false}"></p>
+        <a
+          th:href="${reviewMode==true}?@{/document/review}:@{/document/list}"
+          th:text="${reviewMode==true}?'검토함으로 돌아가기':'문서 목록으로 돌아가기'"
+          >문서 목록으로 돌아가기</a
+        >
+      </header>
+      <nav class="tabs">
+        <a
+          th:href="@{/document/{id}/history(id=${documentVersion.document.id})}"
+          >이전 버전·이력</a
+        ><a
+          th:if="${documentVersion.document.project!=null}"
+          th:href="@{/projects/{id}(id=${documentVersion.document.project.id})}"
+          >연결 프로젝트</a
+        ><a
+          th:href="@{/document/versions/{id}/export(id=${documentVersion.id})}"
+          >워터마크 문서 다운로드</a
+        ><a
+          th:href="@{/access/document/{id}(id=${documentVersion.document.id})}"
+          >임시 접근 요청 관리</a
+        >
+      </nav>
+      <div class="grid">
+        <section class="card">
+          <h2>문서 정보</h2>
+          <dl class="details">
+            <dt>작성자</dt>
+            <dd th:text="${documentVersion.document.author.nickname}"></dd>
+            <dt>최종 편집자</dt>
+            <dd
+              th:text="${documentVersion.editorName?:documentVersion.document.author.nickname}"
+            ></dd>
+            <dt>담당 부서</dt>
+            <dd th:text="${documentVersion.document.department.name}"></dd>
+            <dt>최소 열람 직급</dt>
+            <dd
+              th:text="${documentVersion.document.requiredPosition.displayName}+' 이상'"
+            ></dd>
+            <dt>문서 분류</dt>
+            <dd th:text="${documentVersion.document.category.label}"></dd>
+            <dt>버전 등록일</dt>
+            <dd th:text="${documentVersion.createdAt}"></dd>
+            <dt>기술 검토자</dt>
+            <dd
+              th:text="${documentVersion.reviewedBy?.nickname?:'검토 전'}"
+            ></dd>
+            <dt>보안 검토자</dt>
+            <dd
+              th:text="${documentVersion.securityReviewerName?:'검토 전'}"
+            ></dd>
+          </dl>
         </section>
+        <section class="card">
+          <h2>문서 작업</h2>
+          <div class="actions">
+            <a
+              class="button"
+              th:if="${actions.edit}"
+              th:href="@{/document/versions/{id}/edit(id=${documentVersion.id})}"
+              >초안 편집·검토 요청</a
+            >
+            <form
+              th:if="${actions.newVersion}"
+              th:action="@{/document/{id}/versions(id=${documentVersion.document.id})}"
+              method="post"
+            >
+              <input
+                type="hidden"
+                name="expectedVersionId"
+                th:value="${documentVersion.id}"
+              /><button>새 버전 만들기</button>
+            </form>
+            <form
+              th:if="${actions.archive}"
+              th:action="@{/document/{id}/archive(id=${documentVersion.document.id})}"
+              method="post"
+              data-confirm="이 문서를 보관할까요? 진행 중인 배포 구성에서 제외됩니다."
+            >
+              <input
+                type="hidden"
+                name="expectedVersionId"
+                th:value="${documentVersion.id}"
+              /><button class="secondary">문서 보관</button>
+            </form>
+          </div>
+          <p class="muted">
+            초안의 본문·첨부파일만 수정할 수 있습니다. 승인·반려된 문서는 새
+            버전을 만들어 다시 검토합니다.
+          </p>
+          <div th:if="${actions.review}">
+            <hr class="divider" />
+            <h3>기술 검토 결정</h3>
+            <form
+              th:action="@{/document/review/{id}/approve(id=${documentVersion.id})}"
+              method="post"
+            >
+              <button>문서 승인</button>
+            </form>
+            <form
+              class="form-grid"
+              th:action="@{/document/review/{id}/reject(id=${documentVersion.id})}"
+              method="post"
+            >
+              <label
+                >반려 사유<textarea name="reason" required></textarea></label
+              ><button class="danger">문서 반려</button>
+            </form>
+          </div>
+          <form
+            class="form-grid"
+            th:if="${actions.security}"
+            th:action="@{/document/versions/{id}/security(id=${documentVersion.id})}"
+            method="post"
+          >
+            <h3>보안 승인</h3>
+            <label
+              >검토 근거·반려 사유<textarea name="reason" required></textarea>
+            </label>
+            <div class="row">
+              <button name="approved" value="true">보안 승인</button
+              ><button class="danger" name="approved" value="false">
+                보안 반려
+              </button>
+            </div>
+          </form>
+        </section>
+      </div>
+      <article class="card document-sheet">
+        <div class="watermark" aria-hidden="true" th:text="${watermark}"></div>
+        <h2>문서 본문</h2>
+        <div class="document-text" th:text="${documentVersion.content}"></div>
+        <small th:text="${watermark}"></small>
+      </article>
+      <section class="card">
+        <h2>첨부파일</h2>
+        <p class="muted">PDF·PNG·JPG·TXT·CSV · 파일당 최대 10 MiB</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>파일</th>
+                <th>크기</th>
+                <th>SHA-256</th>
+                <th th:if="${actions.edit}">관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="f:${attachments}">
+                <td>
+                  <a
+                    th:href="@{/files/{id}(id=${f.id})}"
+                    th:text="${f.filename}"
+                  ></a>
+                </td>
+                <td th:text="${f.size}+' B'"></td>
+                <td class="mono" th:text="${f.sha256}"></td>
+                <td th:if="${actions.edit}">
+                  <form
+                    th:action="@{/files/{id}/delete(id=${f.id})}"
+                    method="post"
+                  >
+                    <input
+                      type="hidden"
+                      name="versionId"
+                      th:value="${documentVersion.id}"
+                    /><button class="danger">삭제</button>
+                  </form>
+                </td>
+              </tr>
+              <tr th:if="${attachments.empty}">
+                <td colspan="4" class="empty">첨부된 파일이 없습니다.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <nav
+          th:replace="~{fragments/shell :: pager(${attachments},'filePage')}"
+        ></nav>
+        <form
+          class="toolbar"
+          th:if="${actions.edit}"
+          th:action="@{/document/versions/{id}/files(id=${documentVersion.id})}"
+          method="post"
+          enctype="multipart/form-data"
+        >
+          <label
+            >첨부할 파일<input
+              type="file"
+              name="file"
+              accept=".pdf,.png,.jpg,.jpeg,.txt,.csv"
+              required /></label
+          ><button>업로드</button>
+        </form>
+      </section>
+      <section class="card">
+        <h2>검토 의견과 결정 기록</h2>
+        <article class="card" th:each="c:${comments}">
+          <strong th:text="${c.authorName}+' · '+${c.decision}"></strong
+          ><small th:text="${c.createdAt}"></small>
+          <p class="text" th:text="${c.content}"></p>
+        </article>
+        <p class="empty" th:if="${comments.empty}">
+          아직 검토 의견이 없습니다.
+        </p>
+        <nav
+          th:replace="~{fragments/shell :: pager(${comments},'commentPage')}"
+        ></nav>
+        <form
+          class="form-grid"
+          th:action="@{/document/versions/{id}/comment(id=${documentVersion.id})}"
+          method="post"
+        >
+          <label>검토 의견<textarea name="content" required></textarea></label
+          ><button>의견 등록</button>
+        </form>
+      </section>
     </main>
-
-    <footer class="workspace-footer">
-        <span>AegisVault · Internal Document Management</span>
-        <span>가상의 방산·보안 기술 기업을 위한 시연 시스템</span>
-    </footer>
-</body>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
 </html>

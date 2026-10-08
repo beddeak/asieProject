@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('임시 접근 권한')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">TEMPORARY ACCESS</p>
+          <h1
+            th:text="${documentId==null?'내 임시 접근 요청':'문서 #'+documentId+' 접근 요청 관리'}"
+          ></h1>
+          <p class="muted">
+            유효기간 동안 문서 읽기를 허용합니다. 직급·보안 등급과 수정·승인
+            권한은 별도로 확인합니다.
+          </p>
+        </div>
+        <a
+          th:if="${documentId!=null}"
+          th:href="@{/document/detail/{id}(id=${documentId})}"
+          >문서로 돌아가기</a
+        >
+      </header>
+      <section class="card" th:if="${documentId==null}">
+        <details>
+          <summary>임시 접근 요청</summary>
+          <form class="form-grid" th:action="@{/access}" method="post">
+            <label
+              >문서 번호<input
+                type="number"
+                name="documentId"
+                min="1"
+                required /></label
+            ><label
+              >접근이 필요한 업무와 사유<textarea
+                name="reason"
+                required
+              ></textarea></label
+            ><label
+              >요청 만료 일시 (UTC)<input
+                type="datetime-local"
+                name="until"
+                required /></label
+            ><button>접근 요청</button>
+          </form>
+        </details>
+      </section>
+      <article class="card" th:each="r:${requests}">
+        <h2 th:text="'요청 #'+${r.id}+' · 문서 #'+${r.documentId}"></h2>
+        <div class="row">
+          <span class="badge" th:text="${r.expired?'만료':r.status}"></span
+          ><span th:text="${r.requesterName}"></span>
+        </div>
+        <p class="text" th:text="${r.reason}"></p>
+        <small th:text="'요청 만료: '+${r.requestedUntil}"></small
+        ><small
+          th:if="${r.expiresAt!=null}"
+          th:text="'승인 만료: '+${r.expiresAt}"
+        ></small>
+        <p class="text" th:text="${r.decisionReason}"></p>
+        <a
+          th:if="${r.status.name()=='APPROVED' and !r.expired}"
+          th:href="@{/document/detail/{id}(id=${r.documentId})}"
+          >문서 열기</a
+        >
+        <form
+          class="form-grid"
+          th:if="${documentId!=null and r.status.name()=='REQUESTED'}"
+          th:action="@{/access/{id}/decide(id=${r.id})}"
+          method="post"
+        >
+          <input
+            type="hidden"
+            name="documentId"
+            th:value="${documentId}"
+          /><label
+            >승인 만료 일시 (UTC)<input
+              name="until"
+              type="datetime-local" /></label
+          ><label>처리 사유<textarea name="reason" required></textarea></label>
+          <div class="row">
+            <button name="approved" value="true">승인</button
+            ><button name="approved" value="false" class="danger">반려</button>
+          </div>
+        </form>
+        <details
+          th:if="${r.status.name()=='REQUESTED' or r.status.name()=='APPROVED'}"
+        >
+          <summary>요청 취소·권한 회수</summary>
+          <form
+            class="form-grid"
+            th:action="@{/access/{id}/revoke(id=${r.id})}"
+            method="post"
+          >
+            <label>취소·회수 사유<input name="reason" required /></label
+            ><button class="danger">취소·회수</button>
+          </form>
+        </details>
+      </article>
+      <p class="empty" th:if="${requests.empty}">
+        등록된 접근 요청이 없습니다.
+      </p>
+      <nav th:replace="~{fragments/shell :: pager(${requests},'page')}"></nav>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

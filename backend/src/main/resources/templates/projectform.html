@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 설정')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace narrow">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">PROJECT SETTINGS</p>
+          <h1 th:text="${project==null?'프로젝트 생성':'프로젝트 수정'}"></h1>
+        </div>
+        <a th:href="@{/projects}">프로젝트 목록</a>
+      </header>
+      <section class="card">
+        <form
+          class="form-grid"
+          th:object="${form}"
+          th:action="${project==null}?@{/projects}:@{/projects/{id}/edit(id=${project.id})}"
+          method="post"
+        >
+          <p
+            class="notice danger"
+            th:if="${#fields.hasAnyErrors()}"
+            th:each="e:${#fields.allErrors()}"
+            th:text="${e}"
+          ></p>
+          <input type="hidden" th:field="*{revision}" /><label
+            >프로젝트 이름<input
+              th:field="*{name}"
+              required
+              maxlength="150" /></label
+          ><label
+            >목표와 범위<textarea
+              th:field="*{description}"
+              maxlength="4000"
+            ></textarea></label
+          ><label
+            >목표 완료일<input type="date" th:field="*{targetDate}" /></label
+          ><label th:if="${project==null and workspaceAccount.admin}"
+            >담당 부서<select th:field="*{departmentId}" required>
+              <option value="">부서 선택</option>
+              <option
+                th:each="d:${departments}"
+                th:if="${!d.closed}"
+                th:value="${d.id}"
+                th:text="${d.name}"
+              ></option></select
+          ></label>
+          <p class="muted" th:if="${project==null and !workspaceAccount.admin}">
+            소속 부서의 과장 이상이 생성할 수 있습니다. 생성자는 프로젝트
+            책임자로 배정됩니다.
+          </p>
+          <button type="submit">저장</button>
+        </form>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('품질시험 상세')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${project.name}"></p>
+          <h1>체크리스트 결과</h1>
+        </div>
+        <a th:href="@{/projects/{id}/work(id=${project.id},tab='quality')}"
+          >품질시험으로 돌아가기</a
+        >
+      </header>
+      <section class="card">
+        <table>
+          <thead>
+            <tr>
+              <th>시험 당시의 기준</th>
+              <th>결과</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="r:${results}">
+              <td th:text="${r.criterion}"></td>
+              <td>
+                <span
+                  class="badge"
+                  th:classappend="${r.passed?'good':'bad'}"
+                  th:text="${r.passed?'적합':'부적합'}"
+                ></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

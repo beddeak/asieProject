@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('계정 복구 요청')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace narrow">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow">ACCOUNT RECOVERY</p>
+          <h1>계정 복구 요청</h1>
+          <p class="muted">
+            가입 정보가 일치하면 관리자에게 복구 요청이 등록됩니다. 본인 확인 후
+            전달받은 일회용 링크로 새 비밀번호를 설정하세요.
+          </p>
+        </div>
+      </header>
+      <section class="card">
+        <form class="form-grid" th:action="@{/account/recovery}" method="post">
+          <label
+            >로그인 아이디<input
+              name="nickname"
+              maxlength="100"
+              autocomplete="username"
+              required /></label
+          ><label
+            >가입 이메일<input
+              name="email"
+              type="email"
+              maxlength="255"
+              autocomplete="email"
+              required /></label
+          ><button>복구 요청</button>
+        </form>
+      </section>
+      <a th:href="@{/user/login}">로그인으로 돌아가기</a>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

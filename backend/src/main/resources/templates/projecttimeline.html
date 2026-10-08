@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 타임라인')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${project.name}"></p>
+          <h1>프로젝트 타임라인</h1>
+          <p class="muted">
+            문서·참여자·검토·배포의 변경 이력을 시간순으로 확인합니다.
+          </p>
+        </div>
+      </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      <section class="card">
+        <ol class="timeline">
+          <li th:each="r:${records}">
+            <strong th:text="${r.description}"></strong
+            ><small th:text="${r.actor}+' · '+${r.occurredAt}"></small
+            ><small th:text="${r.action}"></small>
+          </li>
+        </ol>
+        <p class="empty" th:if="${records.empty}">아직 기록이 없습니다.</p>
+        <nav th:replace="~{fragments/shell :: pager(${records},'page')}"></nav>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

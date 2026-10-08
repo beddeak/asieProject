@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('배포 상세')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <div th:replace="~{fragments/shell :: messages}"></div>
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="'PROJECT #'+${release.projectId}"></p>
+          <h1 th:text="'배포 '+${release.releaseNumber}"></h1>
+          <p
+            class="muted"
+            th:text="${release.releasedBy}+' · '+${release.releasedAt}"
+          ></p>
+        </div>
+        <a
+          class="button"
+          th:if="${release.recalledAt==null}"
+          th:href="@{/releases/{id}/download(id=${release.id})}"
+          >배포 패키지 다운로드</a
+        >
+      </header>
+      <p
+        class="notice danger"
+        th:if="${release.recalledAt!=null}"
+        th:text="'회수된 배포입니다. '+${release.recallReason}"
+      ></p>
+      <a th:href="@{/projects/{id}/work(id=${release.projectId},tab='release')}"
+        >프로젝트 배포 현황</a
+      >
+      <section class="card">
+        <h2>배포 내용</h2>
+        <p class="text" th:text="${release.notes}"></p>
+        <p class="mono" th:text="'구성 지문: '+${release.fingerprint}"></p>
+        <p
+          th:text="'품질시험 #'+${release.qualityRunId}+' · 보안 검토 #'+${release.securityAssessmentId}"
+        ></p>
+        <ul>
+          <li th:each="i:${items}">
+            <a
+              th:href="@{/document/versions/{id}(id=${i.versionId})}"
+              th:text="'고정 문서 버전 #'+${i.versionId}"
+            ></a>
+          </li>
+        </ul>
+        <p class="muted">
+          다운로드는 지정 수신자와 관리자에게 허용되며, 현재의 문서 접근 권한도
+          확인합니다. 다운로드한 사본은 서버 회수로 삭제되지 않습니다.
+        </p>
+      </section>
+      <section class="card">
+        <h2>지정 수신자</h2>
+        <ul>
+          <li
+            th:each="r:${recipients}"
+            th:text="${r.nickname}+' (#'+${r.userId}+')'"
+          ></li>
+        </ul>
+        <nav
+          th:replace="~{fragments/shell :: pager(${recipients},'page')}"
+        ></nav>
+      </section>
+      <section class="card" th:if="${release.recalledAt==null}">
+        <details>
+          <summary>배포 회수 · 책임자 전용</summary>
+          <form
+            class="form-grid"
+            th:action="@{/releases/{id}/recall(id=${release.id})}"
+            method="post"
+            data-confirm="배포를 회수하고 이후 다운로드를 차단할까요?"
+          >
+            <label>회수 사유<textarea name="reason" required></textarea></label
+            ><button class="danger">배포 회수</button>
+          </form>
+        </details>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>
