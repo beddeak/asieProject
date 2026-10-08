@@ -17,7 +17,9 @@ import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -50,6 +52,7 @@ class DepartmentWorkspaceIntegrationTest {
     @Autowired private DocumentRepository documents;
     @Autowired private DocumentVersionRepository versions;
     @Autowired private DocumentActivityRepository activities;
+    @Autowired private PasswordEncoder encoder;
 
     private Department research;
     private Department quality;
@@ -75,9 +78,62 @@ class DepartmentWorkspaceIntegrationTest {
 
     @Test
     void anonymousWorkspaceAndNoticeRequestsRequireLogin() throws Exception {
-        for (String path : List.of("/departments", board(research), board(research) + "/notices/new", board(research) + "/notices/1")) {
+        for (String path : List.of("/", "/departments", board(research), board(research) + "/notices/new", board(research) + "/notices/1")) {
             mvc.perform(get(path)).andExpect(status().is3xxRedirection()).andExpect(redirectedUrl("/user/login"));
         }
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = Position.class, names = {"STAFF", "ADMIN"})
+    void loginOpensHomeAndDepartmentEntryHasAReturnLink(Position position) throws Exception {
+        User loginUser = new User("home-login", "home-login@example.com", encoder.encode("Home!pass123"));
+        loginUser.assign(position, research);
+        users.saveAndFlush(loginUser);
+        var login = mvc.perform(post("/user/login").with(csrf())
+                        .param("username", "home-login").param("password", "Home!pass123"))
+                .andExpect(redirectedUrl("/")).andReturn();
+        MockHttpSession session = (MockHttpSession) login.getRequest().getSession(false);
+        assertNotNull(session);
+        mvc.perform(get("/").session(session))
+                .andExpect(status().isOk()).andExpect(view().name("home"))
+                .andExpect(content().string(containsString("home-login")))
+                .andExpect(content().string(containsString("부서 탭·공지")))
+                .andExpect(content().string(containsString("href=\"/departments\"")))
+                .andExpect(content().string(containsString("action=\"/logout\"")))
+                .andExpect(content().string(containsString("name=\"_csrf\"")))
+                .andExpect(content().string(not(containsString(loginUser.getPassword()))));
+        mvc.perform(get("/departments").session(session))
+                .andExpect(status().isOk()).andExpect(view().name("departmentworkspace"))
+                .andExpect(content().string(containsString("연구개발본부")))
+                .andExpect(content().string(containsString("href=\"/\">홈</a>")));
+    }
+
+    @Test
+    void homeMenusUseCurrentDatabasePositionAndAssignment() throws Exception {
+        mvc.perform(get("/").with(user("member").roles("ADMIN")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("href=\"/document/write\"")))
+                .andExpect(content().string(not(containsString("href=\"/document/review\""))))
+                .andExpect(content().string(not(containsString("href=\"/admin/users\""))))
+                .andExpect(content().string(not(containsString("href=\"/admin/activity\""))));
+        mvc.perform(get("/").with(user("manager").roles("STAFF")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("href=\"/document/review\"")))
+                .andExpect(content().string(not(containsString("href=\"/admin/users\""))));
+        mvc.perform(get("/").with(user("admin").roles("STAFF")))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("href=\"/admin/users\"")))
+                .andExpect(content().string(containsString("href=\"/admin/activity\"")))
+                .andExpect(content().string(containsString("href=\"/document/review\"")))
+                .andExpect(content().string(not(containsString("href=\"/document/write\""))));
+        account("unassigned-manager", Position.MANAGER, null);
+        mvc.perform(get("/").with(user("unassigned-manager")))
+                .andExpect(status().isOk()).andExpect(view().name("home"))
+                .andExpect(content().string(containsString("href=\"/departments\"")))
+                .andExpect(content().string(containsString("소속 부서 배정이 필요합니다")))
+                .andExpect(content().string(not(containsString("href=\"/document/write\""))))
+                .andExpect(content().string(not(containsString("href=\"/document/review\""))));
+        manager.assign(Position.STAFF, research);
+        users.saveAndFlush(manager);
+        mvc.perform(get("/").with(user("manager").roles("MANAGER")))
+                .andExpect(status().isOk()).andExpect(content().string(not(containsString("href=\"/document/review\""))));
     }
 
     @Test
@@ -314,6 +370,7 @@ class DepartmentWorkspaceIntegrationTest {
         Long id = create("manager", research, "원본");
         manager.changeAccountStatus(status);
         users.saveAndFlush(manager);
+        mvc.perform(get("/").with(user("manager"))).andExpect(status().isForbidden());
         mvc.perform(get(board(research)).with(user("manager"))).andExpect(status().isForbidden());
         mvc.perform(post(notice(research, id) + "/delete").with(user("manager")).with(csrf()).param("version", "0"))
                 .andExpect(status().isForbidden());
@@ -328,6 +385,8 @@ class DepartmentWorkspaceIntegrationTest {
         mvc.perform(get("/admin/users").with(user("admin")))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("href=\"/departments\"")));
         mvc.perform(get("/css/departmentworkspace.css")).andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith("text/css"));
+        mvc.perform(get("/css/home.css")).andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith("text/css"));
         mvc.perform(get("/departments").with(user("member")).param("page", "invalid"))
                 .andExpect(status().isBadRequest());
