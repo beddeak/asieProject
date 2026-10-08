@@ -12,6 +12,8 @@ import org.springframework.data.domain.Sort;
 import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.Document.dto.DocumentListItem;
 import com.asie.aegisvault.Document.dto.DocumentListResult;
+import com.asie.aegisvault.Document.dto.ReviewQueueItem;
+import com.asie.aegisvault.common.PageQueries;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.User.Position;
@@ -33,14 +35,9 @@ public class DocumentService {
     private final UserAccessPolicy userAccessPolicy;
     private final DocumentActivityRepository activityRepository;
 
-    @Transactional()
+    @Transactional
     public Document create(String title, String content, Position requiredPosition, Long authorId) {
-        if(title == null || title.isBlank()) {
-            throw new IllegalArgumentException("문서 제목을 입력하세요");
-        }
-        if(content == null || content.isBlank()) {
-            throw new IllegalArgumentException("문서 내용을 입력하세요");
-        }
+        DocumentContentRules.validate(title, content);
         User author = findUser(authorId);
         userAccessPolicy.requireAssignablePosition(author, requiredPosition);
 
@@ -90,26 +87,18 @@ public class DocumentService {
         boolean assigned = department != null && department.getId() != null;
         String departmentName = admin ? "전체 부서" : assigned ? department.getName() : "소속 부서 미배정";
         var sort = Sort.by(Sort.Direction.DESC, "createdAt", "id");
-        // JPA's offset is an int; normalize arbitrary query-string page numbers before querying.
-        var pageable = PageRequest.of(Math.min(Math.max(page, 0), Integer.MAX_VALUE / 20), 20, sort);
         if (!admin && !assigned) {
             return new DocumentListResult(Page.empty(PageRequest.of(0, 20, sort)),
                     departmentName, true, false, reviewer);
         }
         Long departmentId = admin ? null : department.getId();
-        Page<DocumentListItem> documents = documentVersionRepository.findVisibleLatestVersions(
-                admin, departmentId, positions, reviewer, viewer.getId(), DocumentStatus.APPROVED, pageable);
-        if (documents.getTotalElements() == 0) {
-            documents = Page.empty(PageRequest.of(0, 20, sort));
-        } else if (documents.getNumber() >= documents.getTotalPages()) {
-            documents = documentVersionRepository.findVisibleLatestVersions(admin, departmentId, positions,
-                    reviewer, viewer.getId(), DocumentStatus.APPROVED,
-                    PageRequest.of(documents.getTotalPages() - 1, 20, sort));
-        }
+        Page<DocumentListItem> documents = PageQueries.fetch(page, 20, sort,
+                pageable -> documentVersionRepository.findVisibleLatestVersions(admin, departmentId, positions,
+                        reviewer, viewer.getId(), DocumentStatus.APPROVED, pageable));
         return new DocumentListResult(documents, departmentName, false, assigned, reviewer);
     }
 
-    public Page<DocumentVersion> reviewQueue(Long reviewerId, int page) {
+    public Page<ReviewQueueItem> reviewQueue(Long reviewerId, int page) {
         User reviewer = findUser(reviewerId);
         userAccessPolicy.requireManagerOrAbove(reviewer);
         boolean admin = userAccessPolicy.isAdmin(reviewer);
@@ -117,10 +106,10 @@ public class DocumentService {
         if (!admin && (department == null || department.getId() == null)) {
             throw new AccessDeniedException("소속 부서가 배정되어야 검토할 수 있습니다.");
         }
-        return documentVersionRepository.findReviewQueue(DocumentStatus.PENDING_REVIEW,
-                admin ? null : department.getId(), userAccessPolicy.assignablePositions(reviewer),
-                reviewer.getId(),
-                PageRequest.of(Math.max(page, 0), 20, Sort.by(Sort.Direction.DESC, "createdAt", "id")));
+        var positions = userAccessPolicy.assignablePositions(reviewer);
+        return PageQueries.fetch(page, 20, Sort.by(Sort.Direction.DESC, "createdAt", "id"),
+                pageable -> documentVersionRepository.findReviewQueue(DocumentStatus.PENDING_REVIEW,
+                        admin ? null : department.getId(), positions, reviewer.getId(), pageable));
     }
 
     @Transactional

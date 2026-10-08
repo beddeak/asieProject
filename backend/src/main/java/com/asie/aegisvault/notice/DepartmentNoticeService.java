@@ -6,6 +6,7 @@ import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.security.UserAccessPolicy;
+import com.asie.aegisvault.common.PageQueries;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -44,13 +45,8 @@ public class DepartmentNoticeService {
             return new DepartmentWorkspace(tabs, null, "", Page.empty(PageRequest.of(0, PAGE_SIZE, sort)), false, admin);
         }
         Department department = readableDepartment(user, selectedId);
-        var pageable = PageRequest.of(Math.min(Math.max(page, 0), Integer.MAX_VALUE / PAGE_SIZE), PAGE_SIZE, sort);
-        Page<NoticeSummary> noticePage = notices.findSummaries(selectedId, pageable);
-        if (noticePage.getTotalElements() == 0) {
-            noticePage = Page.empty(PageRequest.of(0, PAGE_SIZE, sort));
-        } else if (noticePage.getNumber() >= noticePage.getTotalPages()) {
-            noticePage = notices.findSummaries(selectedId, PageRequest.of(noticePage.getTotalPages() - 1, PAGE_SIZE, sort));
-        }
+        Page<NoticeSummary> noticePage = PageQueries.fetch(page, PAGE_SIZE, sort,
+                pageable -> notices.findSummaries(department.getId(), pageable));
         return new DepartmentWorkspace(tabs, tab(department), department.getDescription(), noticePage,
                 canManage(user), admin);
     }

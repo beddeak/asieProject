@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
@@ -20,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
 // 실제 DB를 사용하지 않는 부서 생성 화면 렌더링 테스트입니다.
@@ -63,11 +65,14 @@ class DepartmentControllerTest {
 
     @Test
     void submittedFieldsReachExistingService() throws Exception {
+        Department department = new Department("연구개발본부", "설계 문서 작성");
+        ReflectionTestUtils.setField(department, "id", 42L);
+        when(departmentService.create("연구개발본부", "설계 문서 작성", "admin")).thenReturn(department);
         mockMvc.perform(post("/dep/create").principal(() -> "admin")
                         .param("name", "연구개발본부")
                         .param("description", "설계 문서 작성"))
-                .andExpect(status().isOk())
-                .andExpect(content().string(containsString("value=\"연구개발본부\"")));
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/departments/42"));
         verify(departmentService).create("연구개발본부", "설계 문서 작성", "admin");
     }
 

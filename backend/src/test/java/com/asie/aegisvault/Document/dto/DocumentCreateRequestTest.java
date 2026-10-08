@@ -41,9 +41,9 @@ class DocumentCreateRequestTest {
     }
 
     @Test
-    void acceptsTitleOf50CharactersAndLongContent() {
+    void acceptsTitleAndContentAtLimits() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "가".repeat(50), "본문\n".repeat(10000), Position.STAFF);
+                "가".repeat(255), "나".repeat(100_000), Position.STAFF);
 
         assertTrue(validator.validate(request).isEmpty());
     }
@@ -59,11 +59,11 @@ class DocumentCreateRequestTest {
     }
 
     @Test
-    void rejectsTitleOver50Characters() {
+    void rejectsTitleOver255Characters() {
         DocumentCreateRequest request = new DocumentCreateRequest(
-                "가".repeat(51), "본문", Position.STAFF);
+                "가".repeat(256), "본문", Position.STAFF);
 
-        assertViolation(request, "title", "문서 제목은 50자 이하여야 합니다");
+        assertViolation(request, "title", "문서 제목은 255자 이하여야 합니다");
     }
 
     @ParameterizedTest

@@ -43,11 +43,11 @@
                             <td>
                                 <a class="document-link" th:href="@{/document/review/{id}(id=${version.id})}"
                                    th:text="${version.title}"></a>
-                                <span class="document-reference" th:text="'DOC ' + ${version.document.id} + ' / v' + ${version.versionNumber}"></span>
+                                <span class="document-reference" th:text="'DOC ' + ${version.documentId} + ' / v' + ${version.versionNumber}"></span>
                             </td>
-                            <td th:text="${version.document.department.name}"></td>
-                            <td th:text="${version.document.author.nickname}"></td>
-                            <td th:text="${version.document.requiredPosition.displayName} + ' 이상'"></td>
+                            <td th:text="${version.departmentName}"></td>
+                            <td th:text="${version.authorName}"></td>
+                            <td th:text="${version.requiredPosition.displayName} + ' 이상'"></td>
                             <td class="date-cell" th:text="${#temporals.format(version.createdAt, 'yyyy.MM.dd HH:mm')}"></td>
                         </tr>
                     </tbody>

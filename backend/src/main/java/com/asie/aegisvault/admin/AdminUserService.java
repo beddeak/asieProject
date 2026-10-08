@@ -10,9 +10,9 @@ import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.security.UserAccessPolicy;
+import com.asie.aegisvault.common.PageQueries;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
@@ -43,29 +43,12 @@ public class AdminUserService {
         return actor;
     }
 
-    public Page<User> search(String actor, String keyword, Long departmentId,
+    public Page<UserListItem> search(String actor, String keyword, Long departmentId,
                              Position position, AccountStatus status, int page) {
         requireAdmin(actor);
-        Specification<User> filter = (root, query, cb) -> cb.conjunction();
-        if (keyword != null && !keyword.isBlank()) {
-            String pattern = containsPattern(keyword);
-            filter = filter.and((root, query, cb) -> cb.or(
-                    cb.like(cb.lower(root.get("nickname")), pattern, '\\'),
-                    cb.like(cb.lower(root.get("email")), pattern, '\\')));
-        }
-        if (departmentId != null) {
-            filter = filter.and((root, query, cb) -> departmentId == 0
-                    ? cb.isNull(root.get("department"))
-                    : cb.equal(root.get("department").get("id"), departmentId));
-        }
-        if (position != null) {
-            filter = filter.and((root, query, cb) -> cb.equal(root.get("position"), position));
-        }
-        if (status != null) {
-            filter = filter.and((root, query, cb) -> cb.equal(root.get("accountStatus"), status));
-        }
-        return users.findAll(filter, PageRequest.of(Math.max(page, 0), 20,
-                Sort.by(Sort.Direction.DESC, "createdAt", "id")));
+        String pattern = keyword == null || keyword.isBlank() ? null : containsPattern(keyword);
+        return PageQueries.fetch(page, 20, Sort.by(Sort.Direction.DESC, "createdAt", "id"),
+                pageable -> users.searchForAdministration(pattern, departmentId, position, status, pageable));
     }
 
     public List<Department> departments(String actor) {
@@ -139,8 +122,9 @@ public class AdminUserService {
                     cb.like(cb.lower(root.get("actorNickname")), pattern, '\\'),
                     cb.like(cb.lower(root.get("documentTitle")), pattern, '\\')));
         }
-        return activities.findAll(filter, PageRequest.of(Math.max(page, 0), 30,
-                Sort.by(Sort.Direction.DESC, "occurredAt", "id")));
+        Specification<DocumentActivity> activityFilter = filter;
+        return PageQueries.fetch(page, 30, Sort.by(Sort.Direction.DESC, "occurredAt", "id"),
+                pageable -> activities.findAll(activityFilter, pageable));
     }
 
     private User mutationActor(String actor) {

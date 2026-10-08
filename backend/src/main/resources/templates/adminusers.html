@@ -12,7 +12,7 @@
 <a class="skip-link" href="#main">본문으로 이동</a>
 <header class="workspace-header">
     <a class="brand" th:href="@{/}"><span class="company-mark" aria-hidden="true">A</span><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a>
-    <div class="header-account"><span><strong th:text="${currentUser.nickname}"></strong> · 관리자</span><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></div>
+    <div class="header-account"><span><strong th:text="${currentUserName}"></strong> · 관리자</span><form th:action="@{/logout}" method="post"><button class="text-button" type="submit">로그아웃</button></form></div>
 </header>
 <main id="main" class="admin-workspace">
     <header class="page-heading"><div><p class="eyebrow">ADMINISTRATION / ACCESS CONTROL</p><h1>사용자 관리</h1><p class="page-description">사용자의 직급, 소속 부서와 계정 상태를 관리합니다.</p></div><a class="button secondary" th:href="@{/document/review}">문서 검토함 →</a></header>
@@ -38,16 +38,16 @@
         <div class="table-scroll" tabindex="0" aria-label="사용자 목록 가로 스크롤" th:if="${!userPage.empty}">
             <table class="user-table"><thead><tr><th scope="col">사용자</th><th scope="col">직급 · 부서 배정</th><th scope="col">계정 상태</th><th scope="col">가입일</th><th scope="col">관리</th></tr></thead>
                 <tbody><tr th:each="member : ${userPage.content}">
-                    <td><strong class="user-name" th:text="${member.nickname}"></strong><span class="self-tag" th:if="${member.id == currentUser.id}">내 계정</span><small th:text="${member.email}"></small><small class="reference" th:text="'USER / ' + ${member.id}"></small></td>
+                    <td><strong class="user-name" th:text="${member.nickname}"></strong><span class="self-tag" th:if="${member.id == currentUserId}">내 계정</span><small th:text="${member.email}"></small><small class="reference" th:text="'USER / ' + ${member.id}"></small></td>
                     <td><form class="assignment-form" th:if="${member.accountStatus.name() != 'DELETED'}" th:action="@{/admin/users/{id}/assignment(id=${member.id})}" method="post">
-                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 직급'"></span><select name="position" required><option th:each="rank : ${positions}" th:value="${rank}" th:text="${rank.displayName}" th:selected="${member.position == rank}" th:disabled="${member.id == currentUser.id and rank.name() != 'ADMIN'}"></option></select></label>
-                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 부서'"></span><select name="departmentId"><option value="">미배정</option><option th:each="dep : ${departments}" th:value="${dep.id}" th:text="${dep.name}" th:selected="${member.department != null and member.department.id == dep.id}"></option></select></label>
+                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 직급'"></span><select name="position" required><option th:each="rank : ${positions}" th:value="${rank}" th:text="${rank.displayName}" th:selected="${member.position == rank}" th:disabled="${member.id == currentUserId and rank.name() != 'ADMIN'}"></option></select></label>
+                        <label><span class="visually-hidden" th:text="${member.nickname} + ' 부서'"></span><select name="departmentId"><option value="">미배정</option><option th:each="dep : ${departments}" th:value="${dep.id}" th:text="${dep.name}" th:selected="${member.departmentId == dep.id}"></option></select></label>
                         <button class="button compact secondary" type="submit">배정 저장</button>
-                    </form><span th:if="${member.accountStatus.name() == 'DELETED'}" th:text="${member.position.displayName} + ' · ' + ${member.department != null ? member.department.name : '미배정'}"></span></td>
+                    </form><span th:if="${member.accountStatus.name() == 'DELETED'}" th:text="${member.position.displayName} + ' · ' + ${member.departmentName != null ? member.departmentName : '미배정'}"></span></td>
                     <td><span class="status-badge" th:attr="data-status=${member.accountStatus}" th:text="${member.accountStatus.name() == 'ACTIVE' ? '정상' : (member.accountStatus.name() == 'BAN' ? '정지' : (member.accountStatus.name() == 'LOCKED' ? '잠금' : '삭제'))}"></span></td>
                     <td class="date-cell" th:text="${#temporals.format(member.createdAt, 'yyyy.MM.dd')}"></td>
                     <td><div class="row-actions"><a th:href="@{/admin/activity(userId=${member.id})}">활동 기록</a>
-                        <th:block th:if="${member.id != currentUser.id and member.accountStatus.name() != 'DELETED'}">
+                        <th:block th:if="${member.id != currentUserId and member.accountStatus.name() != 'DELETED'}">
                             <form th:if="${member.accountStatus.name() != 'BAN'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post" data-confirm="이 계정의 시스템 이용을 정지할까요?"><input type="hidden" name="status" value="BAN"><button class="text-button danger" type="submit">밴</button></form>
                             <form th:if="${member.accountStatus.name() != 'ACTIVE'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post"><input type="hidden" name="status" value="ACTIVE"><button class="text-button" type="submit">정상 복구</button></form>
                             <form th:if="${member.accountStatus.name() == 'ACTIVE'}" th:action="@{/admin/users/{id}/status(id=${member.id})}" method="post" data-confirm="이 계정을 잠글까요?"><input type="hidden" name="status" value="LOCKED"><button class="text-button" type="submit">잠금</button></form>

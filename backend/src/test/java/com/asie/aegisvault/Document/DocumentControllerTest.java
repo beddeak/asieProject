@@ -1,6 +1,7 @@
 package com.asie.aegisvault.Document;
 
 import com.asie.aegisvault.Department.Department;
+import com.asie.aegisvault.Document.dto.ReviewQueueItem;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.AccountStatus;
@@ -157,11 +158,11 @@ class DocumentControllerTest {
     }
 
     @Test
-    void titleOver50CharactersIsRejected() throws Exception {
-        mockMvc.perform(write("가".repeat(51), "본문"))
+    void titleOver255CharactersIsRejected() throws Exception {
+        mockMvc.perform(write("가".repeat(256), "본문"))
                 .andExpect(status().isOk())
                 .andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"))
-                .andExpect(content().string(containsString("문서 제목은 50자 이하여야 합니다")));
+                .andExpect(content().string(containsString("문서 제목은 255자 이하여야 합니다")));
         verify(documentService).assignablePositions(7L);
         verifyNoMoreInteractions(documentService);
     }
@@ -294,7 +295,8 @@ class DocumentControllerTest {
 
     @Test
     void reviewQueueRendersAuthorizedDocumentsAndEmptyState() throws Exception {
-        DocumentVersion version = reviewVersion();
+        var version = new ReviewQueueItem(99L, 42L, "검토 문서", 1, "연구개발본부", "original-author",
+                Position.STAFF, java.time.LocalDateTime.now());
         when(documentService.reviewQueue(7L, 0)).thenReturn(new PageImpl<>(List.of(version)));
         mockMvc.perform(get("/document/review").with(user("writer")))
                 .andExpect(status().isOk())

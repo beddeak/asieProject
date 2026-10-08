@@ -46,7 +46,7 @@ public class DocumentController {
     public String writeDocument(@ModelAttribute("documentCreateRequest") DocumentCreateRequest documentCreateRequest,
                                 Model model, Principal principal) {
         User author = currentUser(principal);
-        model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
+        prepareWriteForm(model, author);
         return "documentwrite";
     }
     @PostMapping("/write")
@@ -54,7 +54,7 @@ public class DocumentController {
                                 BindingResult bindingResult, Model model, Principal principal,
                                 RedirectAttributes redirectAttributes) {
         User author = currentUser(principal);
-        model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
+        prepareWriteForm(model, author);
         if(bindingResult.hasErrors()) {
             return "documentwrite";
         }
@@ -103,6 +103,12 @@ public class DocumentController {
         documentService.reject(versionId, currentUser(principal).getId());
         redirectAttributes.addFlashAttribute("successMessage", "문서를 반려했습니다.");
         return "redirect:/document/review";
+    }
+
+    private void prepareWriteForm(Model model, User author) {
+        model.addAttribute("availablePositions", documentService.assignablePositions(author.getId()));
+        model.addAttribute("titleMaxLength", DocumentContentRules.MAX_TITLE_LENGTH);
+        model.addAttribute("contentMaxLength", DocumentContentRules.MAX_CONTENT_LENGTH);
     }
 
     private User currentUser(Principal principal) {

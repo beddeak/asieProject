@@ -31,7 +31,9 @@ public class AdminUserController {
                         @RequestParam(defaultValue = "0") int page,
                         Model model, Principal principal) {
         String actor = principal.getName();
-        model.addAttribute("currentUser", service.requireAdmin(actor));
+        var currentUser = service.requireAdmin(actor);
+        model.addAttribute("currentUserId", currentUser.getId());
+        model.addAttribute("currentUserName", currentUser.getNickname());
         model.addAttribute("userPage", service.search(actor, keyword, departmentId, position, status, page));
         model.addAttribute("departments", service.departments(actor));
         model.addAttribute("summary", service.summary(actor));

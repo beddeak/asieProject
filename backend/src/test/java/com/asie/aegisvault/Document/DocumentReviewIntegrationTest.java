@@ -4,6 +4,7 @@ import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
 import com.asie.aegisvault.security.UserAccessPolicy;
+import com.asie.aegisvault.support.SqlCapture;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
         "spring.datasource.password=",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.open-in-view=false",
+        "spring.jpa.properties.hibernate.session_factory.statement_inspector=com.asie.aegisvault.support.SqlCapture",
         "logging.file.name="
 })
 @Import({DocumentService.class, UserAccessPolicy.class})
@@ -134,7 +136,7 @@ class DocumentReviewIntegrationTest {
         assertThrows(AccessDeniedException.class, () -> service.reviewDetail(version.getId(), manager.getId()));
         assertThrows(AccessDeniedException.class, () -> service.approve(version.getId(), manager.getId()));
         assertThrows(AccessDeniedException.class, () -> service.reject(version.getId(), manager.getId()));
-        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.id().equals(version.getId())));
     }
 
     @Test
@@ -144,7 +146,7 @@ class DocumentReviewIntegrationTest {
         User adminAuthor = user("admin-author", Position.ADMIN, otherDepartment);
         Document own = service.create("관리자 문서", "본문", Position.ADMIN, adminAuthor.getId());
         DocumentVersion version = versions.findFirstByDocumentOrderByVersionNumberDesc(own).orElseThrow();
-        assertTrue(service.reviewQueue(adminAuthor.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertTrue(service.reviewQueue(adminAuthor.getId(), 0).stream().noneMatch(v -> v.id().equals(version.getId())));
         assertThrows(AccessDeniedException.class, () -> service.reviewDetail(version.getId(), adminAuthor.getId()));
         assertThrows(AccessDeniedException.class, () -> service.approve(version.getId(), adminAuthor.getId()));
         assertThrows(AccessDeniedException.class, () -> service.reject(version.getId(), adminAuthor.getId()));
@@ -160,7 +162,7 @@ class DocumentReviewIntegrationTest {
         assertThrows(AccessDeniedException.class, () -> service.documentdetail(confidential.getId(), manager.getId()));
         assertThrows(AccessDeniedException.class, () -> service.reviewDetail(version.getId(), manager.getId()));
         assertThrows(AccessDeniedException.class, () -> service.approve(version.getId(), manager.getId()));
-        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.getId().equals(version.getId())));
+        assertTrue(service.reviewQueue(manager.getId(), 0).stream().noneMatch(v -> v.id().equals(version.getId())));
         service.approve(version.getId(), admin.getId());
         assertThrows(AccessDeniedException.class, () -> service.documentdetail(confidential.getId(), manager.getId()));
     }
@@ -186,8 +188,8 @@ class DocumentReviewIntegrationTest {
                 () -> service.approve(pending.getId(), manager.getId()));
         assertEquals(HttpStatus.CONFLICT, failure.getStatusCode());
         var queue = service.reviewQueue(manager.getId(), 0);
-        assertTrue(queue.stream().noneMatch(v -> v.getId().equals(pending.getId())));
-        assertTrue(queue.stream().anyMatch(v -> v.getId().equals(newer.getId())));
+        assertTrue(queue.stream().noneMatch(v -> v.id().equals(pending.getId())));
+        assertTrue(queue.stream().anyMatch(v -> v.id().equals(newer.getId())));
     }
 
     @Test
@@ -200,8 +202,33 @@ class DocumentReviewIntegrationTest {
         assertEquals(20, first.getNumberOfElements());
         assertEquals(2, second.getNumberOfElements());
         assertEquals(22, first.getTotalElements());
+        var last = service.reviewQueue(manager.getId(), Integer.MAX_VALUE);
+        assertEquals(1, last.getNumber());
+        assertEquals(second.getContent(), last.getContent());
+        assertEquals(first.getContent(), service.reviewQueue(manager.getId(), -1).getContent());
         service.approve(pending.getId(), manager.getId());
         assertEquals(21, service.reviewQueue(manager.getId(), 0).getTotalElements());
+    }
+
+    @Test
+    void reviewListDoesNotFetchBodyOrPasswordAndSupportsDetachedDisplay() {
+        var sql = SqlCapture.capture(() -> {
+            var row = service.reviewQueue(manager.getId(), 0).getContent().getFirst();
+            entityManager.clear();
+            assertEquals(pending.getId(), row.id());
+            assertEquals(document.getId(), row.documentId());
+            assertEquals("연구개발", row.departmentName());
+            assertEquals("author", row.authorName());
+            assertEquals("검토할 문서", row.title());
+        });
+        String listQuery = sql.stream().filter(query -> query.contains("from document_version") && query.contains("order by"))
+                .findFirst().orElseThrow();
+        assertFalse(listQuery.contains(".content"), listQuery);
+        assertFalse(listQuery.contains(".password"), listQuery);
+        service.approve(pending.getId(), manager.getId());
+        var empty = service.reviewQueue(manager.getId(), Integer.MAX_VALUE);
+        assertTrue(empty.isEmpty());
+        assertEquals(0, empty.getNumber());
     }
 
     @Test

@@ -153,7 +153,7 @@ class DepartmentWorkspaceIntegrationTest {
                 .andExpect(content().string(containsString("aria-current=\"page\"")))
                 .andExpect(content().string(containsString("/departments/" + newId + "/notices/new")));
         mvc.perform(post("/dep/create").with(user("admin")).with(csrf()).param("name", "사업관리부"))
-                .andExpect(status().isOk());
+                .andExpect(status().is3xxRedirection());
         var tabs = service.workspace("admin", null, 0).tabs();
         assertEquals(4, tabs.size());
         assertEquals(4, tabs.stream().map(DepartmentWorkspace.Tab::id).distinct().count());

@@ -15,6 +15,7 @@ import com.asie.aegisvault.User.UserRepository;
 import com.asie.aegisvault.activity.DocumentAction;
 import com.asie.aegisvault.activity.DocumentActivity;
 import com.asie.aegisvault.activity.DocumentActivityRepository;
+import com.asie.aegisvault.support.SqlCapture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -48,6 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         "spring.datasource.url=jdbc:h2:mem:admin-integration;DB_CLOSE_DELAY=-1",
         "spring.jpa.hibernate.ddl-auto=create-drop",
         "spring.jpa.open-in-view=false",
+        "spring.jpa.properties.hibernate.session_factory.statement_inspector=com.asie.aegisvault.support.SqlCapture",
         "logging.file.name="
 })
 @AutoConfigureMockMvc
@@ -186,7 +188,81 @@ class AdminUserIntegrationTest {
         assertEquals(22, first.getTotalElements());
         assertEquals(20, first.getNumberOfElements());
         assertEquals(2, second.getNumberOfElements());
+        var last = adminService.search("admin", "EMPLOYEE-", quality.getId(), Position.STAFF, AccountStatus.ACTIVE, Integer.MAX_VALUE);
+        assertEquals(1, last.getNumber());
+        assertEquals(second.getContent(), last.getContent());
         assertEquals(1, adminService.search("admin", "", 0L, null, null, -1).getTotalElements());
+        var empty = adminService.search("admin", "missing-account", null, null, null, Integer.MAX_VALUE);
+        assertTrue(empty.isEmpty());
+        assertEquals(0, empty.getNumber());
+    }
+
+    @Test
+    void userListQueriesOnlyDisplayFieldsAndRendersAssignedAndDeletedAccounts() throws Exception {
+        writer.changeAccountStatus(AccountStatus.DELETED);
+        users.saveAndFlush(writer);
+        List<String> sql = SqlCapture.capture(() -> {
+            var result = adminService.search("admin", "", null, null, null, 0);
+            assertEquals(3, result.getTotalElements());
+            var deleted = result.stream().filter(row -> row.id().equals(writer.getId())).findFirst().orElseThrow();
+            assertEquals(research.getId(), deleted.departmentId());
+            assertEquals("연구개발본부", deleted.departmentName());
+            assertEquals(AccountStatus.DELETED, deleted.accountStatus());
+            assertNull(result.stream().filter(row -> row.id().equals(admin.getId())).findFirst().orElseThrow().departmentId());
+        });
+        String listQuery = sql.stream().filter(query -> query.contains("from users") && query.contains("order by"))
+                .findFirst().orElseThrow();
+        assertFalse(listQuery.contains(".password"), listQuery);
+        mvc.perform(get("/admin/users").with(user("admin")))
+                .andExpect(status().isOk()).andExpect(model().attributeDoesNotExist("currentUser"))
+                .andExpect(content().string(containsString("사원 · 연구개발본부")))
+                .andExpect(content().string(not(containsString(passwordHash))));
+    }
+
+    @Test
+    void activityPaginationClampsLargePagesAndKeepsFilters() throws Exception {
+        for (int index = 0; index < 31; index++) {
+            documentService.create("페이지 검증 " + index, "본문", Position.STAFF, writer.getId());
+        }
+        var first = adminService.activity("admin", writer.getId(), null, DocumentAction.CREATED, "페이지", -1);
+        var last = adminService.activity("admin", writer.getId(), null, DocumentAction.CREATED, "페이지", Integer.MAX_VALUE);
+        assertEquals(0, first.getNumber());
+        assertEquals(30, first.getNumberOfElements());
+        assertEquals(31, last.getTotalElements());
+        assertEquals(1, last.getNumber());
+        assertEquals(1, last.getNumberOfElements());
+        var empty = adminService.activity("admin", writer.getId(), null, DocumentAction.READ, "", Integer.MAX_VALUE);
+        assertTrue(empty.isEmpty());
+        assertEquals(0, empty.getNumber());
+        mvc.perform(get("/admin/activity").with(user("admin")).param("page", "2147483647"))
+                .andExpect(status().isOk()).andExpect(content().string(containsString("2 / 2")));
+        mvc.perform(get("/admin/users").with(user("admin")).param("page", "2147483647"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    void documentLimitsApplyToDirectServiceCallsAndHttpWithoutPartialWrites() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> documentService.create("가".repeat(256), "본문", Position.STAFF, writer.getId()));
+        assertThrows(IllegalArgumentException.class,
+                () -> documentService.create("제목", "가".repeat(100_001), Position.STAFF, writer.getId()));
+        mvc.perform(post("/document/write").with(user("writer")).with(csrf())
+                        .param("title", "가".repeat(256)).param("content", "본문").param("requiredPosition", "STAFF"))
+                .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("documentCreateRequest", "title"));
+        mvc.perform(post("/document/write").with(user("writer")).with(csrf())
+                        .param("title", "제목").param("content", "가".repeat(100_001)).param("requiredPosition", "STAFF"))
+                .andExpect(status().isOk()).andExpect(model().attributeHasFieldErrors("documentCreateRequest", "content"));
+        assertEquals(0, documents.count());
+        assertEquals(0, versions.count());
+        assertEquals(0, activities.count());
+        mvc.perform(post("/document/write").with(user("writer")).with(csrf())
+                        .param("title", "가".repeat(255)).param("content", "나".repeat(100_000)).param("requiredPosition", "STAFF"))
+                .andExpect(status().is3xxRedirection());
+        assertEquals(1, documents.count());
+        assertEquals(1, activities.count());
+        var saved = versions.findAll().getFirst();
+        assertEquals(255, saved.getTitle().length());
+        assertEquals(100_000, saved.getContent().length());
     }
 
     @Test
@@ -293,9 +369,18 @@ class AdminUserIntegrationTest {
     void standaloneDepartmentPageRemainsAvailableOnlyToAdmin() throws Exception {
         mvc.perform(get("/dep/create").with(user("admin").roles("ADMIN")))
                 .andExpect(status().isOk()).andExpect(content().string(containsString("action=\"/dep/create\"")));
-        mvc.perform(post("/dep/create").with(user("admin").roles("ADMIN")).with(csrf())
+        var created = mvc.perform(post("/dep/create").with(user("admin").roles("ADMIN")).with(csrf())
                         .param("name", "사업관리부"))
-                .andExpect(status().isOk());
+                .andExpect(status().is3xxRedirection()).andExpect(flash().attributeExists("successMessage")).andReturn();
+        String boardUrl = created.getResponse().getRedirectedUrl();
+        assertNotNull(boardUrl);
+        assertTrue(boardUrl.startsWith("/departments/"));
+        long count = departments.count();
+        for (int refresh = 0; refresh < 2; refresh++) {
+            mvc.perform(get(boardUrl).with(user("admin")))
+                    .andExpect(status().isOk()).andExpect(content().string(containsString("사업관리부")));
+        }
+        assertEquals(count, departments.count());
         assertTrue(departments.existsByName("사업관리부"));
     }
 

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.Document.dto.DocumentListItem;
+import com.asie.aegisvault.Document.dto.ReviewQueueItem;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -48,9 +49,14 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
     @Query("select v from DocumentVersion v where v.id = :id")
     Optional<DocumentVersion> findForReviewById(@Param("id") Long id);
 
-    @EntityGraph(attributePaths = {"document.author", "document.department"})
     @Query("""
-            select v from DocumentVersion v
+            select new com.asie.aegisvault.Document.dto.ReviewQueueItem(
+                v.id, d.id, v.title, v.versionNumber, department.name, author.nickname,
+                d.requiredPosition, v.createdAt)
+            from DocumentVersion v
+            join v.document d
+            join d.department department
+            join d.author author
             where v.status = :status
               and v.versionNumber = (select max(latest.versionNumber) from DocumentVersion latest
                                      where latest.document = v.document)
@@ -58,7 +64,7 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
               and v.document.requiredPosition in :positions
               and (:excludedAuthorId is null or v.document.author.id <> :excludedAuthorId)
             """)
-    Page<DocumentVersion> findReviewQueue(@Param("status") DocumentStatus status,
+    Page<ReviewQueueItem> findReviewQueue(@Param("status") DocumentStatus status,
                                           @Param("departmentId") Long departmentId,
                                           @Param("positions") List<Position> positions,
                                           @Param("excludedAuthorId") Long excludedAuthorId,

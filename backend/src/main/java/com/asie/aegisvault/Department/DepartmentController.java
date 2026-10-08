@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
 
 @RequiredArgsConstructor
@@ -29,16 +30,17 @@ public class DepartmentController {
 
     @PostMapping("/create")
     public String createDepartment(@Valid @ModelAttribute("departmentCreate") DepartmentCreate departmentCreate,
-                                   BindingResult bindingResult, Model model, Principal principal) {
+                                   BindingResult bindingResult, Model model, Principal principal,
+                                   RedirectAttributes redirect) {
         departmentService.requireAdmin(principal.getName());
         if (bindingResult.hasErrors()) {
             return "departmentcreate";
         }
         try {
-
-            
-            departmentService.create(departmentCreate.getName(), departmentCreate.getDescription(), principal.getName());
-            return "departmentcreate";
+            Department department = departmentService.create(
+                    departmentCreate.getName(), departmentCreate.getDescription(), principal.getName());
+            redirect.addFlashAttribute("successMessage", "부서를 생성했습니다. 이곳에서 부서 공지를 관리할 수 있습니다.");
+            return "redirect:/departments/" + department.getId();
         } catch (IllegalArgumentException e) {
             model.addAttribute("errorMessage", e.getMessage());
             return "departmentcreate";

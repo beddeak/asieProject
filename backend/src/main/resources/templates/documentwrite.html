@@ -60,11 +60,11 @@
                     <div class="field">
                         <label for="document-title">문서 제목 <span>필수</span></label>
                         <input id="document-title" name="title" type="text" th:field="*{title}"
-                               maxlength="50" required pattern=".*\S.*"
+                               th:maxlength="${titleMaxLength}" required pattern=".*\S.*"
                                title="공백이 아닌 문서 제목을 입력해주세요."
                                placeholder="예: 레이더 모듈 환경 시험 보고서"
                                aria-describedby="title-hint" th:attr="aria-invalid=${#fields.hasErrors('title')}">
-                        <p id="title-hint" class="field-hint">문서의 목적이 드러나는 제목을 작성해주세요. 최대 50자.</p>
+                        <p id="title-hint" class="field-hint" th:text="|문서의 목적이 드러나는 제목을 작성해주세요. 최대 ${titleMaxLength}자.|">문서의 목적이 드러나는 제목을 작성해주세요.</p>
                     </div>
 
                     <div class="field">
@@ -81,10 +81,10 @@
                     <div class="field content-field">
                         <label for="document-content">본문 <span>필수</span></label>
                         <textarea id="document-content" name="content" th:field="*{content}"
-                                  rows="15" required aria-describedby="content-hint"
+                                  rows="15" required th:maxlength="${contentMaxLength}" aria-describedby="content-hint"
                                   th:attr="aria-invalid=${#fields.hasErrors('content')}"
                                   placeholder="문서의 목적, 주요 내용, 결과 및 검토 사항을 작성해주세요."></textarea>
-                        <p id="content-hint" class="field-hint">일반 텍스트로 저장됩니다. 문단은 줄바꿈으로 구분해주세요.</p>
+                        <p id="content-hint" class="field-hint" th:text="|일반 텍스트로 저장됩니다. 최대 ${#numbers.formatInteger(contentMaxLength, 1, 'COMMA')}자. 문단은 줄바꿈으로 구분해주세요.|">일반 텍스트로 저장됩니다. 문단은 줄바꿈으로 구분해주세요.</p>
                     </div>
 
                     <footer class="editor-actions">
