@@ -32,6 +32,11 @@ public class WorkflowController {
     String name = actor.getName();
     model.addAttribute("project", projects.detail(name, projectId));
     model.addAttribute("tab", tab);
+    if (Set.of("quality", "security", "release").contains(tab)) {
+      var gate = releases.gate(name, projectId);
+      model.addAttribute("gate", gate);
+      model.addAttribute("fingerprint", gate.snapshot().fingerprint());
+    }
     switch (tab) {
       case "changes" -> {
         model.addAttribute("changes", service.changes(name, projectId, page));
@@ -48,15 +53,12 @@ public class WorkflowController {
       case "quality" -> {
         model.addAttribute("checks", service.checklist(name, projectId));
         model.addAttribute("runs", service.runs(name, projectId, page));
-        model.addAttribute("fingerprint", service.fingerprint(name, projectId));
       }
       case "defects" -> model.addAttribute("defects", service.defects(name, projectId, page));
       case "security" -> {
         model.addAttribute("assessments", service.assessments(name, projectId, page));
-        model.addAttribute("fingerprint", service.fingerprint(name, projectId));
       }
       case "release" -> {
-        model.addAttribute("gate", releases.gate(name, projectId));
         model.addAttribute("releases", releases.list(name, projectId, page));
       }
       default -> throw new IllegalArgumentException("업무 탭을 찾을 수 없습니다.");

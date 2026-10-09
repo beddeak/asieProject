@@ -350,6 +350,219 @@ class WorkflowIntegrationTest {
   }
 
   @Test
+  void changedDocumentCannotBeReleasedUntilBothIndependentReviewsCoverTheNewVersion()
+      throws Exception {
+    String firstFingerprint = completeEvidence();
+    var originalGate = releases.gate(owner.getNickname(), projectId);
+    assertTrue(originalGate.ready());
+    assertEquals(ReviewEvidence.State.CURRENT, originalGate.qualityReview().state());
+    assertEquals(ReviewEvidence.State.CURRENT, originalGate.securityReview().state());
+    assertTrue(originalGate.qualityReview().baselineAvailable());
+    assertTrue(originalGate.securityReview().baselineAvailable());
+    assertEquals(firstFingerprint, originalGate.snapshot().fingerprint());
+    var originalQuality = workflow.runs(owner.getNickname(), projectId, 0).getContent().getFirst();
+    var originalSecurity =
+        workflow.assessments(owner.getNickname(), projectId, 0).getContent().getFirst();
+    var originalDesign =
+        originalGate.snapshot().versions().stream()
+            .filter(version -> version.category() == DocumentCategory.DESIGN)
+            .findFirst()
+            .orElseThrow();
+
+    // Opening the gate and review histories must not invalidate completed evidence.
+    workflow.runs(owner.getNickname(), projectId, 0);
+    workflow.assessments(owner.getNickname(), projectId, 0);
+    var unchangedGate = releases.gate(owner.getNickname(), projectId);
+    assertTrue(unchangedGate.ready());
+    assertEquals(firstFingerprint, unchangedGate.snapshot().fingerprint());
+    assertEquals(originalQuality.getId(), unchangedGate.qualityRunId());
+    assertEquals(originalSecurity.getId(), unchangedGate.securityAssessmentId());
+    assertEquals(ReviewEvidence.State.CURRENT, unchangedGate.qualityReview().state());
+    assertEquals(ReviewEvidence.State.CURRENT, unchangedGate.securityReview().state());
+    assertTrue(unchangedGate.qualityReview().changes().isEmpty());
+    assertTrue(unchangedGate.securityReview().changes().isEmpty());
+
+    Long revisedId =
+        documents.newVersion(
+            originalDesign.documentId(), admin.getId(), originalDesign.versionId());
+    var revision = versions.findById(revisedId).orElseThrow();
+    assertEquals(DocumentStatus.DRAFT, revision.getStatus());
+    assertEquals(
+        ProjectStatus.ACTIVE, projectRepository.findById(projectId).orElseThrow().getStatus());
+    assertFalse(releases.gate(owner.getNickname(), projectId).ready());
+    documents.edit(
+        revisedId, admin.getId(), revision.getRevision(), "열람 제한 초안 제목", "작성 중인 변경 사항", false);
+    for (User restrictedReader : List.of(tester, security)) {
+      mvc.perform(
+              get("/projects/" + projectId + "/work")
+                  .with(user(restrictedReader.getNickname()))
+                  .param("tab", "release"))
+          .andExpect(status().isOk())
+          .andExpect(content().string(containsString("현재 v2 · 열람 제한")))
+          .andExpect(content().string(containsString("검증 당시 v1")))
+          .andExpect(content().string(not(containsString("열람 제한 초안 제목"))))
+          .andExpect(
+              content()
+                  .string(not(containsString("href=\"/document/versions/" + revisedId + "\""))));
+    }
+    mvc.perform(
+            get("/projects/" + projectId + "/work")
+                .with(user(admin.getNickname()))
+                .param("tab", "release"))
+        .andExpect(status().isOk())
+        .andExpect(content().string(containsString("열람 제한 초안 제목")))
+        .andExpect(
+            content().string(containsString("href=\"/document/versions/" + revisedId + "\"")));
+    revision = versions.findById(revisedId).orElseThrow();
+    documents.edit(
+        revisedId, admin.getId(), revision.getRevision(), "개정 설계 v2", "설계 허용 오차 변경", true);
+    assertEquals(DocumentStatus.APPROVED, versions.findById(revisedId).orElseThrow().getStatus());
+    assertEquals(
+        DocumentStatus.APPROVED,
+        versions.findById(originalDesign.versionId()).orElseThrow().getStatus());
+
+    // Request review again so the evidence checks, rather than project status, reject release.
+    projects.changeStatus(owner.getNickname(), projectId, "review");
+    var changedGate = releases.gate(owner.getNickname(), projectId);
+    String secondFingerprint = changedGate.snapshot().fingerprint();
+    assertNotEquals(firstFingerprint, secondFingerprint);
+    assertFalse(changedGate.ready());
+    assertEquals(ReviewEvidence.State.STALE, changedGate.qualityReview().state());
+    assertEquals(ReviewEvidence.State.STALE, changedGate.securityReview().state());
+    assertEquals(1, changedGate.qualityReview().changes().size());
+    var changedDesign = changedGate.qualityReview().changes().getFirst();
+    assertEquals(originalDesign.documentId(), changedDesign.documentId());
+    assertEquals(originalDesign.versionId(), changedDesign.previousVersionId());
+    assertEquals(1, changedDesign.previousNumber());
+    assertEquals(revisedId, changedDesign.currentVersionId());
+    assertEquals(2, changedDesign.currentNumber());
+    assertEquals(changedGate.qualityReview().changes(), changedGate.securityReview().changes());
+    mvc.perform(
+            get("/projects/" + projectId + "/work")
+                .with(user(owner.getNickname()))
+                .param("tab", "release"))
+        .andExpect(status().isOk())
+        .andExpect(content().string(containsString("문서 변경과 검증 상태")))
+        .andExpect(content().string(containsString("검증 당시 v1")))
+        .andExpect(content().string(containsString("현재 v2")))
+        .andExpect(content().string(containsString("개정 설계 v2")))
+        .andExpect(content().string(containsString("tab=quality#quality-review")))
+        .andExpect(content().string(containsString("tab=security#security-review")))
+        .andExpect(content().string(org.hamcrest.Matchers.not(containsString("배포 확정</button>"))));
+    mvc.perform(
+            get("/projects/" + projectId + "/work")
+                .with(user(tester.getNickname()))
+                .param("tab", "release"))
+        .andExpect(status().isOk())
+        .andExpect(content().string(containsString("개정 설계 v2")))
+        .andExpect(
+            content().string(containsString("href=\"/document/versions/" + revisedId + "\"")));
+    mvc.perform(
+            post("/projects/" + projectId + "/work/release")
+                .with(user(owner.getNickname()))
+                .with(csrf())
+                .param("fingerprint", firstFingerprint)
+                .param("recipientNames", viewer.getNickname())
+                .param("notes", "변경 전 화면에서 배포 시도"))
+        .andExpect(status().isConflict());
+    mvc.perform(
+            post("/projects/" + projectId + "/work/release")
+                .with(user(owner.getNickname()))
+                .with(csrf())
+                .param("fingerprint", secondFingerprint)
+                .param("recipientNames", viewer.getNickname())
+                .param("notes", "현재 구성으로 이전 시험 결과 재사용 시도"))
+        .andExpect(status().isBadRequest());
+    assertEquals(0, releases.list(owner.getNickname(), projectId, 0).getTotalElements());
+
+    Set<Long> passedChecks =
+        new HashSet<>(
+            checks.findByProjectIdAndActiveTrueOrderById(projectId).stream()
+                .map(QualityCheck::getId)
+                .toList());
+    Long revisedQualityId =
+        workflow.test(
+            tester.getNickname(),
+            projectId,
+            secondFingerprint,
+            passedChecks,
+            "v2 허용 오차 검증 적합",
+            null);
+    projects.changeStatus(owner.getNickname(), projectId, "review");
+    var qualityOnlyGate = releases.gate(owner.getNickname(), projectId);
+    assertFalse(qualityOnlyGate.ready());
+    assertEquals(revisedQualityId, qualityOnlyGate.qualityRunId());
+    assertEquals(originalSecurity.getId(), qualityOnlyGate.securityAssessmentId());
+    assertEquals(ReviewEvidence.State.CURRENT, qualityOnlyGate.qualityReview().state());
+    assertEquals(ReviewEvidence.State.STALE, qualityOnlyGate.securityReview().state());
+    assertTrue(qualityOnlyGate.qualityReview().changes().isEmpty());
+    assertEquals(
+        changedGate.securityReview().changes(), qualityOnlyGate.securityReview().changes());
+    mvc.perform(
+            post("/projects/" + projectId + "/work/release")
+                .with(user(owner.getNickname()))
+                .with(csrf())
+                .param("fingerprint", secondFingerprint)
+                .param("recipientNames", viewer.getNickname())
+                .param("notes", "품질시험만 갱신한 구성의 배포 시도"))
+        .andExpect(status().isBadRequest());
+    assertEquals(0, releases.list(owner.getNickname(), projectId, 0).getTotalElements());
+
+    workflow.assess(security.getNickname(), projectId, secondFingerprint, true, "v2 보안 영향 재검토 완료");
+    projects.changeStatus(owner.getNickname(), projectId, "review");
+    var readyGate = releases.gate(owner.getNickname(), projectId);
+    assertTrue(readyGate.ready());
+    assertEquals(secondFingerprint, readyGate.snapshot().fingerprint());
+    assertNotEquals(originalSecurity.getId(), readyGate.securityAssessmentId());
+    assertEquals(ReviewEvidence.State.CURRENT, readyGate.qualityReview().state());
+    assertEquals(ReviewEvidence.State.CURRENT, readyGate.securityReview().state());
+    assertTrue(readyGate.qualityReview().changes().isEmpty());
+    assertTrue(readyGate.securityReview().changes().isEmpty());
+    mvc.perform(
+            post("/projects/" + projectId + "/work/release")
+                .with(user(owner.getNickname()))
+                .with(csrf())
+                .param("fingerprint", secondFingerprint)
+                .param("recipientNames", viewer.getNickname())
+                .param("notes", "v2 품질 및 보안 검증 후 배포"))
+        .andExpect(status().is3xxRedirection())
+        .andExpect(redirectedUrlPattern("/releases/*"));
+    assertEquals(1, releases.list(owner.getNickname(), projectId, 0).getTotalElements());
+    var published =
+        releaseRepository.findFirstByProjectIdOrderByReleaseNumberDesc(projectId).orElseThrow();
+    assertEquals(secondFingerprint, published.getFingerprint());
+    assertEquals(revisedQualityId, published.getQualityRunId());
+    assertEquals(readyGate.securityAssessmentId(), published.getSecurityAssessmentId());
+    var deliveredVersions = releases.downloadVersions(viewer.getNickname(), published.getId());
+    assertTrue(deliveredVersions.contains(revisedId));
+    assertFalse(deliveredVersions.contains(originalDesign.versionId()));
+
+    // Superseded results remain historical records with their original outcome and evidence.
+    var qualityHistory = workflow.runs(owner.getNickname(), projectId, 0);
+    assertEquals(2, qualityHistory.getTotalElements());
+    var retainedQuality =
+        qualityHistory.stream()
+            .filter(run -> run.getId().equals(originalQuality.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(retainedQuality.isPassed());
+    assertEquals(firstFingerprint, retainedQuality.getFingerprint());
+    assertEquals(originalQuality.getEvidence(), retainedQuality.getEvidence());
+    assertEquals(originalQuality.getCreatedAt(), retainedQuality.getCreatedAt());
+    var securityHistory = workflow.assessments(owner.getNickname(), projectId, 0);
+    assertEquals(2, securityHistory.getTotalElements());
+    var retainedSecurity =
+        securityHistory.stream()
+            .filter(assessment -> assessment.getId().equals(originalSecurity.getId()))
+            .findFirst()
+            .orElseThrow();
+    assertTrue(retainedSecurity.isApproved());
+    assertEquals(firstFingerprint, retainedSecurity.getFingerprint());
+    assertEquals(originalSecurity.getFindings(), retainedSecurity.getFindings());
+    assertEquals(originalSecurity.getCreatedAt(), retainedSecurity.getCreatedAt());
+  }
+
+  @Test
   void failedQualityRequiresExplicitRetestAndCorrectiveAction() {
     approved(DocumentCategory.DESIGN);
     workflow.addCheck(tester.getNickname(), projectId, "추적성 확인");
@@ -509,6 +722,8 @@ class WorkflowIntegrationTest {
                 .changeClearance(SecurityClassification.INTERNAL));
     String path = "/projects/" + projectId + "/work";
     mvc.perform(get(path).param("tab", "defects").with(user(tester.getNickname())))
+        .andExpect(status().isForbidden());
+    mvc.perform(get(path).param("tab", "release").with(user(tester.getNickname())))
         .andExpect(status().isForbidden());
     mvc.perform(
             post(path + "/defects/" + defect.getId() + "/close")

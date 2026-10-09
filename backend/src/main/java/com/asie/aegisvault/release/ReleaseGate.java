@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ReleaseGate {
   private final ProjectEvidence evidence;
+  private final ReviewEvidence reviewEvidence;
   private final ProjectMemberRepository members;
   private final ProjectRequirementRepository requirements;
   private final EngineeringChangeRepository changes;
@@ -50,15 +51,13 @@ public class ReleaseGate {
     if (checks.findByProjectIdAndActiveTrueOrderById(id).isEmpty())
       blockers.add("품질시험 체크리스트가 없습니다.");
     QualityRun quality = runs.findFirstByProjectIdOrderByIdDesc(id).orElse(null);
-    if (quality == null
-        || !quality.isPassed()
-        || !quality.getFingerprint().equals(snapshot.fingerprint()))
-      blockers.add("현재 문서 구성에 대한 최신 품질 적합 결과가 필요합니다.");
+    ReviewEvidence.Review qualityReview = reviewEvidence.quality(quality, snapshot);
+    if (qualityReview.state() != ReviewEvidence.State.CURRENT)
+      blockers.add("품질시험: " + qualityReview.message());
     SecurityAssessment assessment = security.findFirstByProjectIdOrderByIdDesc(id).orElse(null);
-    if (assessment == null
-        || !assessment.isApproved()
-        || !assessment.getFingerprint().equals(snapshot.fingerprint()))
-      blockers.add("현재 문서 구성에 대한 최신 보안 승인이 필요합니다.");
+    ReviewEvidence.Review securityReview = reviewEvidence.security(assessment, snapshot);
+    if (securityReview.state() != ReviewEvidence.State.CURRENT)
+      blockers.add("보안 검토: " + securityReview.message());
     if (quality != null
         && assessment != null
         && Objects.equals(quality.getTesterId(), assessment.getReviewerId()))
@@ -69,14 +68,18 @@ public class ReleaseGate {
         List.copyOf(blockers),
         snapshot,
         quality == null ? null : quality.getId(),
-        assessment == null ? null : assessment.getId());
+        assessment == null ? null : assessment.getId(),
+        qualityReview,
+        securityReview);
   }
 
   public record Decision(
       List<String> blockers,
       ProjectEvidence.Snapshot snapshot,
       Long qualityRunId,
-      Long securityAssessmentId) {
+      Long securityAssessmentId,
+      ReviewEvidence.Review qualityReview,
+      ReviewEvidence.Review securityReview) {
     public boolean ready() {
       return blockers.isEmpty();
     }

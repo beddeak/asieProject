@@ -11,4 +11,5 @@ public record VersionManifest(
     DocumentCategory category,
     SecurityClassification classification,
     Long authorId,
-    Long editorId) {}
+    Long editorId,
+    String title) {}

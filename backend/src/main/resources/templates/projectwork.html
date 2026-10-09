@@ -23,6 +23,11 @@
           th:text="${t=='changes'?'변경 요청':t=='quality'?'품질시험':t=='defects'?'부적합·시정 조치':t=='security'?'보안 검토':'최종 배포'}"
         ></a>
       </nav>
+      <div th:if="${gate!=null}">
+        <section
+          th:replace="~{fragments/reviewevidence :: summary(${gate},${project})}"
+        ></section>
+      </div>
       <div th:if="${tab=='changes'}">
         <section class="card">
           <h2>연구개발 변경 요청</h2>
@@ -141,7 +146,7 @@
         </p>
         <nav th:replace="~{fragments/shell :: pager(${changes},'page')}"></nav>
       </div>
-      <div th:if="${tab=='quality'}">
+      <div th:if="${tab=='quality'}" id="quality-review">
         <section class="card">
           <h2>시험 체크리스트</h2>
           <p class="muted">
@@ -228,6 +233,10 @@
               ></span>
             </h3>
             <small th:text="${r.testerName}+' · '+${r.createdAt}"></small>
+            <p
+              class="review-history-note"
+              th:text="${r.fingerprint==fingerprint?'현재 검증 대상의 시험 기록입니다.':'이전 검증 대상의 시험 기록입니다. 현재 배포의 적합 근거로 사용할 수 없습니다.'}"
+            ></p>
             <p class="text" th:text="${r.evidence}"></p>
             <small
               th:if="${r.retestOf!=null}"
@@ -280,7 +289,7 @@
         <p class="empty" th:if="${defects.empty}">등록된 부적합이 없습니다.</p>
         <nav th:replace="~{fragments/shell :: pager(${defects},'page')}"></nav>
       </div>
-      <div th:if="${tab=='security'}">
+      <div th:if="${tab=='security'}" id="security-review">
         <section class="card" th:if="${project.canSecurity}">
           <h2>배포 구성 보안 검토</h2>
           <p class="muted">
@@ -318,6 +327,10 @@
             th:text="${a.approved?'승인':'반려'}"
           ></span
           ><small th:text="${a.reviewerName}+' · '+${a.createdAt}"></small>
+          <p
+            class="review-history-note"
+            th:text="${a.fingerprint==fingerprint?'현재 검증 대상의 보안 검토입니다.':'이전 검증 대상의 보안 검토입니다. 현재 배포의 승인 근거로 사용할 수 없습니다.'}"
+          ></p>
           <p class="text" th:text="${a.findings}"></p>
         </article>
         <p class="empty" th:if="${assessments.empty}">
@@ -337,6 +350,13 @@
           <ul>
             <li th:each="b:${gate.blockers}" th:text="${b}"></li>
           </ul>
+          <div class="actions" th:if="${!gate.ready()}">
+            <a
+              class="button secondary"
+              th:href="@{/projects/{id}(id=${project.id})}"
+              >문서·프로젝트 상태 확인</a
+            >
+          </div>
           <p class="muted">
             확정 시 첨부파일 무결성과 최신 조건을 다시 검사합니다. 배포된 버전
             목록은 고정됩니다.

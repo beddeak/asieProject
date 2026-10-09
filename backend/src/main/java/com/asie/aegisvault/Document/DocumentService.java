@@ -187,6 +187,26 @@ public class DocumentService {
                 pageable));
   }
 
+  /** Batch title lookup using the same visibility policy as the document list and history. */
+  public Map<Long, String> readableVersionTitles(Long actorId, Collection<Long> versionIds) {
+    User actor = user(actorId);
+    if (versionIds.isEmpty()) return Map.of();
+    List<DocumentListItem> visible =
+        versions.findVisibleVersions(
+            versionIds,
+            accounts.isAdmin(actor),
+            departmentId(actor),
+            accounts.assignablePositions(actor),
+            actor.getPosition().isAtLeast(Position.MANAGER),
+            securityReviewer(actor),
+            actor.getId(),
+            clearances(actor),
+            Instant.now());
+    Map<Long, String> titles = new HashMap<>();
+    visible.forEach(v -> titles.put(v.versionId(), v.title()));
+    return Map.copyOf(titles);
+  }
+
   @Transactional
   public Long newVersion(Long documentId, Long actorId, Long expectedVersionId) {
     User actor = user(actorId);

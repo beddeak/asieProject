@@ -35,6 +35,7 @@ public class WorkflowService {
   private final NonconformityRepository defects;
   private final SecurityAssessmentRepository assessments;
   private final ProjectEvidence evidence;
+  private final ReviewEvidence reviewEvidence;
   private final ApplicationEventPublisher events;
 
   public Page<EngineeringChange> changes(String actor, Long projectId, int page) {
@@ -223,6 +224,7 @@ public class WorkflowService {
     QualityRun run =
         runs.save(
             new QualityRun(projectId, snapshot.fingerprint(), user, passed, findings, retestOf));
+    reviewEvidence.captureQuality(run.getId(), snapshot);
     results.saveAll(
         checklist.stream()
             .map(c -> new QualityResult(run.getId(), c, passedChecks.contains(c.getId())))
@@ -283,6 +285,7 @@ public class WorkflowService {
     SecurityAssessment assessment =
         assessments.save(
             new SecurityAssessment(projectId, snapshot.fingerprint(), user, approved, findings));
+    reviewEvidence.captureSecurity(assessment.getId(), snapshot);
     project.markChanged();
     event(
         user,

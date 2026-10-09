@@ -7,6 +7,8 @@ import com.asie.aegisvault.common.PageQueries;
 import com.asie.aegisvault.project.*;
 import com.asie.aegisvault.security.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
@@ -30,10 +32,29 @@ public class ReleaseService {
   private final UserRepository users;
   private final DocumentRepository documents;
   private final DocumentAccess documentAccess;
+  private final DocumentService documentService;
   private final ApplicationEventPublisher events;
 
   public ReleaseGate.Decision gate(String actor, Long projectId) {
-    return gate.inspect(access.read(actors.get(actor), projectId), false);
+    User user = actors.get(actor);
+    Project project = access.read(user, projectId);
+    documentAccess.requireScopes(user, documents.findByProjectId(projectId));
+    ReleaseGate.Decision decision = gate.inspect(project, false);
+    Set<Long> comparedVersions =
+        Stream.of(decision.qualityReview(), decision.securityReview())
+            .flatMap(review -> review.changes().stream())
+            .flatMap(change -> Stream.of(change.previousVersionId(), change.currentVersionId()))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toSet());
+    Map<Long, String> readableTitles =
+        documentService.readableVersionTitles(user.getId(), comparedVersions);
+    return new ReleaseGate.Decision(
+        decision.blockers(),
+        decision.snapshot(),
+        decision.qualityRunId(),
+        decision.securityAssessmentId(),
+        decision.qualityReview().forReader(readableTitles),
+        decision.securityReview().forReader(readableTitles));
   }
 
   public Page<ReleaseSummary> list(String actor, Long projectId, int page) {

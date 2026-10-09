@@ -6,6 +6,8 @@
 
 추가 점검에서 확인한 권한 회수·복구 링크·공지 이관 버그와 수정 파일은 [BUGFIX_REVIEW.md](BUGFIX_REVIEW.md)에 정리했습니다.
 
+문서 변경 후 기존 시험·보안 결과로 배포하지 못하는 흐름을 버전 비교와 재검증 버튼으로 연결했습니다. 시연 순서와 코드 검수 안내는 [DOCUMENT_CHANGE_GUIDE.md](DOCUMENT_CHANGE_GUIDE.md)에 있습니다.
+
 ## 어디를 바꿨는지
 
 Java 경로는 `src/main/java/com/asie/aegisvault/`, 화면 경로는 `src/main/resources/templates/` 기준입니다. 전체 파일별 추가·수정 구분은 [CHANGED_FILES.md](CHANGED_FILES.md)에 있습니다.
@@ -23,14 +25,14 @@ Java 경로는 `src/main/java/com/asie/aegisvault/`, 화면 경로는 `src/main/
 | 품질·부적합·재시험 | `workflow/QualityCheck`, `QualityRun`, `QualityResult`, `Nonconformity` | 시험 기준, 적합 판정, 부적합 보고서, 재시험 연결과 시정 조치 |
 | 보안 검토 | `security/SecurityClassification`, `workflow/SecurityAssessment`, `ProjectEvidence` | 문서 보안 승인 및 프로젝트 구성별 독립 보안 판정 |
 | 임시 접근 | `access/TemporaryAccessService`, `TemporaryAccess` | `access.html`; 요청·승인·거절·만료·회수, 열람 범위만 부여 |
-| 배포 게이트·스냅샷·회수 | `release/ReleaseGate`, `ReleaseService`, `ReleaseController` | 차단 사유, 승인된 정확한 버전·수신자 고정, ZIP 다운로드와 회수 |
+| 배포 게이트·스냅샷·회수 | `release/ReleaseGate`, `ReleaseService`, `ReleaseController`, `workflow/ReviewEvidence`, `ReviewDocument` | 검증 당시/현재 버전 비교, 차단 사유와 재검증 이동, 승인된 정확한 버전·수신자 고정, ZIP 다운로드와 회수 |
 | 전체·부서 공지 | `notice/AnnouncementService`, `DepartmentNotice`, `DepartmentWorkspaceController` | 전체 공지와 부서 공지 분리; 부서 생성 즉시 공통 탭에 표시 |
 | 부서 운영 | `Department/DepartmentLifecycle`, `DepartmentAdminController` | `admindepartments.html`; 이름 변경, 사용자·업무 이관 후 폐쇄 |
 | 알림·내 업무 | `notification/NotificationService`, `NotificationController`, `audit/BusinessEventListener` | `notifications.html`, `tasks.html`; 담당자 알림과 권한별 할 일 |
 | 계정·복구·세션 | `account/AccountService`, `AdministratorBootstrap`, `security/AccountPrincipal`, `CurrentAccountFilter` | 비밀번호 변경, 일회용 복구 링크, 기존 세션 무효화, 최초 관리자 CLI |
 | 감사·타임라인·무결성 | `audit/AuditChain`, `AuditRecord`, `AuditHead`, `SecurityAudit` | `audit.html`, `projecttimeline.html`; HMAC 연결, 업무와 감사의 원자적 저장 |
 | 공통 화면·오류 | `web/WorkspaceAdvice`, `WorkspaceAccount`, `Pagination`, `config/SecurityConfig` | 공통 메뉴·CSRF·CSP·오류 화면·모바일 대응, 홈과 업무 화면의 공통 색상 |
-| DB 이전·실행 | `config/LocalDatabaseMigration`, `db/migration/V1*`, `V2*`, `application.yaml`, `build.gradle` | 기존 H2 자동 백업 후 Flyway 이전, FK 무결성, Hibernate 스키마 검증 |
+| DB 이전·실행 | `config/LocalDatabaseMigration`, `db/migration/V1*`, `V2*`, `V3*`, `application.yaml`, `build.gradle` | 기존 H2 자동 백업 후 Flyway 이전, FK 무결성, Hibernate 스키마 검증 |
 
 ## 실무 관점에서 바꾼 구조
 
@@ -45,7 +47,7 @@ Java 경로는 `src/main/java/com/asie/aegisvault/`, 화면 경로는 `src/main/
 
 ## 검증
 
-Java 21에서 `build`와 **269개 테스트**를 실행하여 실패·오류·건너뜀 0건으로 통과했습니다. 원격 main에 있던 실제 H2 파일의 복사본에서도 자동 백업 → V1/V2 이전 → Hibernate 검증 → 서버 기동을 확인했습니다. 기존 테스트와 원격에서 추가된 테스트를 유지하면서 새 DTO·필수 반려 사유·관리자 승인 정책에 맞게 통합했습니다. 테스트를 끄거나 운영 권한 검사를 완화하지 않았습니다.
+Java 21에서 `build`와 **276개 테스트**를 실행하여 실패·오류·건너뜀 0건으로 통과했습니다. 원격 main에 있던 실제 H2 파일의 복사본에서도 자동 백업 → V1/V2 이전 → Hibernate 검증 → 서버 기동을 확인했으며, 이번 변경은 V2의 실제 검증용 파일 DB에서 V3 이전·기동까지 확인했습니다. 기존 테스트와 원격에서 추가된 테스트를 유지하면서 새 DTO·필수 반려 사유·관리자 승인 정책에 맞게 통합했습니다. 테스트를 끄거나 운영 권한 검사를 완화하지 않았습니다.
 
 - `WorkflowIntegrationTest`: 문서 수명주기·권한·첨부, 변경 해결, 품질 부적합·재시험, 보안 검토, 배포·ZIP·회수, 임시 권한 만료, 알림 소유권, 복구·세션 무효화, 감사 변조·롤백, 동시 요청, 관리자 즉시 승인과 배포 게이트를 검증합니다.
 - `SchemaMigrationTest`: 새 DB 생성, 기존 사용자 비밀번호·문서·공지 보존, 재실행, 파일 DB 자동 백업, FK 위반 차단을 검증합니다.

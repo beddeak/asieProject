@@ -36,7 +36,7 @@ class SchemaMigrationTest {
             + " values(1,1,1,'기존 공지','보존할 공지',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)");
     var flyway =
         Flyway.configure().dataSource(data).baselineOnMigrate(true).baselineVersion("0").load();
-    assertEquals(2, flyway.migrate().migrationsExecuted);
+    assertEquals(3, flyway.migrate().migrationsExecuted);
     assertEquals(0, flyway.migrate().migrationsExecuted);
     assertEquals(
         "UNCHANGED_HASH",
@@ -105,7 +105,93 @@ class SchemaMigrationTest {
         new DriverManagerDataSource(
             "jdbc:h2:mem:fresh-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", "");
     var flyway = Flyway.configure().dataSource(data).load();
-    assertEquals(2, flyway.migrate().migrationsExecuted);
+    assertEquals(3, flyway.migrate().migrationsExecuted);
     assertEquals(0, flyway.migrate().migrationsExecuted);
+  }
+
+  @Test
+  void upgradesReviewHistoryWithoutInventingDocumentBaselines() {
+    var data =
+        new DriverManagerDataSource(
+            "jdbc:h2:mem:review-upgrade-" + UUID.randomUUID() + ";DB_CLOSE_DELAY=-1", "sa", "");
+    Flyway.configure().dataSource(data).target("2").load().migrate();
+    var jdbc = new JdbcTemplate(data);
+    jdbc.update("insert into department(id,name,description) values(1,'연구개발','기존 부서')");
+    jdbc.update(
+        "insert into"
+            + " users(id,nickname,email,password,position,account_status,department,created_at)"
+            + " values(1,'reviewer','reviewer@example.test','UNCHANGED_HASH','MANAGER','ACTIVE',1,CURRENT_TIMESTAMP)");
+    jdbc.update(
+        "insert into"
+            + " project(id,name,description,department_id,created_by,created_at,revision,status)"
+            + " values(1,'기존 프로젝트','보존할 설명',1,1,CURRENT_TIMESTAMP,0,'REVIEW')");
+    jdbc.update(
+        "insert into document(id,author_id,department_id,project_id,created_at)"
+            + " values(1,1,1,1,CURRENT_TIMESTAMP)");
+    jdbc.update(
+        "insert into"
+            + " document_version(id,document_id,version_number,title,content,status,created_at)"
+            + " values(1,1,1,'기존 승인본','보존할 본문','APPROVED',CURRENT_TIMESTAMP)");
+    jdbc.update(
+        "insert into quality_run(id,project_id,tester_id,fingerprint,passed,evidence)"
+            + " values(1,1,1,'historical-quality',true,'기존 시험 근거')");
+    jdbc.update(
+        "insert into security_assessment(id,project_id,reviewer_id,fingerprint,approved,findings)"
+            + " values(1,1,1,'historical-security',true,'기존 보안 근거')");
+    jdbc.update(
+        "insert into"
+            + " project_release(id,project_id,release_number,quality_run_id,security_assessment_id,fingerprint,revision)"
+            + " values(1,1,1,1,1,'historical-release',0)");
+    var flyway = Flyway.configure().dataSource(data).load();
+    assertEquals(1, flyway.migrate().migrationsExecuted);
+    assertEquals(0, flyway.migrate().migrationsExecuted);
+    assertEquals(
+        "historical-quality",
+        jdbc.queryForObject("select fingerprint from quality_run where id=1", String.class));
+    assertEquals(
+        "기존 시험 근거",
+        jdbc.queryForObject("select evidence from quality_run where id=1", String.class));
+    assertEquals(
+        "historical-security",
+        jdbc.queryForObject(
+            "select fingerprint from security_assessment where id=1", String.class));
+    assertEquals(
+        "기존 보안 근거",
+        jdbc.queryForObject("select findings from security_assessment where id=1", String.class));
+    assertEquals(
+        "historical-release",
+        jdbc.queryForObject("select fingerprint from project_release where id=1", String.class));
+    assertEquals(0, jdbc.queryForObject("select count(*) from review_document", Integer.class));
+
+    jdbc.update("insert into review_document(quality_run_id,version_id) values(1,1)");
+    jdbc.update("insert into review_document(security_assessment_id,version_id) values(1,1)");
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () -> jdbc.update("insert into review_document(quality_run_id,version_id) values(1,1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () ->
+            jdbc.update(
+                "insert into review_document(security_assessment_id,version_id) values(1,1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () -> jdbc.update("insert into review_document(version_id) values(1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () ->
+            jdbc.update(
+                "insert into review_document(quality_run_id,security_assessment_id,version_id)"
+                    + " values(1,1,1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () -> jdbc.update("insert into review_document(quality_run_id,version_id) values(999,1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () ->
+            jdbc.update(
+                "insert into review_document(security_assessment_id,version_id) values(999,1)"));
+    assertThrows(
+        org.springframework.dao.DataIntegrityViolationException.class,
+        () -> jdbc.update("insert into review_document(quality_run_id,version_id) values(1,999)"));
   }
 }

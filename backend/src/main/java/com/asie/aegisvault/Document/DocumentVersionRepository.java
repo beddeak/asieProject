@@ -6,6 +6,7 @@ import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.security.SecurityClassification;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -105,6 +106,18 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
       @Param("now") Instant now,
       Pageable pageable);
 
+  @Query(SUMMARY + "where v.id in :versionIds " + VISIBILITY)
+  List<DocumentListItem> findVisibleVersions(
+      @Param("versionIds") Collection<Long> versionIds,
+      @Param("admin") boolean admin,
+      @Param("departmentId") Long departmentId,
+      @Param("positions") List<Position> positions,
+      @Param("reviewer") boolean reviewer,
+      @Param("securityReviewer") boolean securityReviewer,
+      @Param("viewerId") Long viewerId,
+      @Param("clearances") List<SecurityClassification> clearances,
+      @Param("now") Instant now);
+
   @EntityGraph(
       attributePaths = {"document.author", "document.department", "document.project", "reviewedBy"})
   Optional<DocumentVersion> findFirstByDocumentOrderByVersionNumberDesc(Document document);
@@ -157,7 +170,7 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
 
   @Query(
       """
-      select new com.asie.aegisvault.Document.dto.VersionManifest(d.id,v.id,v.versionNumber,v.status,d.category,d.classification,d.author.id,v.editorId)
+      select new com.asie.aegisvault.Document.dto.VersionManifest(d.id,v.id,v.versionNumber,v.status,d.category,d.classification,d.author.id,v.editorId,v.title)
       from DocumentVersion v join v.document d where d.project.id=:projectId and d.archived=false
       and v.versionNumber=(select max(x.versionNumber) from DocumentVersion x where x.document=d)
       order by d.id
