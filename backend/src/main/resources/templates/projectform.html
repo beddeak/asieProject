@@ -12,6 +12,9 @@
         </div>
         <a th:href="@{/projects}">프로젝트 목록</a>
       </header>
+      <th:block th:if="${project!=null}">
+        <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      </th:block>
       <section class="card">
         <form
           class="form-grid"

@@ -23,7 +23,7 @@
           th:text="${t=='changes'?'변경 요청':t=='quality'?'품질시험':t=='defects'?'부적합·시정 조치':t=='security'?'보안 검토':'최종 배포'}"
         ></a>
       </nav>
-      <div th:if="${gate!=null}">
+      <div th:if="${tab=='quality' or tab=='security' or tab=='release'}">
         <section
           th:replace="~{fragments/reviewevidence :: summary(${gate},${project})}"
         ></section>
@@ -82,7 +82,7 @@
             <span class="badge" th:text="${c.status}"></span>
           </div>
           <small
-            th:text="${c.requesterName}+' · '+${c.createdAt}+' · 담당: '+${c.assigneeName?:'미배정'}"
+            th:text="${c.requesterName}+' · '+${@displayTime.format(c.createdAt)}+' KST · 담당: '+${c.assigneeName?:'미배정'}"
           ></small>
           <p class="text" th:text="${c.description}"></p>
           <a th:href="@{/document/versions/{id}(id=${c.baseVersionId})}"
@@ -183,14 +183,49 @@
             먼저 시험 기준을 등록해주세요.
           </p>
         </section>
-        <section class="card" th:if="${project.canQuality and !checks.empty}">
-          <h2>시험 결과 등록</h2>
+        <section
+          class="card"
+          id="quality-test-form"
+          th:if="${project.canQuality and !checks.empty}"
+        >
+          <h2
+            th:text="${retestTarget!=null?'부적합 재시험 결과 등록':'시험 결과 등록'}"
+          ></h2>
+          <div class="notice" th:if="${retestTarget!=null}">
+            <p>
+              <strong
+                th:text="'시험 #'+${retestTarget.id}+'의 재시험입니다.'"
+              ></strong>
+              원시험의 부적합 항목을 확인하고 현재 문서 구성으로 다시
+              시험하세요.
+            </p>
+            <div class="row">
+              <a
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${retestTarget.id})}"
+                >원시험 결과 보기</a
+              >
+              <a
+                th:href="@{/projects/{p}/work(p=${project.id},tab='quality')}+'#quality-test-form'"
+                >별도 신규 시험으로 전환</a
+              >
+            </div>
+          </div>
+          <p class="muted" th:if="${retestTarget==null}">
+            부적합을 해결하려면 해당 부적합 보고서 또는 원시험에서 ‘이 시험
+            재시험’을 선택하세요.
+          </p>
           <form
             class="form-grid"
             th:action="@{/projects/{id}/work/tests(id=${project.id})}"
             method="post"
           >
             <input type="hidden" name="fingerprint" th:value="${fingerprint}" />
+            <input
+              th:if="${retestTarget!=null}"
+              type="hidden"
+              name="retestOf"
+              th:value="${retestTarget.id}"
+            />
             <fieldset>
               <legend>적합한 항목을 선택하세요</legend>
               <label class="check" th:each="c:${checks}"
@@ -205,16 +240,6 @@
                 name="evidence"
                 required
               ></textarea></label
-            ><label
-              >재시험 대상 시험 번호 <small>최초 시험이면 비워두세요.</small
-              ><select name="retestOf">
-                <option value="">최초 시험</option>
-                <option
-                  th:each="r:${runs}"
-                  th:if="${!r.passed}"
-                  th:value="${r.id}"
-                  th:text="'시험 #'+${r.id}+' · '+${r.testerName}+' · '+${r.createdAt}"
-                ></option></select></label
             ><button>시험 결과 확정</button>
           </form>
         </section>
@@ -232,16 +257,27 @@
                 th:text="${r.passed?'적합':'부적합'}"
               ></span>
             </h3>
-            <small th:text="${r.testerName}+' · '+${r.createdAt}"></small>
+            <small
+              th:text="${r.testerName}+' · '+${@displayTime.format(r.createdAt)}+' KST'"
+            ></small>
             <p
               class="review-history-note"
               th:text="${r.fingerprint==fingerprint?'현재 검증 대상의 시험 기록입니다.':'이전 검증 대상의 시험 기록입니다. 현재 배포의 적합 근거로 사용할 수 없습니다.'}"
             ></p>
             <p class="text" th:text="${r.evidence}"></p>
-            <small
-              th:if="${r.retestOf!=null}"
-              th:text="'재시험 대상: #'+${r.retestOf}"
-            ></small>
+            <div class="actions">
+              <a
+                th:if="${r.retestOf!=null}"
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${r.retestOf})}"
+                th:text="'원시험 #'+${r.retestOf}+' 보기'"
+              ></a>
+              <a
+                th:if="${project.canQuality and !r.passed}"
+                class="button secondary"
+                th:href="@{/projects/{p}/work(p=${project.id},tab='quality',retestOf=${r.id})}+'#quality-test-form'"
+                >이 시험 재시험</a
+              >
+            </div>
           </article>
           <p class="empty" th:if="${runs.empty}">
             확정된 시험 결과가 없습니다.
@@ -250,34 +286,98 @@
         </section>
       </div>
       <div th:if="${tab=='defects'}">
+        <p th:if="${focusedDefect}">
+          <a th:href="@{/projects/{id}/work(id=${project.id},tab='defects')}"
+            >← 전체 부적합 목록</a
+          >
+        </p>
         <p class="notice">
           부적합은 현재 문서 구성에 대한 적합 재시험과 시정 조치가 있어야 종료할
           수 있습니다.
         </p>
-        <article class="card" th:each="d:${defects}">
-          <h2 th:text="'부적합 #'+${d.id}+' · 시험 #'+${d.failedRunId}"></h2>
-          <span
-            class="badge"
-            th:text="${d.closed?'해결 완료':'해결 대기'}"
-          ></span>
-          <p class="text" th:text="${d.description}"></p>
-          <p class="text" th:text="${d.correctiveAction}"></p>
+        <article
+          class="card"
+          th:each="d:${defects}"
+          th:id="'defect-'+${d.id}"
+          th:with="passing=${passingRetests[d.failedRunId]}"
+        >
+          <div class="row quality-card-heading">
+            <h2 th:text="'부적합 #'+${d.id}"></h2>
+            <span
+              class="badge"
+              th:classappend="${d.closed?'good':'bad'}"
+              th:text="${d.closed?'해결 완료':'해결 대기'}"
+            ></span>
+          </div>
+          <ol class="quality-path" aria-label="부적합 처리 이력">
+            <li>
+              <a
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${d.failedRunId})}"
+                th:text="'원시험 #'+${d.failedRunId}+' 부적합'"
+              ></a>
+            </li>
+            <li th:if="${d.closed}">
+              <a
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${d.passingRunId})}"
+                th:text="'재시험 #'+${d.passingRunId}+' 적합'"
+              ></a>
+            </li>
+            <li th:if="${!d.closed and passing!=null}">
+              <a
+                th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${passing.id})}"
+                th:text="'재시험 #'+${passing.id}+' 적합'"
+              ></a>
+            </li>
+            <li th:if="${!d.closed and passing==null}">
+              현재 구성의 적합 재시험 필요
+            </li>
+            <li
+              th:text="${d.closed?'시정 조치 완료':'시정 조치 확인 대기'}"
+            ></li>
+          </ol>
           <small
-            th:if="${d.closed}"
-            th:text="${d.closedBy}+' · '+${d.closedAt}+' · 적합 재시험 #'+${d.passingRunId}"
+            th:text="'발생 '+${@displayTime.format(d.createdAt)}+' KST'"
           ></small>
+          <div class="quality-evidence">
+            <h3>발견 내용·시험 근거</h3>
+            <p class="text" th:text="${d.description}"></p>
+          </div>
+          <div class="quality-evidence" th:if="${d.closed}">
+            <h3>원인 분석·시정 조치</h3>
+            <p class="text" th:text="${d.correctiveAction}"></p>
+            <small
+              th:text="${d.closedBy}+' · '+${@displayTime.format(d.closedAt)}+' KST에 해결'"
+            ></small>
+          </div>
+          <p class="muted" th:if="${!d.closed and passing==null}">
+            이 원시험을 대상으로 한 현재 문서 구성의 적합 재시험이 없습니다.
+            재시험 후 시정 조치를 완료할 수 있습니다.
+          </p>
+          <div class="actions" th:if="${project.canQuality and !d.closed}">
+            <a
+              class="button secondary"
+              th:href="@{/projects/{p}/work(p=${project.id},tab='quality',retestOf=${d.failedRunId})}+'#quality-test-form'"
+              >이 시험 재시험</a
+            >
+          </div>
           <form
             class="form-grid"
-            th:if="${project.canQuality and !d.closed}"
+            th:if="${project.canQuality and !d.closed and passing!=null}"
             th:action="@{/projects/{p}/work/defects/{id}/close(p=${project.id},id=${d.id})}"
             method="post"
           >
             <label
-              >적합 재시험 번호<input
-                type="number"
-                name="passingRunId"
-                min="1"
-                required /></label
+              >해결 근거로 연결할 적합 재시험
+              <small
+                >이 원시험에 연결된 현재 문서 구성의 최신 적합 재시험입니다.
+                저장 시 다시 검증합니다.</small
+              >
+              <select name="passingRunId" required>
+                <option value="">시험 결과를 확인하고 선택하세요</option>
+                <option
+                  th:value="${passing.id}"
+                  th:text="'시험 #'+${passing.id}+' · '+${passing.testerName}+' · '+${@displayTime.format(passing.createdAt)}+' KST'"
+                ></option></select></label
             ><label
               >원인 분석·시정 조치<textarea
                 name="correctiveAction"
@@ -326,7 +426,9 @@
             th:classappend="${a.approved?'good':'bad'}"
             th:text="${a.approved?'승인':'반려'}"
           ></span
-          ><small th:text="${a.reviewerName}+' · '+${a.createdAt}"></small>
+          ><small
+            th:text="${a.reviewerName}+' · '+${@displayTime.format(a.createdAt)}+' KST'"
+          ></small>
           <p
             class="review-history-note"
             th:text="${a.fingerprint==fingerprint?'현재 검증 대상의 보안 검토입니다.':'이전 검증 대상의 보안 검토입니다. 현재 배포의 승인 근거로 사용할 수 없습니다.'}"
@@ -340,17 +442,28 @@
           th:replace="~{fragments/shell :: pager(${assessments},'page')}"
         ></nav>
       </div>
-      <div th:if="${tab=='release'}">
+      <div
+        th:if="${tab=='release'}"
+        th:with="alreadyReleased=${project.status.name()=='RELEASED' and projectProgress.nextStep==null}"
+      >
         <section class="card">
           <h2>최종 배포 게이트</h2>
+          <p class="notice success" th:if="${alreadyReleased}">
+            현재 문서 구성의 배포를 완료했습니다. 아래 배포 이력에서 확정한
+            문서와 수신자를 확인하세요.
+          </p>
           <p
+            th:unless="${alreadyReleased}"
             th:class="${gate.ready()?'notice success':'notice danger'}"
             th:text="${gate.ready()?'필수 조건을 충족했습니다. 수신자를 지정해 배포할 수 있습니다.':'아래 항목을 해결한 뒤 배포할 수 있습니다.'}"
           ></p>
-          <ul>
-            <li th:each="b:${gate.blockers}" th:text="${b}"></li>
+          <ul class="gate-issues" th:unless="${alreadyReleased}">
+            <li th:each="issue:${gate.issues}">
+              <span th:text="${issue.message}"></span>
+              <a th:href="${issue.href}" th:text="${issue.actionLabel}"></a>
+            </li>
           </ul>
-          <div class="actions" th:if="${!gate.ready()}">
+          <div class="actions" th:if="${!alreadyReleased and !gate.ready()}">
             <a
               class="button secondary"
               th:href="@{/projects/{id}(id=${project.id})}"
@@ -363,7 +476,7 @@
           </p>
           <form
             class="form-grid"
-            th:if="${gate.ready() and project.canManage}"
+            th:if="${!alreadyReleased and gate.ready() and project.canManage}"
             th:action="@{/projects/{id}/work/release(id=${project.id})}"
             method="post"
             data-confirm="현재 문서 구성을 지정된 수신자에게 배포할까요?"
@@ -406,7 +519,9 @@
                     ></a>
                   </td>
                   <td th:text="${r.releasedBy}"></td>
-                  <td th:text="${r.releasedAt}"></td>
+                  <td
+                    th:text="${@displayTime.format(r.releasedAt)}+' KST'"
+                  ></td>
                   <td th:text="${r.recalledAt==null?'배포 중':'회수됨'}"></td>
                 </tr>
                 <tr th:if="${releases.empty}">

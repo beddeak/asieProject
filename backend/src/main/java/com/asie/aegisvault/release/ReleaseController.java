@@ -28,9 +28,11 @@ public class ReleaseController {
       @PathVariable Long id,
       @RequestParam(defaultValue = "0") int page,
       Model model) {
-    model.addAttribute("release", service.detail(actor.getName(), id));
-    model.addAttribute("items", service.items(actor.getName(), id));
-    model.addAttribute("recipients", service.recipients(actor.getName(), id, page));
+    var detail = service.detailView(actor.getName(), id, page);
+    model.addAttribute("release", detail.release());
+    model.addAttribute("manifest", detail.documents());
+    model.addAttribute("recipients", detail.recipients());
+    model.addAttribute("releaseActions", detail);
     return "releasedetail";
   }
 
@@ -58,22 +60,19 @@ public class ReleaseController {
         output -> {
           try (ZipOutputStream zip = new ZipOutputStream(output, StandardCharsets.UTF_8)) {
             for (Long versionId : versions) {
-              // Re-check authorization and recall on each document; a partial interrupted ZIP is
+              // Re-check authorization and recall on each document; a partial
+              // interrupted ZIP is
               // not a completed delivery.
               service.requireAvailable(name, id);
-              zip.putNextEntry(new ZipEntry("documents/version-" + versionId + ".html"));
+              zip.putNextEntry(new ZipEntry(ReleasePackagePaths.document(versionId)));
               zip.write(export.html(name, versionId).getBytes(StandardCharsets.UTF_8));
               zip.closeEntry();
               for (Attachment attached : attachments.findByVersionIdOrderById(versionId)) {
                 Attachment checked = files.download(name, attached.getId());
                 zip.putNextEntry(
                     new ZipEntry(
-                        "attachments/"
-                            + versionId
-                            + "/"
-                            + checked.getId()
-                            + "-"
-                            + checked.getFilename()));
+                        ReleasePackagePaths.attachment(
+                            versionId, checked.getId(), checked.getFilename())));
                 Files.copy(store.path(checked.getStorageKey()), zip);
                 zip.closeEntry();
               }

@@ -33,6 +33,7 @@ public class ReleaseService {
   private final DocumentRepository documents;
   private final DocumentAccess documentAccess;
   private final DocumentService documentService;
+  private final com.asie.aegisvault.attachment.AttachmentRepository attachments;
   private final ApplicationEventPublisher events;
 
   public ReleaseGate.Decision gate(String actor, Long projectId) {
@@ -49,7 +50,7 @@ public class ReleaseService {
     Map<Long, String> readableTitles =
         documentService.readableVersionTitles(user.getId(), comparedVersions);
     return new ReleaseGate.Decision(
-        decision.blockers(),
+        decision.issues(),
         decision.snapshot(),
         decision.qualityRunId(),
         decision.securityAssessmentId(),
@@ -69,13 +70,59 @@ public class ReleaseService {
   public Release detail(String actor, Long id) {
     Release release = release(id);
     User user = actors.get(actor);
-    if (!recipients.existsByReleaseIdAndUserId(id, user.getId()))
+    requireDetail(user, release, items.findByReleaseIdOrderById(id));
+    return release;
+  }
+
+  public ReleaseDetail detailView(String actor, Long id, int page) {
+    User user = actors.get(actor);
+    Release release = release(id);
+    var fixedItems = items.findByReleaseIdOrderById(id);
+    requireDetail(user, release, fixedItems);
+    var versionIds = fixedItems.stream().map(ReleaseItem::getVersionId).toList();
+    var summaries =
+        documentService.readableVersions(user.getId(), versionIds).stream()
+            .collect(Collectors.toMap(v -> v.versionId(), v -> v));
+    if (summaries.size() != versionIds.size())
+      throw new AccessDeniedException("배포 문서의 현재 열람 권한을 확인해주세요.");
+    var filesByVersion =
+        attachments.manifest(versionIds).stream()
+            .collect(Collectors.groupingBy(f -> f.getVersionId()));
+    var manifest =
+        versionIds.stream()
+            .map(
+                versionId ->
+                    new ReleaseDetail.ReleasedDocument(
+                        summaries.get(versionId),
+                        ReleasePackagePaths.document(versionId),
+                        filesByVersion.getOrDefault(versionId, List.of()).stream()
+                            .map(
+                                file ->
+                                    new ReleaseDetail.ReleasedFile(
+                                        file.getId(),
+                                        file.getFilename(),
+                                        file.getSize(),
+                                        file.getSha256(),
+                                        ReleasePackagePaths.attachment(
+                                            versionId, file.getId(), file.getFilename())))
+                            .toList()))
+            .toList();
+    boolean designated = recipients.existsByReleaseIdAndUserId(id, user.getId());
+    return new ReleaseDetail(
+        release,
+        manifest,
+        PageQueries.fetch(page, 20, Sort.by("id"), p -> recipients.findByReleaseId(id, p)),
+        release.getRecalledAt() == null && (user.getPosition().isAdmin() || designated),
+        release.getRecalledAt() == null
+            && access.hasRole(user, release.getProjectId(), ProjectRole.OWNER),
+        access.hasRole(user, release.getProjectId(), ProjectRole.values()));
+  }
+
+  private void requireDetail(User user, Release release, List<ReleaseItem> fixedItems) {
+    if (!recipients.existsByReleaseIdAndUserId(release.getId(), user.getId()))
       access.read(user, release.getProjectId());
     documentAccess.requireScopes(
-        user,
-        documents.forVersions(
-            items.findByReleaseIdOrderById(id).stream().map(ReleaseItem::getVersionId).toList()));
-    return release;
+        user, documents.forVersions(fixedItems.stream().map(ReleaseItem::getVersionId).toList()));
   }
 
   public List<ReleaseItem> items(String actor, Long id) {

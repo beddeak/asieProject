@@ -30,7 +30,7 @@
       </header>
       <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
       <div class="grid">
-        <section class="card">
+        <section class="card" id="project-status">
           <h2>프로젝트 개요</h2>
           <p
             class="text"
@@ -102,8 +102,14 @@
           >
         </section>
       </div>
-      <section class="card">
-        <h2>연결된 문서</h2>
+      <section class="card" id="project-documents">
+        <div class="row review-heading">
+          <h2>연결된 문서</h2>
+          <a
+            th:href="@{/document/list(projectId=${project.id},approvedOnly=true)}"
+            >최신 승인본 모아보기</a
+          >
+        </div>
         <div th:replace="~{fragments/shell :: documents(${documents})}"></div>
         <nav
           th:replace="~{fragments/shell :: pager(${documents},'page')}"

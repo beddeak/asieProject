@@ -11,14 +11,14 @@
           <h1 th:text="'배포 '+${release.releaseNumber}"></h1>
           <p
             class="muted"
-            th:text="${release.releasedBy}+' · '+${release.releasedAt}"
+            th:text="${release.releasedBy}+' · '+${@displayTime.format(release.releasedAt)}"
           ></p>
         </div>
         <a
           class="button"
-          th:if="${release.recalledAt==null}"
+          th:if="${releaseActions.downloadAllowed}"
           th:href="@{/releases/{id}/download(id=${release.id})}"
-          >배포 패키지 다운로드</a
+          >배포 ZIP 다운로드</a
         >
       </header>
       <p
@@ -26,31 +26,103 @@
         th:if="${release.recalledAt!=null}"
         th:text="'회수된 배포입니다. '+${release.recallReason}"
       ></p>
-      <a th:href="@{/projects/{id}/work(id=${release.projectId},tab='release')}"
-        >프로젝트 배포 현황</a
+      <p
+        class="notice"
+        th:if="${release.recalledAt==null and !releaseActions.downloadAllowed}"
       >
+        배포 기록을 열람하고 있습니다. ZIP 다운로드는 지정 수신자와 관리자에게
+        허용됩니다.
+      </p>
+      <nav class="tabs" aria-label="배포 관련 메뉴">
+        <a
+          th:if="${releaseActions.projectAccessible}"
+          th:href="@{/projects/{id}/work(id=${release.projectId},tab='release')}"
+          >프로젝트 배포 현황</a
+        >
+        <a href="#release-documents">확정 문서·첨부파일</a>
+        <a href="#release-recipients">지정 수신자</a>
+      </nav>
       <section class="card">
         <h2>배포 내용</h2>
         <p class="text" th:text="${release.notes}"></p>
-        <p class="mono" th:text="'구성 지문: '+${release.fingerprint}"></p>
-        <p
-          th:text="'품질시험 #'+${release.qualityRunId}+' · 보안 검토 #'+${release.securityAssessmentId}"
-        ></p>
-        <ul>
-          <li th:each="i:${items}">
-            <a
-              th:href="@{/document/versions/{id}(id=${i.versionId})}"
-              th:text="'고정 문서 버전 #'+${i.versionId}"
-            ></a>
-          </li>
-        </ul>
         <p class="muted">
-          다운로드는 지정 수신자와 관리자에게 허용되며, 현재의 문서 접근 권한도
-          확인합니다. 다운로드한 사본은 서버 회수로 삭제되지 않습니다.
+          아래 문서 버전과 수신자는 배포 시점에 확정되었습니다. 이후 새 버전을
+          작성하거나 프로젝트 참여자를 바꾸어도 이 배포 기록은 변경되지
+          않습니다.
         </p>
+        <dl class="details">
+          <dt>확정 문서</dt>
+          <dd th:text="${#lists.size(manifest)}+'건'"></dd>
+          <dt>지정 수신자</dt>
+          <dd th:text="${recipients.totalElements}+'명'"></dd>
+          <dt>품질 검증 근거</dt>
+          <dd th:text="'품질시험 #'+${release.qualityRunId}"></dd>
+          <dt>보안 검증 근거</dt>
+          <dd th:text="'보안 검토 #'+${release.securityAssessmentId}"></dd>
+        </dl>
+        <details>
+          <summary>배포 구성 식별 정보</summary>
+          <p
+            class="mono release-fingerprint"
+            th:text="${release.fingerprint}"
+          ></p>
+        </details>
       </section>
-      <section class="card">
-        <h2>지정 수신자</h2>
+      <section id="release-documents" class="card">
+        <h2>확정 문서와 ZIP 구성</h2>
+        <p class="muted">
+          본문은 다운로드한 사용자의 워터마크가 포함된 HTML로, 첨부파일은 해당
+          버전의 원본으로 제공됩니다. 표시된 경로는 실제 ZIP 내부 경로입니다.
+        </p>
+        <article
+          class="release-document"
+          th:each="item:${manifest}"
+          th:attr="data-release-version=${item.version.versionId}"
+        >
+          <h3>
+            <a
+              th:href="@{/document/versions/{id}(id=${item.version.versionId})}"
+              th:text="'v'+${item.version.versionNumber}+' · '+${item.version.title}"
+            ></a>
+          </h3>
+          <p
+            class="muted"
+            th:text="'DOC #'+${item.version.documentId}+' · '+${item.version.category.label}+' · 배포 시 승인 완료'"
+          ></p>
+          <code class="release-path" th:text="${item.packagePath}"></code>
+          <p>
+            <a
+              th:href="@{/document/{id}/history(id=${item.version.documentId})}"
+              >이 문서의 버전·승인 이력</a
+            >
+          </p>
+          <ul class="release-files">
+            <li class="release-file" th:each="f:${item.files}">
+              <p>
+                <strong th:text="${f.filename}"></strong>
+                <span class="muted" th:text="' · '+${f.size}+' B'"></span>
+              </p>
+              <code class="release-path" th:text="${f.packagePath}"></code>
+              <details>
+                <summary>원본 파일 확인 정보</summary>
+                <p class="muted">
+                  SHA-256 · 배포 후에도 원본 내용이 같은지 확인하는 값입니다.
+                </p>
+                <code class="mono" th:text="${f.sha256}"></code>
+              </details>
+            </li>
+          </ul>
+          <p class="muted" th:if="${#lists.isEmpty(item.files)}">
+            이 버전에는 첨부파일이 없습니다.
+          </p>
+        </article>
+      </section>
+      <section id="release-recipients" class="card">
+        <h2>배포 시 지정한 수신자</h2>
+        <p class="muted">
+          이름은 배포 당시의 로그인 아이디입니다. 현재의 문서 접근 권한이 없으면
+          다운로드가 차단됩니다.
+        </p>
         <ul>
           <li
             th:each="r:${recipients}"
@@ -60,8 +132,12 @@
         <nav
           th:replace="~{fragments/shell :: pager(${recipients},'page')}"
         ></nav>
+        <p class="muted">
+          배포를 회수하면 이후 ZIP 다운로드가 차단됩니다. 이미 다운로드한 사본은
+          서버에서 삭제할 수 없습니다.
+        </p>
       </section>
-      <section class="card" th:if="${release.recalledAt==null}">
+      <section class="card" th:if="${releaseActions.recallAllowed}">
         <details>
           <summary>배포 회수 · 책임자 전용</summary>
           <form

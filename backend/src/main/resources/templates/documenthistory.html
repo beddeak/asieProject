@@ -9,11 +9,67 @@
         <div>
           <p class="eyebrow" th:text="'DOC #'+${documentId}"></p>
           <h1>문서 버전 이력</h1>
+          <p class="muted">
+            버전별 본문·첨부파일과 승인·반려 사유를 확인하세요. 열람 권한이 있는
+            버전만 표시합니다.
+          </p>
         </div>
-        <a th:href="@{/document/detail/{id}(id=${documentId})}">최신 버전</a>
+        <a th:href="@{/document/list}">문서 목록</a>
       </header>
+      <section
+        th:replace="~{fragments/documenttrace :: summary(${versionSummary})}"
+      ></section>
       <section class="card">
-        <div th:replace="~{fragments/shell :: documents(${history})}"></div>
+        <h2>버전별 기록</h2>
+        <ol class="version-timeline">
+          <li
+            th:each="v:${history}"
+            class="trace-version"
+            th:attr="data-version-id=${v.versionId}"
+          >
+            <div class="trace-version-heading">
+              <h3>
+                <a
+                  th:href="@{/document/versions/{id}(id=${v.versionId})}"
+                  th:text="'v'+${v.versionNumber}+' · '+${v.title}"
+                ></a>
+              </h3>
+              <span
+                class="badge"
+                th:attr="data-status=${v.status}"
+                th:text="${v.status.label}"
+              ></span>
+            </div>
+            <p
+              class="muted"
+              th:text="'등록 '+${@displayTime.format(v.createdAt)}"
+            ></p>
+            <div class="row">
+              <span
+                class="badge"
+                th:if="${versionSummary.latestVisible!=null and versionSummary.latestVisible.versionId==v.versionId}"
+                >열람 가능한 최신 버전</span
+              >
+              <span
+                class="badge"
+                th:if="${versionSummary.latestApproved!=null and versionSummary.latestApproved.versionId==v.versionId}"
+                th:text="${versionSummary.archived or v.status.name()=='ARCHIVED'}?'마지막 승인 이력':'최신 승인본'"
+              ></span>
+            </div>
+            <div class="actions trace-version-actions">
+              <a th:href="@{/document/versions/{id}(id=${v.versionId})}"
+                >본문·첨부파일 보기</a
+              >
+              <a
+                th:href="@{/document/versions/{id}(id=${v.versionId})}+'#review-history'"
+                >승인·반려 기록 보기</a
+              >
+            </div>
+          </li>
+        </ol>
+        <p th:if="${history.empty}" class="empty">
+          열람 가능한 버전이 없습니다.
+        </p>
         <nav th:replace="~{fragments/shell :: pager(${history},'page')}"></nav>
       </section>
     </main>

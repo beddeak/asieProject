@@ -4,6 +4,8 @@
 
 기능과 설계 이유는 [FEATURE_CHANGES.md](FEATURE_CHANGES.md)를 참고하세요.
 
+후속 공통 화면·진행 안내·버전·배포·재시험 개선의 파일 목록과 시연 순서는 [WORKFLOW_GUIDE.md](WORKFLOW_GUIDE.md)에 있습니다. 아래 표는 최초 통합 구현 당시의 파일 목록입니다.
+
 후속 버그 점검으로 추가된 문서는 [BUGFIX_REVIEW.md](BUGFIX_REVIEW.md)이며, 해당 문서에 수정 파일과 재현 조건을 별도로 기록했습니다.
 
 | 구분 | 파일 |

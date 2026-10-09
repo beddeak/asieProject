@@ -3,38 +3,153 @@
   <head th:replace="~{fragments/shell :: head('품질시험 상세')}"></head>
   <body>
     <header th:replace="~{fragments/shell :: header}"></header>
-    <main id="main" class="workspace">
+    <main
+      id="main"
+      class="workspace"
+      th:with="run=${qualityDetail.run},defect=${qualityDetail.defect}"
+    >
       <div th:replace="~{fragments/shell :: messages}"></div>
       <header class="page-heading">
         <div>
           <p class="eyebrow" th:text="${project.name}"></p>
-          <h1>체크리스트 결과</h1>
+          <h1 th:text="'품질시험 #'+${run.id}"></h1>
+          <p class="muted">
+            시험 당시의 기준·결과와 재시험·시정 조치의 연결을 확인합니다.
+          </p>
         </div>
         <a th:href="@{/projects/{id}/work(id=${project.id},tab='quality')}"
-          >품질시험으로 돌아가기</a
+          >품질시험 이력으로 돌아가기</a
         >
       </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+      <section class="card" aria-labelledby="quality-result-title">
+        <div class="row quality-card-heading">
+          <h2 id="quality-result-title">시험 결과와 근거</h2>
+          <span
+            class="badge"
+            th:classappend="${run.passed?'good':'bad'}"
+            th:text="${run.passed?'적합':'부적합'}"
+          ></span>
+        </div>
+        <dl class="details">
+          <dt>시험 수행자</dt>
+          <dd th:text="${run.testerName}"></dd>
+          <dt>시험 시각</dt>
+          <dd th:text="${@displayTime.format(run.createdAt)}+' KST'"></dd>
+          <dt>검증 대상</dt>
+          <dd
+            th:text="${qualityDetail.current?'현재 문서·검증 조건과 일치':'이전 문서 또는 검증 조건의 기록'}"
+          ></dd>
+          <dt th:if="${run.retestOf!=null}">재시험의 원시험</dt>
+          <dd th:if="${run.retestOf!=null}">
+            <a
+              th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${run.retestOf})}"
+              th:text="'시험 #'+${run.retestOf}+' 결과 보기'"
+            ></a>
+          </dd>
+        </dl>
+        <p class="review-history-note" th:if="${!qualityDetail.current}">
+          이 기록은 보존되지만 현재 배포의 적합 근거로 사용할 수 없습니다. 현재
+          문서 구성으로 다시 시험해야 합니다.
+        </p>
+        <div class="quality-evidence">
+          <h3>시험 환경·수행 내용·결과 근거</h3>
+          <p class="text" th:text="${run.evidence}"></p>
+        </div>
+        <div class="actions" th:if="${project.canQuality and !run.passed}">
+          <a
+            class="button secondary"
+            th:href="@{/projects/{p}/work(p=${project.id},tab='quality',retestOf=${run.id})}+'#quality-test-form'"
+            >이 시험 재시험</a
+          >
+        </div>
+      </section>
       <section class="card">
-        <table>
-          <thead>
-            <tr>
-              <th>시험 당시의 기준</th>
-              <th>결과</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr th:each="r:${results}">
-              <td th:text="${r.criterion}"></td>
-              <td>
-                <span
-                  class="badge"
-                  th:classappend="${r.passed?'good':'bad'}"
-                  th:text="${r.passed?'적합':'부적합'}"
-                ></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <h2>시험 당시의 체크리스트</h2>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">
+              시험 당시 저장된 기준별 적합 여부
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">시험 당시의 기준</th>
+                <th scope="col">결과</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="r:${qualityDetail.results}">
+                <td th:text="${r.criterion}"></td>
+                <td>
+                  <span
+                    class="badge"
+                    th:classappend="${r.passed?'good':'bad'}"
+                    th:text="${r.passed?'적합':'부적합'}"
+                  ></span>
+                </td>
+              </tr>
+              <tr th:if="${qualityDetail.results.empty}">
+                <td colspan="2" class="empty">
+                  이 시험에 저장된 세부 항목이 없습니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section
+        class="card"
+        th:if="${defect!=null}"
+        aria-labelledby="linked-defect-title"
+      >
+        <div class="row quality-card-heading">
+          <h2
+            id="linked-defect-title"
+            th:text="'연결된 부적합 #'+${defect.id}"
+          ></h2>
+          <span
+            class="badge"
+            th:classappend="${defect.closed?'good':'bad'}"
+            th:text="${defect.closed?'시정 조치 완료':'시정 조치 확인 대기'}"
+          ></span>
+        </div>
+        <ol class="quality-path" aria-label="연결된 부적합의 처리 이력">
+          <li>
+            <a
+              th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${defect.failedRunId})}"
+              th:text="'원시험 #'+${defect.failedRunId}+' 부적합'"
+            ></a>
+          </li>
+          <li th:if="${defect.closed}">
+            <a
+              th:href="@{/projects/{p}/work/tests/{id}(p=${project.id},id=${defect.passingRunId})}"
+              th:text="'해결에 연결된 재시험 #'+${defect.passingRunId}"
+            ></a>
+          </li>
+          <li
+            th:if="${!defect.closed}"
+            th:text="${run.passed?'적합 재시험 후 시정 조치를 확인해주세요.':'현재 구성의 적합 재시험이 필요합니다.'}"
+          ></li>
+        </ol>
+        <p class="text" th:text="${defect.description}"></p>
+        <div th:if="${defect.closed}" class="quality-evidence">
+          <h3>원인 분석·시정 조치</h3>
+          <p class="text" th:text="${defect.correctiveAction}"></p>
+          <small
+            th:text="${defect.closedBy}+' · '+${@displayTime.format(defect.closedAt)}+' KST에 해결'"
+          ></small>
+        </div>
+        <p class="muted" th:if="${!defect.closed}">
+          적합 판정만으로 부적합이 자동 해결되지는 않습니다. 현재 구성의
+          재시험과 원인 분석·시정 조치를 연결하여 완료하세요.
+        </p>
+        <div class="actions">
+          <a
+            class="button secondary"
+            th:href="@{/projects/{id}/work(id=${project.id},tab='defects',defectId=${defect.id})}"
+            th:text="${project.canQuality and !defect.closed?'시정 조치 확인으로 이동':'부적합 보고서 보기'}"
+          ></a>
+        </div>
       </section>
     </main>
     <footer th:replace="~{fragments/shell :: footer}"></footer>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <section
+      th:fragment="progress(progress)"
+      th:if="${progress!=null}"
+      class="project-progress"
+      aria-labelledby="project-progress-title"
+    >
+      <div class="progress-heading">
+        <div>
+          <p class="eyebrow">PROJECT WORKFLOW</p>
+          <h2 id="project-progress-title">배포까지의 진행 상황</h2>
+        </div>
+        <p class="muted" th:text="${progress.message}"></p>
+      </div>
+      <aside
+        class="progress-next"
+        th:if="${progress.nextStep!=null and !progress.restricted}"
+        aria-labelledby="progress-next-title"
+      >
+        <div>
+          <h3
+            id="progress-next-title"
+            th:text="'지금 할 일 · '+${progress.nextStep.title}"
+          ></h3>
+          <p th:text="${progress.nextStep.summary}"></p>
+          <small
+            th:if="${!#strings.isEmpty(progress.nextStep.owner)}"
+            th:text="${progress.nextStep.owner}"
+          ></small>
+        </div>
+        <div class="actions">
+          <a
+            class="button secondary"
+            th:each="action:${progress.nextStep.actions}"
+            th:href="${action.href}"
+            th:text="${action.label}"
+          ></a>
+        </div>
+      </aside>
+      <ol class="progress-steps" aria-label="프로젝트 진행 단계">
+        <li
+          th:each="step,index:${progress.steps}"
+          class="progress-step"
+          th:attr="data-stage=${step.key},data-state=${step.state}"
+        >
+          <div class="progress-step-heading">
+            <span
+              class="progress-number"
+              aria-hidden="true"
+              th:text="${index.count}"
+            ></span>
+            <h3 th:text="${step.title}"></h3>
+            <span
+              class="badge"
+              th:classappend="${step.state.name()=='COMPLETE'?'good':step.state.name()=='BLOCKED'?'bad':''}"
+              th:text="${step.state.label}"
+            ></span>
+          </div>
+          <p th:text="${step.summary}"></p>
+          <small
+            th:if="${!#strings.isEmpty(step.owner)}"
+            th:text="${step.owner}"
+          ></small>
+          <div class="progress-step-actions" th:if="${!step.actions.empty}">
+            <a
+              th:each="action:${step.actions}"
+              th:href="${action.href}"
+              th:text="${action.label}"
+            ></a>
+          </div>
+        </li>
+      </ol>
+    </section>
+  </body>
+</html>

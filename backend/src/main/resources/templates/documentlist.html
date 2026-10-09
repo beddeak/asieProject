@@ -18,7 +18,7 @@
   <body class="document-list-page">
     <a class="skip-link" href="#document-register">문서 목록으로 바로가기</a>
     <header th:replace="~{fragments/shell :: header}"></header>
-    <main class="list-workspace">
+    <main id="main" class="list-workspace">
       <header class="page-heading">
         <div>
           <p class="eyebrow">DOCUMENT REGISTER</p>
@@ -71,7 +71,11 @@
               th:text="${documentPage.totalElements} + '건'"
             ></span>
           </div>
-          <span class="register-description">문서별 최신 버전</span>
+          <span
+            class="register-description"
+            th:text="${filter.approvedOnly}?(${filter.archived}?'문서별 최신 승인 이력 · 보관 포함':'문서별 최신 승인본'):'문서별 최신 버전'"
+            >문서별 최신 버전</span
+          >
         </header>
 
         <form
@@ -115,9 +119,20 @@
             type="hidden"
             th:field="*{projectId}"
           /><label class="check"
+            ><input
+              type="checkbox"
+              th:field="*{approvedOnly}"
+              aria-describedby="approved-filter-help"
+            />최신 승인본 보기</label
+          ><label class="check"
             ><input type="checkbox" th:field="*{archived}" />보관 포함</label
           ><button>검색</button><a th:href="@{/document/list}">초기화</a>
         </form>
+        <p id="approved-filter-help" class="muted">
+          최신 승인본 보기는 새 초안이 있어도 문서별 마지막 승인 버전을
+          표시합니다. 검색·상태 조건도 함께 적용되며, 보관 포함을 선택하면 보관
+          문서의 승인 이력도 표시됩니다.
+        </p>
         <div
           class="error-notice"
           role="alert"
@@ -150,11 +165,14 @@
               </tr>
             </thead>
             <tbody>
-              <tr th:each="version : ${documentPage.content}">
+              <tr
+                th:each="version : ${documentPage.content}"
+                th:attr="data-document-version=${version.versionId}"
+              >
                 <td class="title-cell">
                   <a
                     class="document-link"
-                    th:href="@{/document/detail/{id}(id=${version.documentId})}"
+                    th:href="${filter.approvedOnly}?@{/document/versions/{id}(id=${version.versionId})}:@{/document/detail/{id}(id=${version.documentId})}"
                     th:text="${version.title}"
                   ></a>
                   <span
@@ -182,6 +200,9 @@
                     <span th:case="'ARCHIVED'">보관</span>
                     <span th:case="*">상태 미지정</span>
                   </span>
+                  <span class="document-reference" th:if="${version.archived}"
+                    >문서 보관됨</span
+                  >
                 </td>
                 <td class="author-cell" th:text="${version.authorName}"></td>
                 <td

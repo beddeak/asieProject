@@ -1,5 +1,6 @@
 package com.asie.aegisvault.workflow;
 
+import com.asie.aegisvault.project.ProjectProgressService;
 import com.asie.aegisvault.project.ProjectService;
 import com.asie.aegisvault.release.ReleaseService;
 import java.security.Principal;
@@ -16,6 +17,7 @@ public class WorkflowController {
   private final WorkflowService service;
   private final ProjectService projects;
   private final ReleaseService releases;
+  private final ProjectProgressService progress;
   private final com.asie.aegisvault.Document.DocumentService documents;
   private final com.asie.aegisvault.security.CurrentUser actors;
 
@@ -28,15 +30,17 @@ public class WorkflowController {
       @RequestParam(defaultValue = "0") int documentPage,
       @RequestParam(required = false) String documentKeyword,
       @RequestParam(defaultValue = "0") int memberPage,
+      @RequestParam(required = false) Long retestOf,
+      @RequestParam(required = false) Long defectId,
       Model model) {
     String name = actor.getName();
-    model.addAttribute("project", projects.detail(name, projectId));
+    var project = projects.detail(name, projectId);
+    model.addAttribute("project", project);
     model.addAttribute("tab", tab);
-    if (Set.of("quality", "security", "release").contains(tab)) {
-      var gate = releases.gate(name, projectId);
-      model.addAttribute("gate", gate);
-      model.addAttribute("fingerprint", gate.snapshot().fingerprint());
-    }
+    var gate = releases.gate(name, projectId);
+    model.addAttribute("gate", gate);
+    model.addAttribute("fingerprint", gate.snapshot().fingerprint());
+    model.addAttribute("projectProgress", progress.from(project, gate));
     switch (tab) {
       case "changes" -> {
         model.addAttribute("changes", service.changes(name, projectId, page));
@@ -53,8 +57,15 @@ public class WorkflowController {
       case "quality" -> {
         model.addAttribute("checks", service.checklist(name, projectId));
         model.addAttribute("runs", service.runs(name, projectId, page));
+        if (retestOf != null)
+          model.addAttribute("retestTarget", service.retestTarget(name, projectId, retestOf));
       }
-      case "defects" -> model.addAttribute("defects", service.defects(name, projectId, page));
+      case "defects" -> {
+        var workspace = service.defectWorkspace(name, projectId, page, defectId);
+        model.addAttribute("defects", workspace.defects());
+        model.addAttribute("passingRetests", workspace.passingRetests());
+        model.addAttribute("focusedDefect", defectId != null);
+      }
       case "security" -> {
         model.addAttribute("assessments", service.assessments(name, projectId, page));
       }
@@ -120,15 +131,17 @@ public class WorkflowController {
       @RequestParam(defaultValue = "") Set<Long> passedChecks,
       @RequestParam String evidence,
       @RequestParam(required = false) Long retestOf) {
-    service.test(actor.getName(), projectId, fingerprint, passedChecks, evidence, retestOf);
-    return back(projectId, "quality");
+    Long runId =
+        service.test(actor.getName(), projectId, fingerprint, passedChecks, evidence, retestOf);
+    return "redirect:/projects/" + projectId + "/work/tests/" + runId;
   }
 
   @GetMapping("/tests/{runId}")
   public String results(
       Principal actor, @PathVariable Long projectId, @PathVariable Long runId, Model model) {
     model.addAttribute("project", projects.detail(actor.getName(), projectId));
-    model.addAttribute("results", service.results(actor.getName(), projectId, runId));
+    model.addAttribute("qualityDetail", service.qualityDetail(actor.getName(), projectId, runId));
+    model.addAttribute("projectProgress", progress.view(actor.getName(), projectId));
     return "qualityresults";
   }
 
@@ -140,7 +153,7 @@ public class WorkflowController {
       @RequestParam Long passingRunId,
       @RequestParam String correctiveAction) {
     service.closeDefect(actor.getName(), projectId, id, passingRunId, correctiveAction);
-    return back(projectId, "defects");
+    return back(projectId, "defects") + "&defectId=" + id;
   }
 
   @PostMapping("/security")

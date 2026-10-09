@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <section
+      th:fragment="summary(summary)"
+      class="card version-summary"
+      th:if="${summary!=null}"
+      aria-label="문서 버전 안내"
+    >
+      <h2>현재 버전과 승인 이력</h2>
+      <p class="notice" th:if="${summary.archived}">
+        보관된 문서입니다. 승인 이력은 보존되며 현재 프로젝트 배포 구성에는
+        포함되지 않습니다.
+      </p>
+      <div class="trace-summary-grid">
+        <div>
+          <h3>열람 가능한 최신 버전</h3>
+          <div
+            th:if="${summary.latestVisible!=null}"
+            th:attr="data-trace-latest=${summary.latestVisible.versionId}"
+          >
+            <a
+              th:href="@{/document/versions/{id}(id=${summary.latestVisible.versionId})}"
+              th:text="'v'+${summary.latestVisible.versionNumber}+' · '+${summary.latestVisible.title}"
+            ></a>
+            <span
+              class="badge"
+              th:attr="data-status=${summary.latestVisible.status}"
+              th:text="${summary.latestVisible.status.label}"
+            ></span>
+          </div>
+          <p class="muted" th:if="${summary.latestVisible==null}">
+            열람 가능한 버전이 없습니다.
+          </p>
+        </div>
+        <div>
+          <h3
+            th:text="${summary.archived or (summary.latestApproved!=null and summary.latestApproved.status.name()=='ARCHIVED')}?'마지막 승인 이력':'최신 승인본'"
+          ></h3>
+          <div
+            th:if="${summary.latestApproved!=null}"
+            th:attr="data-trace-approved=${summary.latestApproved.versionId}"
+          >
+            <a
+              th:href="@{/document/versions/{id}(id=${summary.latestApproved.versionId})}"
+              th:text="'v'+${summary.latestApproved.versionNumber}+' · '+${summary.latestApproved.title}"
+            ></a>
+            <span
+              class="badge"
+              th:attr="data-status=${summary.latestApproved.status}"
+              th:text="${summary.latestApproved.status.label}"
+            ></span>
+          </div>
+          <p class="muted" th:if="${summary.latestApproved==null}">
+            아직 승인된 버전이 없습니다.
+          </p>
+        </div>
+      </div>
+      <p class="muted">
+        새 초안이나 검토 중인 버전은 승인본이 아닙니다. 배포하려면 현재 문서
+        구성의 품질시험과 보안 검토까지 완료해야 합니다.
+      </p>
+    </section>
+  </body>
+</html>

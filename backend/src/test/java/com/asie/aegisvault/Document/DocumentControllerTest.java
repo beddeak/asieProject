@@ -501,6 +501,11 @@ class DocumentControllerTest {
     }
 
     @Bean
+    com.asie.aegisvault.web.DisplayTime displayTime() {
+      return new com.asie.aegisvault.web.DisplayTime("UTC");
+    }
+
+    @Bean
     SpringTemplateEngine templateEngine() {
       ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
       resolver.setPrefix("templates/");

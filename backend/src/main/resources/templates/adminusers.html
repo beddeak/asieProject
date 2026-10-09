@@ -4,24 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>사용자 관리 | AegisVault</title>
+    <link rel="stylesheet" th:href="@{/css/common.css}" />
     <link rel="stylesheet" th:href="@{/css/admin.css}" />
     <link rel="stylesheet" th:href="@{/css/departmentcreate.css}" />
     <script defer th:src="@{/js/admin.js}"></script>
   </head>
   <body>
     <a class="skip-link" href="#main">본문으로 이동</a>
-    <header class="workspace-header">
-      <a class="brand" th:href="@{/}"
-        ><span class="company-mark" aria-hidden="true">A</span
-        ><span>AegisVault<small>AEGIS DEFENSE TECHNOLOGIES</small></span></a
-      >
-      <div class="header-account">
-        <span><strong th:text="${currentUserName}"></strong> · 관리자</span>
-        <form th:action="@{/logout}" method="post">
-          <button class="text-button" type="submit">로그아웃</button>
-        </form>
-      </div>
-    </header>
+    <th:block th:replace="~{fragments/layout :: header('admin', true)}"></th:block>
     <main id="main" class="admin-workspace">
       <header class="page-heading">
         <div>

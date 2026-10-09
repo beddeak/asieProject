@@ -52,7 +52,11 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
       SUMMARY
           + """
           where v.versionNumber = (select max(latest.versionNumber) from DocumentVersion latest
-                                   where latest.document = d)
+                                   where latest.document = d
+                                     and (:approvedOnly=false
+                                       or latest.status=com.asie.aegisvault.Document.DocumentStatus.APPROVED
+                                       or (latest.status=com.asie.aegisvault.Document.DocumentStatus.ARCHIVED
+                                         and latest.archivedFrom=com.asie.aegisvault.Document.DocumentStatus.APPROVED)))
             and (:includeArchived=true or d.archived=false)
             and (:mine=false or author.id=:viewerId or v.editorId=:viewerId)
             and (:reviewOnly=false or (v.status=com.asie.aegisvault.Document.DocumentStatus.PENDING_REVIEW
@@ -88,6 +92,7 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
       @Param("projectId") Long projectId,
       @Param("filterDepartmentId") Long filterDepartmentId,
       @Param("includeArchived") boolean includeArchived,
+      @Param("approvedOnly") boolean approvedOnly,
       @Param("mine") boolean mine,
       @Param("reviewOnly") boolean reviewOnly,
       @Param("securityOnly") boolean securityOnly,
@@ -105,6 +110,17 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
       @Param("clearances") List<SecurityClassification> clearances,
       @Param("now") Instant now,
       Pageable pageable);
+
+  @Query(
+      SUMMARY
+          + """
+          where d.id=:documentId and
+          (v.status=com.asie.aegisvault.Document.DocumentStatus.APPROVED
+            or (v.status=com.asie.aegisvault.Document.DocumentStatus.ARCHIVED
+              and v.archivedFrom=com.asie.aegisvault.Document.DocumentStatus.APPROVED))
+          order by v.versionNumber desc
+          """)
+  List<DocumentListItem> approvedHistory(@Param("documentId") Long documentId, Pageable pageable);
 
   @Query(SUMMARY + "where v.id in :versionIds " + VISIBILITY)
   List<DocumentListItem> findVisibleVersions(

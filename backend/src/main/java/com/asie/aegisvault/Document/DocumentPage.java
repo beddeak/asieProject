@@ -25,6 +25,8 @@ public class DocumentPage {
     var user = actors.get(actor);
     access.requireRead(user, version);
     model.addAttribute("documentVersion", version);
+    model.addAttribute(
+        "versionSummary", documents.historySummary(version.getDocument().getId(), user.getId()));
     model.addAttribute("actions", documents.actions(user, version));
     model.addAttribute(
         "comments",

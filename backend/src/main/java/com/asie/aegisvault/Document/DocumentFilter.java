@@ -14,6 +14,7 @@ public class DocumentFilter {
   private Long projectId;
   private Long departmentId;
   private boolean archived;
+  private boolean approvedOnly;
   private boolean mine;
   private boolean reviewOnly;
   private boolean securityOnly;

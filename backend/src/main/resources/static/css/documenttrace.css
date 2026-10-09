@@ -1,0 +1,88 @@
+.trace-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+.trace-summary-grid h3 {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+}
+.trace-summary-grid a {
+  display: block;
+  margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
+}
+.version-timeline {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.trace-version {
+  padding: 1.1rem 0 1.1rem 1.1rem;
+  border-left: 3px solid #dfd5d2;
+}
+.trace-version + .trace-version {
+  border-top: 1px solid #ece5e1;
+}
+.trace-version-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+.trace-version-heading h3 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.trace-version-actions {
+  margin-top: 0.9rem;
+}
+.release-document + .release-document {
+  border-top: 1px solid #e7ddd8;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+.release-files {
+  list-style: none;
+  padding: 0;
+}
+.release-file {
+  padding: 0.9rem 0;
+  border-bottom: 1px solid #ece5e1;
+}
+.release-file p {
+  margin: 0.3rem 0;
+}
+.release-path,
+.release-file .mono {
+  display: block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.release-file details {
+  margin-top: 0.5rem;
+}
+.release-file summary {
+  cursor: pointer;
+}
+.release-fingerprint {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .trace-summary-grid {
+    grid-template-columns: 1fr;
+  }
+  .trace-summary-grid > div + div {
+    border-top: 1px solid #e7ddd8;
+    padding-top: 1rem;
+  }
+  .trace-version-heading {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+.release-document h3,
+.release-file strong {
+  overflow-wrap: anywhere;
+}

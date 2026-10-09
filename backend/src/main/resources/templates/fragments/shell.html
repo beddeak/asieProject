@@ -5,37 +5,20 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title th:text="${title}+' | AegisVault'">AegisVault</title>
     <link rel="stylesheet" th:href="@{/css/workspace.css}" />
+    <link rel="stylesheet" th:href="@{/css/projectprogress.css}" />
+    <link rel="stylesheet" th:href="@{/css/documenttrace.css}" />
     <script defer th:src="@{/js/workspace.js}"></script>
   </head>
   <body>
-    <header th:fragment="header" class="app-header">
-      <a class="skip" href="#main">본문 바로가기</a
-      ><a class="brand" th:href="@{/}"
-        ><span class="brand-mark">A</span
-        ><span>AegisVault<small>DOCUMENT &amp; PROJECT CONTROL</small></span></a
-      >
-      <nav aria-label="주 메뉴">
-        <a th:href="@{/}">홈</a><a th:href="@{/document/list}">문서</a
-        ><a th:href="@{/projects}">프로젝트</a
-        ><a th:href="@{/departments}">부서</a
-        ><a th:href="@{/announcements}">전체 공지</a
-        ><a th:href="@{/tasks}">내 업무</a><a th:href="@{/access}">임시 접근</a>
-      </nav>
-      <div class="account-nav" th:if="${workspaceAccount!=null}">
-        <a th:href="@{/notifications}"
-          >알림
-          <span class="counter" th:text="${workspaceAccount.unread}">0</span></a
-        ><a th:if="${workspaceAccount.admin}" th:href="@{/admin/users}">관리</a
-        ><a th:href="@{/account}" th:text="${workspaceAccount.name}">계정</a>
-        <form th:action="@{/logout}" method="post">
-          <button class="quiet" type="submit">로그아웃</button>
-        </form>
-      </div>
-    </header>
-    <footer th:fragment="footer" class="app-footer">
-      <span>AegisVault · 문서와 업무의 이력을 연결합니다.</span
-      ><span>표시 시각: UTC</span>
-    </footer>
+    <th:block th:fragment="header">
+      <a class="skip-link" href="#main">본문 바로가기</a>
+      <th:block
+        th:replace="~{fragments/layout :: header(null, ${workspaceAccount != null})}"
+      ></th:block>
+    </th:block>
+    <th:block th:fragment="footer">
+      <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </th:block>
     <div th:fragment="messages">
       <p
         class="notice success"
@@ -63,19 +46,22 @@
       ></span
       ><a th:if="${page.hasNext()}" th:href="${next}">다음 →</a>
     </nav>
-    <nav
-      th:fragment="projectNav(project)"
-      class="tabs"
-      aria-label="프로젝트 메뉴"
-    >
-      <a th:href="@{/projects/{id}(id=${project.id})}">개요·문서</a
-      ><a th:href="@{/projects/{id}/members(id=${project.id})}">참여자</a
-      ><a th:href="@{/projects/{id}/work(id=${project.id})}"
-        >연구개발·품질·보안</a
-      ><a th:href="@{/projects/{id}/work(id=${project.id},tab='release')}"
-        >최종 배포</a
-      ><a th:href="@{/projects/{id}/timeline(id=${project.id})}">타임라인</a>
-    </nav>
+    <th:block th:fragment="projectNav(project)">
+      <nav class="tabs" aria-label="프로젝트 메뉴">
+        <a th:href="@{/projects/{id}(id=${project.id})}">개요·문서</a
+        ><a th:href="@{/projects/{id}/members(id=${project.id})}">참여자</a
+        ><a th:href="@{/projects/{id}/work(id=${project.id})}"
+          >연구개발·품질·보안</a
+        ><a th:href="@{/projects/{id}/work(id=${project.id},tab='release')}"
+          >최종 배포</a
+        ><a th:href="@{/projects/{id}/timeline(id=${project.id})}">타임라인</a>
+      </nav>
+      <th:block th:if="${projectProgress!=null}">
+        <section
+          th:replace="~{fragments/projectprogress :: progress(${projectProgress})}"
+        ></section>
+      </th:block>
+    </th:block>
     <div th:fragment="documents(page)" class="table-wrap">
       <table>
         <caption class="sr-only">

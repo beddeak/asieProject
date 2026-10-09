@@ -147,6 +147,7 @@ public class DocumentService {
                     filter.getProjectId(),
                     filter.getDepartmentId(),
                     filter.isArchived(),
+                    filter.isApprovedOnly(),
                     filter.isMine(),
                     filter.isReviewOnly(),
                     filter.isSecurityOnly(),
@@ -173,37 +174,56 @@ public class DocumentService {
         page,
         20,
         Sort.by(Sort.Direction.DESC, "versionNumber"),
-        pageable ->
-            versions.history(
-                documentId,
-                accounts.isAdmin(actor),
-                departmentId(actor),
-                accounts.assignablePositions(actor),
-                actor.getPosition().isAtLeast(Position.MANAGER),
-                securityReviewer(actor),
-                actor.getId(),
-                clearances(actor),
-                Instant.now(),
-                pageable));
+        pageable -> visibleHistory(documentId, actor, pageable));
   }
 
-  /** Batch title lookup using the same visibility policy as the document list and history. */
-  public Map<Long, String> readableVersionTitles(Long actorId, Collection<Long> versionIds) {
+  public DocumentHistorySummary historySummary(Long documentId, Long viewerId) {
+    User actor = user(viewerId);
+    Document document = document(documentId);
+    access.requireScope(actor, document);
+    var latestVisible =
+        visibleHistory(
+            documentId, actor, PageRequest.of(0, 1, Sort.by(Sort.Direction.DESC, "versionNumber")));
+    var approved = versions.approvedHistory(documentId, PageRequest.of(0, 1));
+    return new DocumentHistorySummary(
+        latestVisible.isEmpty() ? null : latestVisible.getContent().getFirst(),
+        approved.isEmpty() ? null : approved.getFirst(),
+        document.isArchived());
+  }
+
+  private Page<DocumentListItem> visibleHistory(Long documentId, User actor, Pageable pageable) {
+    return versions.history(
+        documentId,
+        accounts.isAdmin(actor),
+        departmentId(actor),
+        accounts.assignablePositions(actor),
+        actor.getPosition().isAtLeast(Position.MANAGER),
+        securityReviewer(actor),
+        actor.getId(),
+        clearances(actor),
+        Instant.now(),
+        pageable);
+  }
+
+  /** Batch lookup using the same visibility policy as the document list and history. */
+  public List<DocumentListItem> readableVersions(Long actorId, Collection<Long> versionIds) {
     User actor = user(actorId);
-    if (versionIds.isEmpty()) return Map.of();
-    List<DocumentListItem> visible =
-        versions.findVisibleVersions(
-            versionIds,
-            accounts.isAdmin(actor),
-            departmentId(actor),
-            accounts.assignablePositions(actor),
-            actor.getPosition().isAtLeast(Position.MANAGER),
-            securityReviewer(actor),
-            actor.getId(),
-            clearances(actor),
-            Instant.now());
+    if (versionIds.isEmpty()) return List.of();
+    return versions.findVisibleVersions(
+        versionIds,
+        accounts.isAdmin(actor),
+        departmentId(actor),
+        accounts.assignablePositions(actor),
+        actor.getPosition().isAtLeast(Position.MANAGER),
+        securityReviewer(actor),
+        actor.getId(),
+        clearances(actor),
+        Instant.now());
+  }
+
+  public Map<Long, String> readableVersionTitles(Long actorId, Collection<Long> versionIds) {
     Map<Long, String> titles = new HashMap<>();
-    visible.forEach(v -> titles.put(v.versionId(), v.title()));
+    readableVersions(actorId, versionIds).forEach(v -> titles.put(v.versionId(), v.title()));
     return Map.copyOf(titles);
   }
 

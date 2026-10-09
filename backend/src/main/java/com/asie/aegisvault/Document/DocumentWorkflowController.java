@@ -123,6 +123,8 @@ public class DocumentWorkflowController {
       Model model) {
     model.addAttribute("history", service.history(id, actors.get(actor.getName()).getId(), page));
     model.addAttribute("documentId", id);
+    model.addAttribute(
+        "versionSummary", service.historySummary(id, actors.get(actor.getName()).getId()));
     return "documenthistory";
   }
 

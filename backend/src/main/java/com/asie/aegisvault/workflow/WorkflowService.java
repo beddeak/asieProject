@@ -55,13 +55,60 @@ public class WorkflowService {
         page, 20, Sort.by(Sort.Direction.DESC, "id"), p -> runs.findByProjectId(projectId, p));
   }
 
-  public List<QualityResult> results(String actor, Long projectId, Long runId) {
-    QualityRun run =
-        runs.findById(runId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    if (!Objects.equals(run.getProjectId(), projectId))
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+  public QualityRun retestTarget(String actor, Long projectId, Long runId) {
     reader(actor, projectId);
-    return results.findByRunIdOrderById(runId);
+    QualityRun run = projectRun(projectId, runId);
+    if (run.isPassed()) throw new IllegalArgumentException("부적합 시험을 재시험 대상으로 선택해주세요.");
+    return run;
+  }
+
+  public record QualityDetail(
+      QualityRun run, List<QualityResult> results, Nonconformity defect, boolean current) {}
+
+  public QualityDetail qualityDetail(String actor, Long projectId, Long runId) {
+    reader(actor, projectId);
+    QualityRun run = projectRun(projectId, runId);
+    Long failedRunId = run.isPassed() ? run.getRetestOf() : run.getId();
+    Nonconformity defect =
+        failedRunId == null
+            ? null
+            : defects
+                .findFirstByProjectIdAndFailedRunIdOrderByIdDesc(projectId, failedRunId)
+                .orElse(null);
+    return new QualityDetail(
+        run,
+        results.findByRunIdOrderById(runId),
+        defect,
+        run.getFingerprint().equals(evidence.snapshot(projectId).fingerprint()));
+  }
+
+  public record DefectWorkspace(
+      Page<Nonconformity> defects, Map<Long, QualityRunOption> passingRetests) {}
+
+  public DefectWorkspace defectWorkspace(String actor, Long projectId, int page, Long defectId) {
+    Page<Nonconformity> reports;
+    if (defectId == null) {
+      reports = defects(actor, projectId, page);
+    } else {
+      reader(actor, projectId);
+      Nonconformity defect =
+          defects
+              .findById(defectId)
+              .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+      sameProject(projectId, defect.getProjectId());
+      reports = new PageImpl<>(List.of(defect));
+    }
+    List<Long> failedRunIds =
+        reports.stream()
+            .filter(d -> !d.isClosed())
+            .map(Nonconformity::getFailedRunId)
+            .distinct()
+            .toList();
+    if (failedRunIds.isEmpty()) return new DefectWorkspace(reports, Map.of());
+    Map<Long, QualityRunOption> candidates = new HashMap<>();
+    runs.latestPassingRetests(projectId, evidence.snapshot(projectId).fingerprint(), failedRunIds)
+        .forEach(run -> candidates.put(run.retestOf(), run));
+    return new DefectWorkspace(reports, Map.copyOf(candidates));
   }
 
   public Page<Nonconformity> defects(String actor, Long projectId, int page) {
@@ -346,6 +393,13 @@ public class WorkflowService {
   private void sameProject(Long expected, Long actual) {
     if (!Objects.equals(expected, actual))
       throw new ResponseStatusException(HttpStatus.NOT_FOUND, "프로젝트의 업무 항목을 찾을 수 없습니다.");
+  }
+
+  private QualityRun projectRun(Long projectId, Long runId) {
+    QualityRun run =
+        runs.findById(runId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    sameProject(projectId, run.getProjectId());
+    return run;
   }
 
   private EngineeringChange change(Long id) {

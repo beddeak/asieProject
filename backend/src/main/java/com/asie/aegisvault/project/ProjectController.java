@@ -19,6 +19,7 @@ public class ProjectController {
   private final DepartmentRepository departments;
   private final DocumentService documents;
   private final CurrentUser actors;
+  private final ProjectProgressService progress;
 
   @GetMapping
   public String list(
@@ -60,6 +61,7 @@ public class ProjectController {
       @RequestParam(defaultValue = "0") int page,
       Model model) {
     model.addAttribute("project", service.detail(actor.getName(), id));
+    model.addAttribute("projectProgress", progress.view(actor.getName(), id));
     DocumentFilter filter = new DocumentFilter();
     filter.setProjectId(id);
     model.addAttribute(
@@ -81,6 +83,7 @@ public class ProjectController {
     form.setRevision(detail.revision());
     model.addAttribute("form", form);
     model.addAttribute("project", detail);
+    model.addAttribute("projectProgress", progress.view(actor.getName(), id));
     return "projectform";
   }
 
@@ -93,6 +96,7 @@ public class ProjectController {
       Model model) {
     if (errors.hasErrors()) {
       model.addAttribute("project", service.detail(actor.getName(), id));
+      model.addAttribute("projectProgress", progress.view(actor.getName(), id));
       return "projectform";
     }
     service.update(actor.getName(), id, form);
@@ -115,6 +119,7 @@ public class ProjectController {
       Model model) {
     var project = service.detail(actor.getName(), id);
     model.addAttribute("project", project);
+    model.addAttribute("projectProgress", progress.view(actor.getName(), id));
     model.addAttribute("members", service.members(actor.getName(), id, page));
     model.addAttribute("roles", ProjectRole.values());
     model.addAttribute("keyword", keyword);
@@ -157,6 +162,7 @@ public class ProjectController {
       @RequestParam(defaultValue = "0") int page,
       Model model) {
     model.addAttribute("project", service.detail(actor.getName(), id));
+    model.addAttribute("projectProgress", progress.view(actor.getName(), id));
     model.addAttribute("records", service.timeline(actor.getName(), id, page));
     return "projecttimeline";
   }

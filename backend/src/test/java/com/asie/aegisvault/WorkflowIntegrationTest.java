@@ -52,6 +52,7 @@ class WorkflowIntegrationTest {
   @Autowired UserRepository users;
   @Autowired DepartmentRepository departments;
   @Autowired ProjectService projects;
+  @Autowired ProjectProgressService projectProgress;
   @Autowired ProjectRepository projectRepository;
   @Autowired ProjectMemberRepository members;
   @Autowired DocumentService documents;
@@ -172,6 +173,232 @@ class WorkflowIntegrationTest {
     workflow.assess(security.getNickname(), projectId, fingerprint, true, "접근 통제와 배포 범위 검증 완료");
     projects.changeStatus(owner.getNickname(), projectId, "review");
     return fingerprint;
+  }
+
+  @Test
+  void projectProgressTracksCurrentEvidenceAndRequiresAnActualDeliveryForCompletion() {
+    var initial = projectProgress.view(owner.getNickname(), projectId);
+    assertEquals(
+        List.of(
+            ProjectProgress.State.NEEDS_ACTION,
+            ProjectProgress.State.BLOCKED,
+            ProjectProgress.State.BLOCKED,
+            ProjectProgress.State.BLOCKED),
+        initial.steps().stream().map(ProjectProgress.Step::state).toList());
+    assertEquals(ProjectProgress.Key.DOCUMENTS, initial.nextStep().key());
+
+    for (var category :
+        List.of(
+            DocumentCategory.DESIGN,
+            DocumentCategory.TEST_REPORT,
+            DocumentCategory.SECURITY_REVIEW)) approved(category);
+    var documentsReady = projectProgress.view(owner.getNickname(), projectId);
+    assertEquals(
+        List.of(
+            ProjectProgress.State.COMPLETE,
+            ProjectProgress.State.NEEDS_ACTION,
+            ProjectProgress.State.NEEDS_ACTION,
+            ProjectProgress.State.BLOCKED),
+        documentsReady.steps().stream().map(ProjectProgress.Step::state).toList());
+    assertEquals(ProjectProgress.Key.QUALITY, documentsReady.nextStep().key());
+
+    workflow.addCheck(tester.getNickname(), projectId, "배포 구성의 요구사항 확인");
+    Long checkId = checks.findByProjectIdAndActiveTrueOrderById(projectId).getFirst().getId();
+    String fingerprint = workflow.fingerprint(tester.getNickname(), projectId);
+    workflow.test(tester.getNickname(), projectId, fingerprint, Set.of(checkId), "적합 근거", null);
+    workflow.assess(security.getNickname(), projectId, fingerprint, true, "독립 보안 검토 근거");
+    var awaitingReview = projectProgress.view(owner.getNickname(), projectId);
+    assertEquals(ProjectProgress.Key.RELEASE, awaitingReview.nextStep().key());
+    assertEquals(ProjectProgress.State.NEEDS_ACTION, awaitingReview.nextStep().state());
+    assertFalse(releases.gate(owner.getNickname(), projectId).ready());
+    assertEquals(
+        ProjectStatus.ACTIVE, projectRepository.findById(projectId).orElseThrow().getStatus());
+
+    projects.changeStatus(owner.getNickname(), projectId, "review");
+    var gate = releases.gate(owner.getNickname(), projectId);
+    var beforeRelease = projectProgress.view(owner.getNickname(), projectId);
+    assertTrue(gate.ready());
+    assertEquals(
+        List.of(
+            ProjectProgress.State.COMPLETE,
+            ProjectProgress.State.COMPLETE,
+            ProjectProgress.State.COMPLETE,
+            ProjectProgress.State.NEEDS_ACTION),
+        beforeRelease.steps().stream().map(ProjectProgress.Step::state).toList());
+    assertEquals(
+        beforeRelease, projectProgress.from(projects.detail(owner.getNickname(), projectId), gate));
+    assertEquals(0, releases.list(owner.getNickname(), projectId, 0).getTotalElements());
+
+    Long releaseId =
+        releases.publish(
+            owner.getNickname(), projectId, fingerprint, Set.of(viewer.getNickname()), "확정 배포");
+    var delivered = projectProgress.view(owner.getNickname(), projectId);
+    assertTrue(
+        delivered.steps().stream().allMatch(s -> s.state() == ProjectProgress.State.COMPLETE));
+    assertNull(delivered.nextStep());
+    assertEquals("/releases/" + releaseId, delivered.steps().getLast().actions().getFirst().href());
+
+    var design =
+        gate.snapshot().versions().stream()
+            .filter(version -> version.category() == DocumentCategory.DESIGN)
+            .findFirst()
+            .orElseThrow();
+    Long successor = documents.newVersion(design.documentId(), writer.getId(), design.versionId());
+    var changed = projectProgress.view(owner.getNickname(), projectId);
+    assertEquals(
+        List.of(
+            ProjectProgress.State.NEEDS_ACTION,
+            ProjectProgress.State.BLOCKED,
+            ProjectProgress.State.BLOCKED,
+            ProjectProgress.State.BLOCKED),
+        changed.steps().stream().map(ProjectProgress.Step::state).toList());
+    assertEquals(ProjectProgress.Key.DOCUMENTS, changed.nextStep().key());
+    assertFalse(releases.gate(owner.getNickname(), projectId).ready());
+    assertFalse(releases.downloadVersions(viewer.getNickname(), releaseId).contains(successor));
+    assertTrue(
+        releases.downloadVersions(viewer.getNickname(), releaseId).contains(design.versionId()));
+  }
+
+  @Test
+  void projectProgressDoesNotRevealClassifiedEvidenceOrChangeExistingProjectAccess()
+      throws Exception {
+    Document classified =
+        documents.create(
+            new DocumentCommand(
+                "열람권한 없는 설계의 비밀 제목",
+                "보호 대상",
+                Position.STAFF,
+                projectId,
+                DocumentCategory.DESIGN,
+                SecurityClassification.CONFIDENTIAL,
+                false),
+            admin.getId());
+    Long versionId =
+        versions.findFirstByDocumentOrderByVersionNumberDesc(classified).orElseThrow().getId();
+    tx.executeWithoutResult(
+        t ->
+            users
+                .findById(viewer.getId())
+                .orElseThrow()
+                .changeClearance(SecurityClassification.INTERNAL));
+    var restricted = projectProgress.view(viewer.getNickname(), projectId);
+    assertTrue(restricted.restricted());
+    assertNull(restricted.nextStep());
+    assertTrue(
+        restricted.steps().stream().allMatch(s -> s.state() == ProjectProgress.State.BLOCKED));
+    for (String suffix : List.of("", "/members", "/timeline")) {
+      mvc.perform(get("/projects/" + projectId + suffix).with(user(viewer.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(model().attribute("projectProgress", restricted))
+          .andExpect(content().string(not(containsString("열람권한 없는 설계의 비밀 제목"))))
+          .andExpect(
+              content()
+                  .string(not(containsString("href=\"/document/versions/" + versionId + "\""))))
+          .andExpect(content().string(not(containsString("id=\"progress-next-title\""))));
+    }
+    for (String tab : List.of("quality", "security", "release"))
+      mvc.perform(
+              get("/projects/" + projectId + "/work")
+                  .param("tab", tab)
+                  .with(user(viewer.getNickname())))
+          .andExpect(status().isForbidden());
+    assertThrows(
+        AccessDeniedException.class, () -> projectProgress.view(outsider.getNickname(), projectId));
+    mvc.perform(get("/projects/" + projectId).with(user(outsider.getNickname())))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void closedProjectsShowReadOnlyProgressWithoutSuggestingFurtherWork() throws Exception {
+    projects.changeStatus(owner.getNickname(), projectId, "close");
+    var closed = projectProgress.view(owner.getNickname(), projectId);
+    assertFalse(closed.restricted());
+    assertNull(closed.nextStep());
+    assertEquals(4, closed.steps().size());
+    for (var step : closed.steps()) {
+      assertEquals(ProjectProgress.State.BLOCKED, step.state());
+      assertTrue(step.summary().contains("종료"));
+      assertTrue(
+          step.actions().stream()
+              .allMatch(action -> action.href().startsWith("/projects/" + projectId)));
+    }
+    for (String suffix : List.of("", "/work?tab=quality", "/work?tab=release"))
+      mvc.perform(get("/projects/" + projectId + suffix).with(user(owner.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(model().attribute("projectProgress", closed))
+          .andExpect(content().string(not(containsString("id=\"progress-next-title\""))))
+          .andExpect(content().string(not(containsString("배포 확정</button>"))));
+    assertThrows(
+        IllegalStateException.class,
+        () -> workflow.addCheck(tester.getNickname(), projectId, "종료 프로젝트 변경 시도"));
+    assertTrue(checks.findByProjectIdAndActiveTrueOrderById(projectId).isEmpty());
+  }
+
+  @Test
+  void projectPagesShareEvidenceProgressAndNavigationWithoutMutatingProjectState()
+      throws Exception {
+    completeEvidence();
+    Long runId = workflow.runs(owner.getNickname(), projectId, 0).getContent().getFirst().getId();
+    var expected = projectProgress.view(owner.getNickname(), projectId);
+    for (String suffix :
+        List.of(
+            "",
+            "/edit",
+            "/members",
+            "/timeline",
+            "/work?tab=changes",
+            "/work?tab=quality",
+            "/work?tab=defects",
+            "/work?tab=security",
+            "/work?tab=release",
+            "/work/tests/" + runId)) {
+      mvc.perform(get("/projects/" + projectId + suffix).with(user(owner.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(model().attribute("projectProgress", expected))
+          .andExpect(content().string(containsString("aria-label=\"프로젝트 진행 단계\"")))
+          .andExpect(
+              content()
+                  .string(containsString("data-stage=\"RELEASE\" data-state=\"NEEDS_ACTION\"")))
+          .andExpect(
+              content()
+                  .string(
+                      matchesPattern(
+                          "(?s).*<a(?=[^>]*href=\"/projects\")(?=[^>]*aria-current=\"page\")[^>]*>.*")));
+    }
+    for (var page :
+        Map.of("/", "/", "/document/list", "/document/list", "/projects/" + projectId, "/projects")
+            .entrySet()) {
+      String html =
+          mvc.perform(get(page.getKey()).with(user(owner.getNickname())))
+              .andExpect(status().isOk())
+              .andExpect(content().string(containsString("class=\"masthead-account\"")))
+              .andExpect(content().string(containsString("aria-label=\"계정 메뉴\"")))
+              .andExpect(
+                  content()
+                      .string(
+                          matchesPattern(
+                              "(?s).*<form(?=[^>]*action=\"/logout\")(?=[^>]*method=\"post\")[^>]*>.*?name=\"_csrf\".*?</form>.*")))
+              .andExpect(
+                  content()
+                      .string(
+                          matchesPattern(
+                              "(?s).*<a(?=[^>]*href=\""
+                                  + page.getValue()
+                                  + "\")(?=[^>]*aria-current=\"page\")[^>]*>.*")))
+              .andReturn()
+              .getResponse()
+              .getContentAsString();
+      assertEquals(
+          1,
+          java.util.regex.Pattern.compile("<header class=\"masthead\">")
+              .matcher(html)
+              .results()
+              .count());
+    }
+    assertEquals(
+        ProjectStatus.REVIEW, projectRepository.findById(projectId).orElseThrow().getStatus());
+    assertTrue(releases.gate(owner.getNickname(), projectId).ready());
+    assertEquals(0, releases.list(owner.getNickname(), projectId, 0).getTotalElements());
   }
 
   @Test

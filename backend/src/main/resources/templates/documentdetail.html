@@ -34,7 +34,7 @@
       <nav class="tabs">
         <a
           th:href="@{/document/{id}/history(id=${documentVersion.document.id})}"
-          >이전 버전·이력</a
+          >버전·승인 이력</a
         ><a
           th:if="${documentVersion.document.project!=null}"
           th:href="@{/projects/{id}(id=${documentVersion.document.project.id})}"
@@ -47,6 +47,9 @@
           >임시 접근 요청 관리</a
         >
       </nav>
+      <section
+        th:replace="~{fragments/documenttrace :: summary(${versionSummary})}"
+      ></section>
       <div class="grid">
         <section class="card">
           <h2>문서 정보</h2>
@@ -66,7 +69,9 @@
             <dt>문서 분류</dt>
             <dd th:text="${documentVersion.document.category.label}"></dd>
             <dt>버전 등록일</dt>
-            <dd th:text="${documentVersion.createdAt}"></dd>
+            <dd
+              th:text="${@displayTime.format(documentVersion.createdAt)}"
+            ></dd>
             <dt>기술 검토자</dt>
             <dd
               th:text="${documentVersion.reviewedBy?.nickname?:'검토 전'}"
@@ -219,11 +224,11 @@
           ><button>업로드</button>
         </form>
       </section>
-      <section class="card">
-        <h2>검토 의견과 결정 기록</h2>
+      <section id="review-history" class="card">
+        <h2>이 버전의 검토 의견과 결정 기록</h2>
         <article class="card" th:each="c:${comments}">
           <strong th:text="${c.authorName}+' · '+${c.decision}"></strong
-          ><small th:text="${c.createdAt}"></small>
+          ><small th:text="${@displayTime.format(c.createdAt)}"></small>
           <p class="text" th:text="${c.content}"></p>
         </article>
         <p class="empty" th:if="${comments.empty}">

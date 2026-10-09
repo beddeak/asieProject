@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
-<th:block th:fragment="header(activePage, signedIn)">
+<th:block th:fragment="header(activePage, signedIn)" th:with="currentPage=${navigationPage != null ? navigationPage : activePage}">
     <header class="masthead">
         <div class="masthead-inner">
             <a class="archive-brand" href="/" th:href="@{/}" aria-label="AegisVault 기록 보관소 홈">
@@ -20,28 +20,37 @@
             </a>
             <div class="masthead-account" th:if="${signedIn}">
                 <span class="session-label">사내 접속</span>
-                <p><strong th:if="${homeUser != null}" th:text="${homeUser.nickname}"></strong><strong th:unless="${homeUser != null}" sec:authentication="name">사용자</strong><span> 님</span></p>
-                <form action="/logout" th:action="@{/logout}" method="post"><button class="logout-link" type="submit">로그아웃</button></form>
+                <a class="account-name" th:href="@{/account}" th:attr="aria-current=${currentPage == 'account' ? 'page' : null}"><strong th:if="${workspaceAccount != null}" th:text="${workspaceAccount.name}">사용자</strong><strong th:unless="${workspaceAccount != null}" sec:authentication="name">사용자</strong><span> · 내 계정</span></a>
+                <nav class="masthead-tools" aria-label="계정 메뉴">
+                    <a th:href="@{/notifications}" th:attr="aria-current=${currentPage == 'notifications' ? 'page' : null}">알림 <span class="notification-count" th:if="${workspaceAccount != null}" th:text="${workspaceAccount.unread}" th:attr="aria-label=${'읽지 않은 알림 ' + workspaceAccount.unread + '개'}">0</span></a>
+                    <a th:href="@{/admin/users}" sec:authorize="hasRole('ADMIN')" th:if="${workspaceAccount != null and workspaceAccount.admin}" th:attr="aria-current=${currentPage == 'admin' ? 'page' : null}">관리</a>
+                    <form action="/logout" th:action="@{/logout}" method="post"><button class="logout-link" type="submit">로그아웃</button></form>
+                </nav>
             </div>
             <span class="masthead-guest" th:unless="${signedIn}">INTERNAL DOCUMENT ARCHIVE</span>
         </div>
     </header>
-    <nav class="primary-nav" aria-label="주 메뉴">
+    <div class="primary-nav">
         <div class="primary-nav-inner">
-            <th:block th:if="${signedIn}">
-                <a href="/" th:href="@{/}" th:attr="aria-current=${activePage == 'home' ? 'page' : null}">보관소 홈</a>
-                <a th:href="@{/projects}">프로젝트</a><a th:href="@{/departments}">부서</a><a th:href="@{/tasks}">내 업무</a>
-                <a href="/document/list" th:href="@{/document/list}" th:attr="aria-current=${activePage == 'documents' or activePage == 'detail' ? 'page' : null}">문서 목록</a>
-                <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite == null or canWrite}" th:attr="aria-current=${activePage == 'write' ? 'page' : null}">문서 작성</a>
-                <a href="/document/review" th:href="@{/document/review}" th:if="${canReview == null or canReview}" sec:authorize="hasAnyRole('MANAGER', 'DEPUTY_GENERAL_MANAGER', 'GENERAL_MANAGER', 'EXECUTIVE', 'ADMIN')" th:attr="aria-current=${activePage == 'review' ? 'page' : null}">문서 검토</a>
-                <a href="/admin/users" th:href="@{/admin/users}" th:if="${isAdmin == null or isAdmin}" sec:authorize="hasRole('ADMIN')" th:attr="aria-current=${activePage == 'admin' or activePage == 'activity' or activePage == 'department' ? 'page' : null}">관리실</a>
-            </th:block>
-            <th:block th:unless="${signedIn}">
-                <a href="/user/login" th:href="@{/user/login}" th:attr="aria-current=${activePage == 'login' ? 'page' : null}">로그인</a>
-                <a href="/user/signup" th:href="@{/user/signup}" th:attr="aria-current=${activePage == 'signup' ? 'page' : null}">계정 등록</a>
-            </th:block>
+            <nav class="primary-nav-main" aria-label="주 메뉴" th:if="${signedIn}">
+                <a href="/" th:href="@{/}" th:attr="aria-current=${currentPage == 'home' ? 'page' : null}">홈</a>
+                <a href="/document/list" th:href="@{/document/list}" th:attr="aria-current=${currentPage == 'documents' or currentPage == 'detail' or currentPage == 'write' or currentPage == 'review' ? 'page' : null}">문서</a>
+                <a th:href="@{/projects}" th:attr="aria-current=${currentPage == 'projects' ? 'page' : null}">프로젝트</a>
+                <a th:href="@{/departments}" th:attr="aria-current=${currentPage == 'departments' ? 'page' : null}">부서</a>
+                <a th:href="@{/tasks}" th:attr="aria-current=${currentPage == 'tasks' ? 'page' : null}">내 업무</a>
+                <a th:href="@{/announcements}" th:attr="aria-current=${currentPage == 'announcements' ? 'page' : null}">전체 공지</a>
+                <a th:href="@{/access}" th:attr="aria-current=${currentPage == 'access' ? 'page' : null}">임시 접근</a>
+            </nav>
+            <nav class="primary-nav-tools" aria-label="문서 작업" th:if="${signedIn}">
+                <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite == null or canWrite}">문서 작성</a>
+                <a href="/document/review" th:href="@{/document/review}" th:if="${canReview == null or canReview}" sec:authorize="hasAnyRole('MANAGER', 'DEPUTY_GENERAL_MANAGER', 'GENERAL_MANAGER', 'EXECUTIVE', 'ADMIN')">문서 검토</a>
+            </nav>
+            <nav class="primary-nav-main" aria-label="주 메뉴" th:unless="${signedIn}">
+                <a href="/user/login" th:href="@{/user/login}" th:attr="aria-current=${currentPage == 'login' ? 'page' : null}">로그인</a>
+                <a href="/user/signup" th:href="@{/user/signup}" th:attr="aria-current=${currentPage == 'signup' ? 'page' : null}">계정 등록</a>
+            </nav>
         </div>
-    </nav>
+    </div>
 </th:block>
 <footer class="site-footer" th:fragment="footer"><span>Aegis Defense Technologies · AegisVault</span></footer>
 </body>
