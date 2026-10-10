@@ -14,6 +14,7 @@ public class NotificationController {
   private final NotificationService service;
   private final DocumentService documents;
   private final CurrentUser actors;
+  private final com.asie.aegisvault.security.UserAccessPolicy policy;
 
   @GetMapping("/notifications")
   public String list(
@@ -44,6 +45,7 @@ public class NotificationController {
       @RequestParam(defaultValue = "0") int page,
       Model model) {
     var user = actors.get(actor.getName());
+    if (tab.equals("review") || tab.equals("security")) policy.requireDocumentReviewer(user);
     DocumentFilter filter = new DocumentFilter();
     switch (tab) {
       case "drafts" -> {

@@ -176,6 +176,84 @@ class WorkflowIntegrationTest {
   }
 
   @Test
+  void staffNeverSeesReviewLinksAndCannotEnterReviewQueuesWithStaleAdminRole() throws Exception {
+    for (String path :
+        List.of("/", "/document/write", "/document/new", "/document/list", "/projects", "/tasks")) {
+      mvc.perform(get(path).with(user(writer.getNickname()).roles("ADMIN")))
+          .andExpect(status().isOk())
+          .andExpect(content().string(not(containsString("href=\"/document/review\""))))
+          .andExpect(content().string(not(containsString("href=\"/tasks?tab=review\""))))
+          .andExpect(content().string(not(containsString("href=\"/tasks?tab=security\""))));
+    }
+    for (String path : List.of("/document/review", "/tasks?tab=review", "/tasks?tab=security")) {
+      mvc.perform(get(path).with(user(writer.getNickname()).roles("ADMIN")))
+          .andExpect(status().isForbidden());
+    }
+    mvc.perform(get("/document/write").with(user(engineer.getNickname())))
+        .andExpect(status().isOk())
+        .andExpect(content().string(containsString("href=\"/document/review\"")));
+  }
+
+  @Test
+  void homeShowsRealPersonalWorkBeforeSearchAndUpdatesAfterSubmissionAndRejection()
+      throws Exception {
+    var version = draft(DocumentCategory.DESIGN, SecurityClassification.INTERNAL);
+    draft(DocumentCategory.TEST_REPORT, SecurityClassification.INTERNAL);
+    var response =
+        mvc.perform(get("/").with(user(writer.getNickname())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("id=\"home-tasks-title\"")))
+            .andReturn();
+    String html = response.getResponse().getContentAsString();
+    assertTrue(html.indexOf("id=\"home-tasks-title\"") < html.indexOf("class=\"archive-entry\""));
+    @SuppressWarnings("unchecked")
+    var queues =
+        (List<HomeTaskService.Queue>) response.getModelAndView().getModel().get("homeTasks");
+    assertEquals(2, queues.size());
+    assertEquals(2, queues.get(0).count());
+    assertEquals(0, queues.get(1).count());
+    documents.edit(
+        version.getId(),
+        writer.getId(),
+        version.getRevision(),
+        version.getTitle(),
+        version.getContent(),
+        true);
+    var reviewerHome =
+        mvc.perform(get("/").with(user(engineer.getNickname())))
+            .andExpect(status().isOk())
+            .andReturn();
+    @SuppressWarnings("unchecked")
+    var reviewerQueues =
+        (List<HomeTaskService.Queue>) reviewerHome.getModelAndView().getModel().get("homeTasks");
+    assertEquals(
+        1,
+        reviewerQueues.stream()
+            .filter(q -> q.href().equals("/tasks?tab=review"))
+            .findFirst()
+            .orElseThrow()
+            .count());
+    documents.reject(version.getId(), engineer.getId(), "설계 근거를 보완하세요.");
+    var after =
+        mvc.perform(get("/").with(user(writer.getNickname())))
+            .andExpect(status().isOk())
+            .andReturn();
+    @SuppressWarnings("unchecked")
+    var afterQueues =
+        (List<HomeTaskService.Queue>) after.getModelAndView().getModel().get("homeTasks");
+    assertEquals(1, afterQueues.get(0).count());
+    assertEquals(1, afterQueues.get(1).count());
+    var outsiderHome =
+        mvc.perform(get("/").with(user(outsider.getNickname())))
+            .andExpect(status().isOk())
+            .andReturn();
+    @SuppressWarnings("unchecked")
+    var outsiderQueues =
+        (List<HomeTaskService.Queue>) outsiderHome.getModelAndView().getModel().get("homeTasks");
+    assertTrue(outsiderQueues.stream().allMatch(q -> q.count() == 0));
+  }
+
+  @Test
   void projectProgressTracksCurrentEvidenceAndRequiresAnActualDeliveryForCompletion() {
     var initial = projectProgress.view(owner.getNickname(), projectId);
     assertEquals(

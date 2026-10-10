@@ -17,7 +17,7 @@
                 <h1>새 문서 작성</h1>
                 <p class="page-description" th:text="${automaticallyApproved} ? '관리자가 작성한 문서는 등록 즉시 승인됩니다.' : '기술의 근거를 기록하고, 다음 검토를 준비합니다.'">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
             </div>
-            <a class="button" th:href="@{/document/review}">검토함 →</a>
+            <a class="button" th:if="${canReview == true}" th:href="@{/document/review}">검토함 →</a>
         </header>
 
         <div class="workspace-grid">

@@ -18,6 +18,7 @@ public class HomeController {
     private final UserRepository userRepository;
     private final DocumentService documentService;
     private final UserAccessPolicy userAccessPolicy;
+    private final com.asie.aegisvault.notification.HomeTaskService homeTasks;
 
     @GetMapping("/")
     @Transactional(readOnly = true)
@@ -37,7 +38,8 @@ public class HomeController {
         model.addAttribute("documentCount", documents.getTotalElements());
         model.addAttribute("isAdmin", admin);
         model.addAttribute("canWrite", assigned);
-        model.addAttribute("canReview", admin || (assigned && user.getPosition().isAtLeast(Position.MANAGER)));
+        model.addAttribute("canReview", userAccessPolicy.canReviewDocuments(user));
+        model.addAttribute("homeTasks", homeTasks.queues(user));
         return "home";
     }
 }

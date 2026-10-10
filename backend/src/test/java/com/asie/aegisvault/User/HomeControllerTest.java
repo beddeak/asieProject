@@ -288,7 +288,11 @@ class HomeControllerTest {
     @Bean
     HomeController homeController(
         UserRepository repository, DocumentService service, UserAccessPolicy policy) {
-      return new HomeController(repository, service, policy);
+      return new HomeController(
+          repository,
+          service,
+          policy,
+          mock(com.asie.aegisvault.notification.HomeTaskService.class));
     }
 
     @Bean

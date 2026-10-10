@@ -64,6 +64,25 @@
                 <p th:if="${!canWrite}">문서 작성에는 소속 부서 배정이 필요합니다. 관리자에게 요청해주세요.</p>
             </header>
 
+            <section class="home-tasks" aria-labelledby="home-tasks-title">
+                <div class="section-heading">
+                    <h2 id="home-tasks-title">지금 할 일</h2>
+                    <a th:href="@{/tasks}">내 업무 전체 →</a>
+                </div>
+                <p class="section-description">내 문서와 현재 검토 권한을 기준으로 표시합니다.</p>
+                <div class="home-task-grid">
+                    <a class="home-task-card" th:each="task:${homeTasks}" th:href="${task.href}" th:classappend="${task.count > 0 ? 'needs-action' : ''}">
+                        <span class="home-task-heading"><strong th:text="${task.title}"></strong><span><b th:text="${task.count}"></b>건</span></span>
+                        <span th:text="${task.count > 0 ? task.description : '현재 처리할 문서가 없습니다.'}"></span>
+                        <span class="home-task-link" th:text="${task.count > 0 ? '처리할 문서 보기 →' : '업무함 보기 →'}"></span>
+                    </a>
+                </div>
+                <div class="home-project-action">
+                    <div><strong>프로젝트 진행 상황</strong><p>프로젝트를 선택하면 문서 준비 → 품질시험 → 보안 검토 → 최종 배포의 상태와 차단 사유를 확인할 수 있습니다.</p></div>
+                    <a th:href="@{/projects}">프로젝트 할 일 확인 →</a>
+                </div>
+            </section>
+
             <section class="archive-entry" aria-label="문서 찾기">
                 <form class="archive-search" action="/document/list" th:action="@{/document/list}" method="get" role="search">
                     <label for="archive-query">문서 검색</label>

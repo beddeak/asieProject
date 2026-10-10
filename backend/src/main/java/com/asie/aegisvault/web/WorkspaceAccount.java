@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class WorkspaceAccount {
   private final CurrentUser actors;
+  private final com.asie.aegisvault.security.UserAccessPolicy policy;
   private final NotificationRepository notifications;
 
   @Transactional(readOnly = true)
@@ -22,7 +23,8 @@ public class WorkspaceAccount {
         user.getPosition().isAdmin(),
         user.getDepartment() == null ? "미배정" : user.getDepartment().getName(),
         user.getClearance().getLabel(),
-        notifications.countByRecipientIdAndReadAtIsNull(user.getId()));
+        notifications.countByRecipientIdAndReadAtIsNull(user.getId()),
+        policy.canReviewDocuments(user));
   }
 
   public record View(
@@ -32,5 +34,6 @@ public class WorkspaceAccount {
       boolean admin,
       String department,
       String clearance,
-      long unread) {}
+      long unread,
+      boolean canReview) {}
 }

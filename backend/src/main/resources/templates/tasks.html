@@ -18,8 +18,8 @@
       <nav class="tabs">
         <a th:href="@{/tasks(tab='drafts')}">내 초안</a
         ><a th:href="@{/tasks(tab='rejected')}">반려 문서</a
-        ><a th:href="@{/tasks(tab='review')}">기술 검토</a
-        ><a th:href="@{/tasks(tab='security')}">보안 검토</a>
+        ><a th:if="${canReview == true}" th:href="@{/tasks(tab='review')}">기술 검토</a
+        ><a th:if="${canReview == true}" th:href="@{/tasks(tab='security')}">보안 검토</a>
       </nav>
       <section class="card">
         <div th:replace="~{fragments/shell :: documents(${documents})}"></div>

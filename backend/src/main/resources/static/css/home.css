@@ -80,3 +80,18 @@
     .register-table { min-width: 0; }
     .register-scroll { overflow: visible; }
 }
+
+/* Keep actionable work before search and recent documents on every viewport. */
+.home-tasks { margin-bottom: 2rem; }
+.home-task-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+.home-task-card { display: flex; flex-direction: column; gap: 0.65rem; padding: 1rem; border: 1px solid var(--border); background: var(--soft); color: inherit; text-decoration: none; }
+.home-task-card.needs-action { border-left: 3px solid var(--burgundy); }
+.home-task-card:hover, .home-task-card:focus-visible { border-color: var(--burgundy); }
+.home-task-heading { display: flex; justify-content: space-between; gap: 1rem; }
+.home-task-heading b, .home-task-link { color: var(--burgundy); }
+.home-task-card > span:not(.home-task-heading) { font-size: 0.85rem; }
+.home-task-link { margin-top: auto; }
+.home-project-action { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: 1rem; border-left: 3px solid var(--burgundy); background: #f7f0f1; }
+.home-project-action p { margin: 0.4rem 0 0; font-size: 0.85rem; }
+.home-project-action a { flex-shrink: 0; font-size: 0.85rem; }
+@media (max-width: 640px) { .home-task-grid { grid-template-columns: 1fr; } .home-project-action { align-items: flex-start; flex-direction: column; } }

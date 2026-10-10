@@ -27,6 +27,16 @@ public class UserAccessPolicy {
         return user != null && user.getPosition() != null && user.getPosition().isAdmin();
     }
 
+    public boolean canReviewDocuments(User user) {
+        return user != null && user.getAccountStatus() == AccountStatus.ACTIVE
+                && user.getPosition() != null && user.getPosition().isAtLeast(Position.MANAGER)
+                && (isAdmin(user) || (user.getDepartment() != null && !user.getDepartment().isClosed()));
+    }
+
+    public void requireDocumentReviewer(User user) {
+        if (!canReviewDocuments(user)) throw new AccessDeniedException("문서 검토 권한이 없습니다.");
+    }
+
     public void requireManagerOrAbove(User user) {
         requireActive(user);
         if (user == null || user.getPosition() == null

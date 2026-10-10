@@ -157,7 +157,7 @@ public class DocumentService {
         admin ? "전체 부서" : assigned ? actor.getDepartment().getName() : "소속 부서 미배정",
         !admin && !assigned,
         assigned,
-        actor.getPosition().isAtLeast(Position.MANAGER));
+        accounts.canReviewDocuments(actor));
   }
 
   public Page<DocumentListItem> accessibleDocuments(
@@ -302,7 +302,7 @@ public class DocumentService {
 
   public Page<ReviewQueueItem> reviewQueue(Long reviewerId, int page) {
     User actor = user(reviewerId);
-    accounts.requireManagerOrAbove(actor);
+    accounts.requireDocumentReviewer(actor);
     return PageQueries.fetch(
         page,
         20,

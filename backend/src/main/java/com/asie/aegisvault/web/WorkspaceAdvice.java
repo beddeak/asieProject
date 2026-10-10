@@ -19,8 +19,11 @@ public class WorkspaceAdvice {
 
   @ModelAttribute
   public void account(Principal principal, Model model) {
-    if (principal != null)
-      model.addAttribute("workspaceAccount", accounts.view(principal.getName()));
+    if (principal != null) {
+      var account = accounts.view(principal.getName());
+      model.addAttribute("workspaceAccount", account);
+      model.addAttribute("canReview", account.canReview());
+    }
   }
 
   @ExceptionHandler({IllegalArgumentException.class, IllegalStateException.class})

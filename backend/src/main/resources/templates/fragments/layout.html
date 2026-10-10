@@ -43,7 +43,7 @@
             </nav>
             <nav class="primary-nav-tools" aria-label="문서 작업" th:if="${signedIn}">
                 <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite == null or canWrite}">문서 작성</a>
-                <a href="/document/review" th:href="@{/document/review}" th:if="${canReview == null or canReview}" sec:authorize="hasAnyRole('MANAGER', 'DEPUTY_GENERAL_MANAGER', 'GENERAL_MANAGER', 'EXECUTIVE', 'ADMIN')">문서 검토</a>
+                <a href="/document/review" th:href="@{/document/review}" th:if="${canReview == true}" sec:authorize="hasAnyRole('MANAGER', 'DEPUTY_GENERAL_MANAGER', 'GENERAL_MANAGER', 'EXECUTIVE', 'ADMIN')">문서 검토</a>
             </nav>
             <nav class="primary-nav-main" aria-label="주 메뉴" th:unless="${signedIn}">
                 <a href="/user/login" th:href="@{/user/login}" th:attr="aria-current=${currentPage == 'login' ? 'page' : null}">로그인</a>
