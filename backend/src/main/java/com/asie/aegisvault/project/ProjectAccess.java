@@ -1,5 +1,7 @@
 package com.asie.aegisvault.project;
 
+import com.asie.aegisvault.User.AccountStatus;
+import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.User.User;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +15,20 @@ import org.springframework.web.server.ResponseStatusException;
 public class ProjectAccess {
   private final ProjectRepository projects;
   private final ProjectMemberRepository members;
+
+  public boolean canCreate(User actor) {
+    return actor != null
+        && actor.getAccountStatus() == AccountStatus.ACTIVE
+        && actor.getPosition() != null
+        && actor.getPosition().isAtLeast(Position.MANAGER)
+        && (actor.getPosition().isAdmin()
+            || actor.getDepartment() != null && !actor.getDepartment().isClosed());
+  }
+
+  public void requireCreator(User actor) {
+    if (!canCreate(actor))
+      throw new AccessDeniedException("관리자 또는 운영 중인 부서에 소속된 과장 이상만 프로젝트를 생성할 수 있습니다.");
+  }
 
   public Project read(User actor, Long id) {
     requireMember(actor, id);

@@ -124,6 +124,51 @@
   color: var(--muted);
   font-size: 13px;
 }
+.home-assurance {
+  margin-bottom: 24px;
+  padding: 18px;
+  border-left: 3px solid var(--burgundy);
+  background: var(--soft);
+  font-size: 13px;
+}
+.home-assurance .assurance-label {
+  margin: 0 0 6px;
+  color: var(--burgundy);
+  font-size: 11px;
+  font-weight: 700;
+}
+.home-assurance h2 {
+  margin: 0 0 10px;
+  font-size: 19px;
+  line-height: 1.5;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.assurance-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.assurance-flow li {
+  flex: 1 1 125px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+}
+.assurance-flow strong,
+.assurance-flow span {
+  display: block;
+}
+.assurance-flow strong {
+  color: var(--burgundy);
+}
+.assurance-flow span {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
 .archive-entry {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;

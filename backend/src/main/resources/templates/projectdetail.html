@@ -28,6 +28,31 @@
           >
         </div>
       </header>
+      <aside
+        class="notice"
+        th:if="${project.status.name()=='PLANNING'}"
+        aria-labelledby="project-setup-title"
+      >
+        <h2 id="project-setup-title">
+          먼저 담당자를 정하고 프로젝트를 시작하세요.
+        </h2>
+        <p>
+          문서 작성자, 품질 담당자, 보안 담당자를 배정하세요. 품질·보안 검토는
+          문서 작성·수정에 참여하지 않은 서로 다른 담당자가 수행해야 합니다.
+        </p>
+        <div class="actions">
+          <a
+            th:href="@{/projects/{id}/members(id=${project.id})}"
+            th:text="${project.canManage?'참여자 배정':'담당자 확인'}"
+          ></a>
+          <a th:if="${project.canManage}" href="#project-status"
+            >진행 시작하기</a
+          >
+          <a th:href="@{/projects/{id}/guide(id=${project.id})}"
+            >전체 진행 안내</a
+          >
+        </div>
+      </aside>
       <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
       <div class="grid">
         <section class="card" id="project-status">
@@ -66,14 +91,28 @@
             문서나 검토 결과가 바뀌면 배포 전 다시 검토 상태로 전환해야 합니다.
           </p>
         </section>
-        <section class="card">
+        <section class="card" id="project-requirements">
           <h2>필수 문서</h2>
-          <ul>
-            <li
-              th:each="r:${project.requirements}"
-              th:text="${r.category.label}+' · 최소 '+${r.minimumCount}+'건'"
-            ></li>
+          <p class="muted">
+            각 분류의 최신 버전이 승인되어야 합니다. 필요한 분류를 선택하면 이
+            프로젝트에 연결된 작성 화면이 열립니다.
+          </p>
+          <ul class="requirement-list">
+            <li th:each="r:${project.requirements}">
+              <span
+                th:text="${r.category.label}+' · 최소 '+${r.minimumCount}+'건'"
+              ></span>
+              <a
+                th:if="${project.canWrite}"
+                th:href="@{/document/new(projectId=${project.id},category=${r.category})}"
+                th:text="${r.category.label}+' 작성'"
+              ></a>
+            </li>
           </ul>
+          <p class="muted" th:if="${project.requirements.empty}">
+            지정된 필수 문서가 없습니다. 책임자가 필요한 분류와 수량을 설정할 수
+            있습니다.
+          </p>
           <form
             class="toolbar"
             th:if="${project.canManage}"

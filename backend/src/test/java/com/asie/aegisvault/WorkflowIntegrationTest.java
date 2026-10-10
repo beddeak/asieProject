@@ -195,6 +195,99 @@ class WorkflowIntegrationTest {
   }
 
   @Test
+  void projectCreationUsesCurrentAccountPermissionsForLinksFormsAndSubmissions() throws Exception {
+    var unassigned = account("unassigned-" + sequence, Position.MANAGER, null);
+    var closedDepartment = departments.saveAndFlush(new Department("closed-" + sequence, ""));
+    var closedManager = account("closed-manager-" + sequence, Position.MANAGER, closedDepartment);
+    tx.executeWithoutResult(
+        t -> departments.findById(closedDepartment.getId()).orElseThrow().close());
+    long before = projectRepository.count();
+    for (var denied : List.of(writer, unassigned, closedManager)) {
+      assertFalse(projects.canCreate(denied.getNickname()));
+      mvc.perform(get("/projects").with(user(denied.getNickname()).roles("ADMIN")))
+          .andExpect(status().isOk())
+          .andExpect(content().string(not(containsString("href=\"/projects/new\""))));
+      mvc.perform(get("/projects/new").with(user(denied.getNickname()).roles("ADMIN")))
+          .andExpect(status().isForbidden());
+      for (String title : List.of("", "권한 없는 생성 요청"))
+        mvc.perform(
+                post("/projects")
+                    .with(user(denied.getNickname()).roles("ADMIN"))
+                    .with(csrf())
+                    .param("name", title)
+                    .param("departmentId", research.getId().toString()))
+            .andExpect(status().isForbidden());
+      var form = new ProjectForm();
+      form.setName("직접 호출도 권한 검사");
+      form.setDepartmentId(research.getId());
+      assertThrows(AccessDeniedException.class, () -> projects.create(denied.getNickname(), form));
+    }
+    assertEquals(before, projectRepository.count());
+
+    for (var allowed : List.of(owner, admin)) {
+      assertTrue(projects.canCreate(allowed.getNickname()));
+      mvc.perform(get("/projects").with(user(allowed.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(content().string(containsString("href=\"/projects/new\"")));
+      mvc.perform(get("/projects/new").with(user(allowed.getNickname())))
+          .andExpect(status().isOk());
+      mvc.perform(
+              post("/projects").with(user(allowed.getNickname())).with(csrf()).param("name", ""))
+          .andExpect(status().isOk())
+          .andExpect(model().attributeHasFieldErrors("form", "name"));
+      var created =
+          mvc.perform(
+                  post("/projects")
+                      .with(user(allowed.getNickname()))
+                      .with(csrf())
+                      .param("name", "진행 안내 " + allowed.getNickname())
+                      .param("departmentId", quality.getId().toString()))
+              .andExpect(status().is3xxRedirection())
+              .andReturn();
+      Long id = Long.valueOf(created.getResponse().getRedirectedUrl().replace("/projects/", ""));
+      var detail = projects.detail(allowed.getNickname(), id);
+      assertEquals(allowed == admin ? quality.getId() : research.getId(), detail.departmentId());
+      assertEquals(ProjectStatus.PLANNING, detail.status());
+      assertEquals(3, detail.requirements().size());
+      assertTrue(detail.canManage());
+    }
+  }
+
+  @Test
+  void projectGuideReflectsConfiguredRequirementsAndLinksToPrefilledDocumentForms()
+      throws Exception {
+    projects.requirement(owner.getNickname(), projectId, DocumentCategory.SECURITY_REVIEW, 0);
+    projects.requirement(owner.getNickname(), projectId, DocumentCategory.OTHER, 2);
+    for (String suffix : List.of("", "/guide")) {
+      mvc.perform(get("/projects/" + projectId + suffix).with(user(writer.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(content().string(containsString("일반 문서 · 최소 2건")))
+          .andExpect(
+              content()
+                  .string(
+                      containsString(
+                          "/document/new?projectId=" + projectId + "&amp;category=OTHER")))
+          .andExpect(content().string(not(containsString("category=SECURITY_REVIEW"))));
+      mvc.perform(get("/projects/" + projectId + suffix).with(user(viewer.getNickname())))
+          .andExpect(status().isOk())
+          .andExpect(content().string(not(containsString("href=\"/document/new?projectId="))));
+    }
+    var formPage =
+        mvc.perform(
+                get("/document/new")
+                    .with(user(writer.getNickname()))
+                    .param("projectId", projectId.toString())
+                    .param("category", "OTHER"))
+            .andExpect(status().isOk())
+            .andReturn();
+    var form = (DocumentForm) formPage.getModelAndView().getModel().get("form");
+    assertEquals(projectId, form.getProjectId());
+    assertEquals(DocumentCategory.OTHER, form.getCategory());
+    mvc.perform(get("/projects/" + projectId + "/guide").with(user(outsider.getNickname())))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
   void homeShowsPersonalWorkInActivityPanelAndUpdatesAfterSubmissionAndRejection()
       throws Exception {
     var version = draft(DocumentCategory.DESIGN, SecurityClassification.INTERNAL);
@@ -399,7 +492,7 @@ class WorkflowIntegrationTest {
     assertNull(restricted.nextStep());
     assertTrue(
         restricted.steps().stream().allMatch(s -> s.state() == ProjectProgress.State.BLOCKED));
-    for (String suffix : List.of("", "/members", "/timeline")) {
+    for (String suffix : List.of("", "/guide", "/members", "/timeline")) {
       mvc.perform(get("/projects/" + projectId + suffix).with(user(viewer.getNickname())))
           .andExpect(status().isOk())
           .andExpect(model().attribute("projectProgress", restricted))
@@ -435,7 +528,7 @@ class WorkflowIntegrationTest {
           step.actions().stream()
               .allMatch(action -> action.href().startsWith("/projects/" + projectId)));
     }
-    for (String suffix : List.of("", "/work?tab=quality", "/work?tab=release"))
+    for (String suffix : List.of("", "/guide", "/work?tab=quality", "/work?tab=release"))
       mvc.perform(get("/projects/" + projectId + suffix).with(user(owner.getNickname())))
           .andExpect(status().isOk())
           .andExpect(model().attribute("projectProgress", closed))
@@ -456,6 +549,7 @@ class WorkflowIntegrationTest {
     for (String suffix :
         List.of(
             "",
+            "/guide",
             "/edit",
             "/members",
             "/timeline",
@@ -1239,6 +1333,7 @@ class WorkflowIntegrationTest {
             "/projects",
             "/projects/new",
             "/projects/" + projectId,
+            "/projects/" + projectId + "/guide",
             "/projects/" + projectId + "/members",
             "/projects/" + projectId + "/timeline",
             "/projects/" + projectId + "/work?tab=changes",

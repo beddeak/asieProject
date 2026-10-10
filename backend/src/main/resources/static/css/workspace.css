@@ -457,6 +457,47 @@ details[open] > summary {
   color: var(--muted);
   font-size: 0.88rem;
 }
+.requirement-list {
+  list-style: none;
+  margin: 0 0 1rem;
+  padding: 0;
+}
+.requirement-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.requirement-list a {
+  font-size: 0.88rem;
+}
+.guide-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  padding: 0;
+  list-style: none;
+}
+.guide-steps > li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin: 0;
+  scroll-margin-top: 1rem;
+}
+.guide-steps h3 {
+  font-size: 1.15rem;
+}
+.guide-steps .actions {
+  margin-top: auto;
+  padding-top: 1rem;
+}
+.guide-emphasis {
+  border-top: 3px solid var(--brand);
+}
 #quality-review,
 #security-review {
   scroll-margin-top: 1rem;
@@ -476,6 +517,7 @@ details[open] > summary {
   }
   .grid,
   .grid.thirds,
+  .guide-steps,
   .form-grid.two {
     grid-template-columns: 1fr;
   }

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shell :: head('프로젝트 진행 안내')}"></head>
+  <body>
+    <header th:replace="~{fragments/shell :: header}"></header>
+    <main id="main" class="workspace">
+      <header class="page-heading">
+        <div>
+          <p class="eyebrow" th:text="${project.name}"></p>
+          <h1>프로젝트 진행 안내</h1>
+          <p class="page-description">
+            문서를 준비하고 검증한 뒤 배포합니다. 이후 문서가 바뀌면, 변경된
+            버전을 기준으로 다시 검증합니다.
+          </p>
+        </div>
+        <a th:href="@{/projects/{id}(id=${project.id})}">프로젝트로 돌아가기</a>
+      </header>
+      <nav th:replace="~{fragments/shell :: projectNav(${project})}"></nav>
+
+      <aside class="notice" th:if="${projectProgress.restricted}">
+        <p>
+          현재 계정은 검증 근거의 열람 조건을 충족하지 않습니다. 참여 역할과
+          문서의 최소 직급·보안등급을 담당자에게 확인해주세요.
+        </p>
+        <a th:href="@{/projects/{id}/members(id=${project.id})}"
+          >참여 역할 확인</a
+        >
+      </aside>
+      <p class="notice" th:if="${project.status.name()=='CLOSED'}">
+        종료된 프로젝트입니다. 아래 안내는 진행 방법을 설명하며, 이
+        프로젝트에서는 기존 기록만 확인할 수 있습니다.
+      </p>
+
+      <section aria-labelledby="workflow-guide-title">
+        <h2 id="workflow-guide-title">
+          v1 검증 → v2 변경 → 배포 차단 → 재검증
+        </h2>
+        <p class="muted">
+          설계 문서가 v1에서 v2로 바뀌는 경우를 예로 든 진행 순서입니다. 이
+          프로젝트의 실제 상태와 지금 할 일은 위에 표시됩니다.
+        </p>
+        <ol class="guide-steps">
+          <li class="card">
+            <p class="eyebrow">01 · 책임자·작성자</p>
+            <h3>담당자를 배정하고 필수 문서를 준비합니다.</h3>
+            <p>
+              품질과 보안 검토는 문서 작성·수정에 참여하지 않은 서로 다른 사람이
+              맡습니다. 책임자는 ‘개요·문서’에서 진행을 시작하세요.
+            </p>
+            <ul class="requirement-list">
+              <li th:each="r:${project.requirements}">
+                <span
+                  th:text="${r.category.label}+' · 최소 '+${r.minimumCount}+'건'"
+                ></span>
+                <a
+                  th:if="${project.canWrite}"
+                  th:href="@{/document/new(projectId=${project.id},category=${r.category})}"
+                  th:text="${r.category.label}+' 작성'"
+                ></a>
+              </li>
+            </ul>
+            <p class="muted" th:if="${project.requirements.empty}">
+              필수 분류가 지정되지 않았습니다. 책임자가 필요한 분류와 수량을
+              설정하세요.
+            </p>
+            <div class="actions">
+              <a th:href="@{/projects/{id}/members(id=${project.id})}"
+                >담당자 확인</a
+              >
+              <a th:href="@{/projects/{id}(id=${project.id})}+'#project-status'"
+                >프로젝트 상태 확인</a
+              >
+              <a
+                th:href="@{/projects/{id}(id=${project.id})}+'#project-requirements'"
+                >필수 문서 기준</a
+              >
+            </div>
+          </li>
+          <li class="card">
+            <p class="eyebrow">02 · 품질·보안 담당자</p>
+            <h3>승인된 v1 구성으로 시험·검토합니다.</h3>
+            <p>
+              문서와 첨부파일을 준비해 제출한 뒤, 모든 최신 버전이 승인되었는지
+              확인하세요. 품질 담당자는 시험 기준을 등록하고 항목별 결과를
+              기록하며, 보안 담당자는 배포 범위를 검토합니다.
+            </p>
+            <p class="muted">
+              관리자 제출 문서는 즉시 승인되지만, 프로젝트의 품질시험과 보안
+              검토는 별도로 필요합니다.
+            </p>
+            <div class="actions" th:if="${!projectProgress.restricted}">
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='quality')}+'#quality-review'"
+                >품질시험 확인</a
+              >
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='security')}+'#security-review'"
+                >보안 검토 확인</a
+              >
+            </div>
+          </li>
+          <li class="card">
+            <p class="eyebrow">03 · 작성자</p>
+            <h3>변경이 생기면 새 버전으로 기록합니다.</h3>
+            <p>
+              예를 들어 응답시간 기준이 500ms에서 200ms로 바뀌면, 설계 문서
+              상세에서 ‘새 버전 만들기’를 선택해 v2를 제출합니다. v1의 본문과 승인
+              이력은 보존됩니다.
+            </p>
+            <p class="muted">
+              첨부파일도 새 버전에 맞게 확인하세요. ‘버전·승인 이력’에서 이전
+              승인본과 변경된 버전을 각각 열 수 있습니다.
+            </p>
+            <div class="actions">
+              <a
+                th:href="@{/projects/{id}(id=${project.id})}+'#project-documents'"
+                >버전을 변경할 문서 찾기</a
+              >
+            </div>
+          </li>
+          <li class="card guide-emphasis">
+            <p class="eyebrow">04 · 변경 영향 확인</p>
+            <h3>v1 시험 결과로 v2를 배포할 수 없습니다.</h3>
+            <p>
+              ‘문서 변경과 검증 상태’에서 검증 당시 v1과 현재 v2를 비교하세요.
+              문서가 승인되었어도 이전 구성의 품질·보안 결과만으로는 배포가
+              허용되지 않습니다.
+            </p>
+            <p class="muted">
+              차단 사유 옆의 이동 링크가 다시 처리할 화면으로 연결됩니다. 이전
+              시험·검토 기록도 그대로 남습니다.
+            </p>
+            <div class="actions" th:if="${!projectProgress.restricted}">
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='release')}+'#review-summary-title'"
+                >변경된 버전·배포 차단 사유 확인</a
+              >
+            </div>
+          </li>
+          <li class="card">
+            <p class="eyebrow">05 · 품질·보안 담당자</p>
+            <h3>변경된 구성으로 다시 검증합니다.</h3>
+            <p>
+              품질 담당자는 변경된 요구사항을 시험하고, 보안 담당자는 새 구성을
+              다시 검토합니다. 품질시험만 다시 마쳐도 이전 보안 검토가 최신
+              결과로 바뀌지는 않습니다.
+            </p>
+            <p class="muted">
+              부적합이 있다면 시정 조치를 기록하고, 원 시험에서 재시험을 진행한
+              뒤 적합 결과를 연결해 해결하세요.
+            </p>
+            <div class="actions" th:if="${!projectProgress.restricted}">
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='quality')}+'#quality-review'"
+                >품질 재시험 확인</a
+              >
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='security')}+'#security-review'"
+                >보안 재검토 확인</a
+              >
+              <a
+                th:href="@{/projects/{id}/work(id=${project.id},tab='defects')}"
+                >부적합·시정 조치 확인</a
+              >
+            </div>
+          </li>
+          <li class="card">
+            <p class="eyebrow">06 · 책임자·수신자</p>
+            <h3>배포를 확정하고 실제 ZIP을 확인합니다.</h3>
+            <p>
+              남은 차단 사유를 해결한 뒤 책임자가 ‘개요·문서’에서 배포 검토로
+              전환합니다. ‘최종 배포’에서 수신자 로그인 아이디와 배포 사유를
+              입력해 확정하세요.
+            </p>
+            <p class="muted">
+              배포 내역에는 당시 문서 버전과 수신자가 고정됩니다. 지정 수신자와
+              관리자는 배포 상세에서 ZIP을 내려받아 본문·첨부파일 구성을 확인할
+              수 있습니다.
+            </p>
+            <div class="actions">
+              <a
+                th:if="${project.canManage}"
+                th:href="@{/projects/{id}(id=${project.id})}+'#project-status'"
+                >배포 검토로 전환하기</a
+              >
+              <a
+                th:if="${!projectProgress.restricted}"
+                th:href="@{/projects/{id}/work(id=${project.id},tab='release')}"
+                >배포 조건·내역 확인</a
+              >
+            </div>
+          </li>
+        </ol>
+      </section>
+    </main>
+    <footer th:replace="~{fragments/shell :: footer}"></footer>
+  </body>
+</html>

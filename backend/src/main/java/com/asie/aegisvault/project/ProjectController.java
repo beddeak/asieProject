@@ -34,11 +34,13 @@ public class ProjectController {
     model.addAttribute("keyword", keyword);
     model.addAttribute("selectedStatus", status);
     model.addAttribute("statuses", ProjectStatus.values());
+    model.addAttribute("canCreateProject", service.canCreate(actor.getName()));
     return "projects";
   }
 
   @GetMapping("/new")
-  public String createForm(@ModelAttribute("form") ProjectForm form, Model model) {
+  public String createForm(Principal actor, @ModelAttribute("form") ProjectForm form, Model model) {
+    service.requireCreator(actor.getName());
     model.addAttribute(
         "departments", departments.findAll(org.springframework.data.domain.Sort.by("name")));
     return "projectform";
@@ -50,7 +52,7 @@ public class ProjectController {
       @Valid @ModelAttribute("form") ProjectForm form,
       BindingResult errors,
       Model model) {
-    if (errors.hasErrors()) return createForm(form, model);
+    if (errors.hasErrors()) return createForm(actor, form, model);
     return "redirect:/projects/" + service.create(actor.getName(), form);
   }
 
@@ -69,6 +71,13 @@ public class ProjectController {
         documents.documentList(actors.get(actor.getName()).getId(), filter, page).documents());
     model.addAttribute("categories", DocumentCategory.values());
     return "projectdetail";
+  }
+
+  @GetMapping("/{id}/guide")
+  public String guide(Principal actor, @PathVariable Long id, Model model) {
+    model.addAttribute("project", service.detail(actor.getName(), id));
+    model.addAttribute("projectProgress", progress.view(actor.getName(), id));
+    return "projectguide";
   }
 
   @GetMapping("/{id}/edit")

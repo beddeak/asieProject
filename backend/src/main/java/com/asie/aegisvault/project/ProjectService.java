@@ -13,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,6 +30,14 @@ public class ProjectService {
   private final UserRepository users;
   private final AuditRecordRepository audit;
   private final ApplicationEventPublisher events;
+
+  public boolean canCreate(String actor) {
+    return access.canCreate(actors.get(actor));
+  }
+
+  public void requireCreator(String actor) {
+    access.requireCreator(actors.get(actor));
+  }
 
   public Page<ProjectSummary> list(
       String actor, String keyword, ProjectStatus status, Long departmentId, int page) {
@@ -110,8 +117,7 @@ public class ProjectService {
   @Transactional
   public Long create(String actor, ProjectForm form) {
     User user = actors.get(actor);
-    if (!user.getPosition().isAtLeast(Position.MANAGER))
-      throw new AccessDeniedException("과장 이상만 프로젝트를 생성할 수 있습니다.");
+    access.requireCreator(user);
     Long departmentId =
         user.getPosition().isAdmin()
             ? form.getDepartmentId()

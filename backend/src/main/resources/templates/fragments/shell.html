@@ -49,6 +49,7 @@
     <th:block th:fragment="projectNav(project)">
       <nav class="tabs" aria-label="프로젝트 메뉴">
         <a th:href="@{/projects/{id}(id=${project.id})}">개요·문서</a
+        ><a th:href="@{/projects/{id}/guide(id=${project.id})}">진행 안내</a
         ><a th:href="@{/projects/{id}/members(id=${project.id})}">참여자</a
         ><a th:href="@{/projects/{id}/work(id=${project.id})}"
           >연구개발·품질·보안</a
