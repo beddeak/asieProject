@@ -19,6 +19,7 @@ public class HomeController {
     private final DocumentService documentService;
     private final UserAccessPolicy userAccessPolicy;
     private final com.asie.aegisvault.notification.HomeTaskService homeTasks;
+    private final com.asie.aegisvault.project.ProjectService projects;
 
     @GetMapping("/")
     @Transactional(readOnly = true)
@@ -40,6 +41,7 @@ public class HomeController {
         model.addAttribute("canWrite", assigned);
         model.addAttribute("canReview", userAccessPolicy.canReviewDocuments(user));
         model.addAttribute("homeTasks", homeTasks.queues(user));
+        model.addAttribute("homeProjects", projects.recent(principal.getName()));
         return "home";
     }
 }

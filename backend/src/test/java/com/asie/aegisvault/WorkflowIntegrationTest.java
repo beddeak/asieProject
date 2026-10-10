@@ -195,7 +195,7 @@ class WorkflowIntegrationTest {
   }
 
   @Test
-  void homeShowsRealPersonalWorkBeforeSearchAndUpdatesAfterSubmissionAndRejection()
+  void homeShowsPersonalWorkInActivityPanelAndUpdatesAfterSubmissionAndRejection()
       throws Exception {
     var version = draft(DocumentCategory.DESIGN, SecurityClassification.INTERNAL);
     draft(DocumentCategory.TEST_REPORT, SecurityClassification.INTERNAL);
@@ -251,6 +251,41 @@ class WorkflowIntegrationTest {
     var outsiderQueues =
         (List<HomeTaskService.Queue>) outsiderHome.getModelAndView().getModel().get("homeTasks");
     assertTrue(outsiderQueues.stream().allMatch(q -> q.count() == 0));
+  }
+
+  @Test
+  void homeProjectRailUsesTheSameMembershipScopeAndLimitsRecentSummaries() throws Exception {
+    List<Long> own = new ArrayList<>();
+    for (int i = 0; i < 5; i++) {
+      ProjectForm form = new ProjectForm();
+      form.setName("홈 패널 프로젝트 " + i);
+      form.setDescription("접근 권한과 최근 목록 범위 확인");
+      form.setDepartmentId(research.getId());
+      own.add(projects.create(owner.getNickname(), form));
+    }
+    ProjectForm other = new ProjectForm();
+    other.setName("다른 참여자 전용 프로젝트");
+    other.setDescription("홈 패널에서 비참여자에게 노출되지 않아야 합니다.");
+    other.setDepartmentId(quality.getId());
+    Long otherId = projects.create(admin.getNickname(), other);
+    var response =
+        mvc.perform(get("/").with(user(owner.getNickname())))
+            .andExpect(status().isOk())
+            .andExpect(content().string(containsString("class=\"home-activity\"")))
+            .andExpect(content().string(not(containsString(other.getName()))))
+            .andReturn();
+    @SuppressWarnings("unchecked")
+    var recent = (List<ProjectSummary>) response.getModelAndView().getModel().get("homeProjects");
+    assertEquals(
+        List.of(own.get(4), own.get(3), own.get(2), own.get(1)),
+        recent.stream().map(ProjectSummary::id).toList());
+    assertTrue(projects.recent(outsider.getNickname()).isEmpty());
+    assertEquals(
+        List.of(projectId),
+        projects.recent(writer.getNickname()).stream().map(ProjectSummary::id).toList());
+    assertEquals(otherId, projects.recent(admin.getNickname()).getFirst().id());
+    projects.removeMember(owner.getNickname(), projectId, writer.getId());
+    assertTrue(projects.recent(writer.getNickname()).isEmpty());
   }
 
   @Test

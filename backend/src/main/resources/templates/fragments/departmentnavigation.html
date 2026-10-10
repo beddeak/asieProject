@@ -5,19 +5,11 @@
   xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 >
   <body>
-    <header class="workspace-header" th:fragment="header">
-      <a class="company department-brand" th:href="@{/departments}"
-        ><span class="company-mark" aria-hidden="true">A</span
-        ><span>AegisVault<small>DEPARTMENT WORKSPACE</small></span></a
-      >
-      <nav class="page-actions" aria-label="전체 메뉴">
-        <a th:href="@{/}">홈</a>
-        <a th:href="@{/document/list}">문서 목록</a>
-        <a sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}"
-          >사용자 관리</a
-        >
-      </nav>
-    </header>
+    <th:block th:fragment="header">
+      <th:block
+        th:replace="~{fragments/layout :: header('departments', true)}"
+      ></th:block>
+    </th:block>
     <nav
       class="department-tabs"
       aria-label="부서 탭"

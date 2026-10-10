@@ -57,13 +57,7 @@
             <p class="sidebar-imprint">AEGISVAULT<br><span>INTERNAL ARCHIVE</span></p>
         </aside>
 
-        <main id="main-content" class="archive-paper" tabindex="-1">
-            <header class="welcome-heading">
-                <h1>기록 보관소</h1>
-                <p class="welcome-description">기술 문서를 검색하고 최신 기록을 확인하세요.</p>
-                <p th:if="${!canWrite}">문서 작성에는 소속 부서 배정이 필요합니다. 관리자에게 요청해주세요.</p>
-            </header>
-
+        <aside class="home-activity" aria-label="할 일과 프로젝트">
             <section class="home-tasks" aria-labelledby="home-tasks-title">
                 <div class="section-heading">
                     <h2 id="home-tasks-title">지금 할 일</h2>
@@ -77,11 +71,37 @@
                         <span class="home-task-link" th:text="${task.count > 0 ? '처리할 문서 보기 →' : '업무함 보기 →'}"></span>
                     </a>
                 </div>
-                <div class="home-project-action">
-                    <div><strong>프로젝트 진행 상황</strong><p>프로젝트를 선택하면 문서 준비 → 품질시험 → 보안 검토 → 최종 배포의 상태와 차단 사유를 확인할 수 있습니다.</p></div>
-                    <a th:href="@{/projects}">프로젝트 할 일 확인 →</a>
+            </section>
+
+            <section class="home-projects" aria-labelledby="home-projects-title">
+                <div class="section-heading">
+                    <h2 id="home-projects-title">프로젝트 확인</h2>
+                    <a th:href="@{/projects}">전체 보기 →</a>
+                </div>
+                <p class="section-description" th:text="${isAdmin ? '전체 프로젝트 · 최근 등록 순' : '참여 프로젝트 · 최근 등록 순'}"></p>
+                <ul class="home-project-list" th:if="${!#lists.isEmpty(homeProjects)}">
+                    <li th:each="project:${homeProjects}">
+                        <a class="home-project-card" th:href="@{/projects/{id}(id=${project.id})}">
+                            <span class="home-project-heading"><strong th:text="${project.name}"></strong><span class="home-project-status" th:text="${project.status.label}"></span></span>
+                            <span class="home-project-meta" th:text="${project.departmentName}"></span>
+                            <span class="home-project-meta" th:text="${project.targetDate != null ? '목표일 · '+#temporals.format(project.targetDate,'yyyy.MM.dd') : '목표일 미정'}"></span>
+                            <span class="home-task-link">진행 상태·할 일 확인 →</span>
+                        </a>
+                    </li>
+                </ul>
+                <div class="home-project-empty" th:if="${#lists.isEmpty(homeProjects)}">
+                    <p th:text="${isAdmin ? '등록된 프로젝트가 없습니다.' : '참여 중인 프로젝트가 없습니다.'}"></p>
+                    <a th:href="@{/projects}">프로젝트 목록 확인 →</a>
                 </div>
             </section>
+        </aside>
+
+        <main id="main-content" class="archive-paper" tabindex="-1">
+            <header class="welcome-heading">
+                <h1>기록 보관소</h1>
+                <p class="welcome-description">기술 문서를 검색하고 최신 기록을 확인하세요.</p>
+                <p th:if="${!canWrite}">문서 작성에는 소속 부서 배정이 필요합니다. 관리자에게 요청해주세요.</p>
+            </header>
 
             <section class="archive-entry" aria-label="문서 찾기">
                 <form class="archive-search" action="/document/list" th:action="@{/document/list}" method="get" role="search">

@@ -292,7 +292,8 @@ class HomeControllerTest {
           repository,
           service,
           policy,
-          mock(com.asie.aegisvault.notification.HomeTaskService.class));
+          mock(com.asie.aegisvault.notification.HomeTaskService.class),
+          mock(com.asie.aegisvault.project.ProjectService.class));
     }
 
     @Bean

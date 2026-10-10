@@ -5,7 +5,7 @@
   --bg: var(--canvas);
   --brand: var(--burgundy);
   --brand-dark: var(--burgundy-dark);
-  --radius: 4px;
+  --radius: 0;
   color: var(--ink);
   background: var(--bg);
   font-size: 15px;
@@ -37,7 +37,7 @@ button,
   justify-content: center;
   gap: 0.4rem;
   border: 1px solid var(--brand);
-  border-radius: 7px;
+  border-radius: var(--radius);
   background: var(--brand);
   color: #fff;
   padding: 0.55rem 1rem;
@@ -72,7 +72,7 @@ button.danger {
   color: var(--brand);
 }
 :focus-visible {
-  outline: 3px solid #df9e28;
+  outline: 3px solid var(--focus);
   outline-offset: 3px;
 }
 input,
@@ -80,7 +80,7 @@ select,
 textarea {
   width: 100%;
   border: 1px solid var(--border);
-  border-radius: 7px;
+  border-radius: var(--radius);
   padding: 0.65rem 0.8rem;
   color: var(--ink);
   background: #fff;
@@ -232,7 +232,7 @@ p:last-child {
 .tabs a {
   padding: 0.4rem 0.8rem;
   text-decoration: none;
-  border-radius: 6px;
+  border-radius: var(--radius);
   color: var(--muted);
 }
 .tabs a:hover,
@@ -268,17 +268,17 @@ td a {
 .badge {
   font-size: 0.76rem;
   display: inline-block;
-  background: #edf1f4;
-  border-radius: 5px;
+  background: var(--soft);
+  border-radius: var(--radius);
   padding: 0.2rem 0.55rem;
   white-space: nowrap;
 }
 .badge.good {
-  background: #e4f3eb;
-  color: #236344;
+  background: var(--success-bg);
+  color: var(--success);
 }
 .badge.bad {
-  background: #fcecef;
+  background: var(--danger-bg);
   color: var(--danger);
 }
 .empty {
@@ -297,18 +297,18 @@ td a {
 }
 .notice {
   padding: 1rem 1.2rem;
-  border-radius: 8px;
-  background: #edf3f9;
-  border: 1px solid #bfd2e4;
+  border-radius: var(--radius);
+  background: var(--soft);
+  border: 1px solid var(--border);
   margin-bottom: 1.2rem;
 }
 .notice.success {
-  background: #edf8f1;
-  border-color: #a4cdb4;
+  background: var(--success-bg);
+  border-color: var(--success);
 }
 .notice.danger {
-  background: #fff0f2;
-  border-color: #e2b6bd;
+  background: var(--danger-bg);
+  border-color: var(--danger);
   color: var(--danger);
 }
 .text {

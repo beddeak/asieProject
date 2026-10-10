@@ -360,9 +360,6 @@
         <div th:replace="~{departmentcreate :: departmentForm}"></div>
       </details>
     </main>
-    <footer class="workspace-footer">
-      <span>AegisVault · Internal Document Management</span
-      ><span>ADMINISTRATION / 사용자 및 조직 관리</span>
-    </footer>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
   </body>
 </html>

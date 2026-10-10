@@ -15,15 +15,24 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
   @Query("select p from Project p where p.id=:id")
   Optional<Project> lockById(@Param("id") Long id);
 
-  @Query(
+  String VISIBLE_SUMMARIES =
       """
       select new com.asie.aegisvault.project.ProjectSummary(p.id,p.name,d.name,p.status,p.targetDate,p.createdAt)
       from Project p join p.department d
       where (:admin=true or exists(select m.id from ProjectMember m where m.project=p and m.user.id=:userId))
-      and (:keyword is null or lower(p.name) like :keyword escape '\\')
-      and (:status is null or p.status=:status)
-      and (:departmentId is null or d.id=:departmentId)
-      """)
+      """;
+
+  @Query(VISIBLE_SUMMARIES)
+  java.util.List<ProjectSummary> recent(
+      @Param("admin") boolean admin, @Param("userId") Long userId, Pageable pageable);
+
+  @Query(
+      VISIBLE_SUMMARIES
+          + """
+          and (:keyword is null or lower(p.name) like :keyword escape '\\')
+          and (:status is null or p.status=:status)
+          and (:departmentId is null or d.id=:departmentId)
+          """)
   Page<ProjectSummary> search(
       @Param("admin") boolean admin,
       @Param("userId") Long userId,

@@ -49,6 +49,14 @@ public class ProjectService {
                 pageable));
   }
 
+  public List<ProjectSummary> recent(String actor) {
+    User user = actors.get(actor);
+    return projects.recent(
+        user.getPosition().isAdmin(),
+        user.getId(),
+        PageRequest.of(0, 4, Sort.by(Sort.Direction.DESC, "createdAt", "id")));
+  }
+
   public ProjectDetail detail(String actor, Long id) {
     User user = actors.get(actor);
     Project project = access.read(user, id);
