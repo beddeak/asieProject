@@ -1,14 +1,14 @@
 /* 관리자 화면에 삽입되는 조직 생성 폼에도 같은 보관소 레이아웃을 사용합니다. */
 .department-create-shell { width: calc(100% - 36px); max-width: 760px; margin: 28px auto 0; }
-.department-create-panel { width: 100%; min-width: 0; padding: 28px; border: 1px solid var(--border); border-top: 3px solid var(--burgundy); background: var(--paper); }
-.department-create-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--burgundy); }
+.department-create-panel { width: 100%; min-width: 0; padding: 30px; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper); box-shadow: var(--shadow-md); }
+.department-create-header { margin-bottom: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--rule); }
 .department-create-header h1 { margin: 0; }
 .department-create-field { margin-bottom: 20px; }
 .department-create-field label { display: block; margin-bottom: 7px; font-weight: 700; }
-.department-create-field label span { margin-left: 6px; color: var(--muted); font-size: 11px; font-weight: 400; }
+.department-create-field label span { margin-left: 6px; color: var(--muted); font-size: 12px; font-weight: 400; }
 .department-create-field :is(input, textarea) { display: block; width: 100%; min-width: 0; }
 .department-create-field textarea { min-height: 128px; resize: vertical; }
-.department-create-hint { margin: 6px 0 0; color: var(--muted); font-size: 11px; }
+.department-create-hint { margin: 6px 0 0; color: var(--muted); font-size: 12px; }
 .department-create-actions { display: flex; justify-content: flex-end; padding-top: 4px; }
 .department-create-error { margin-bottom: 20px; overflow-wrap: anywhere; }
 .department-create-error p { margin: 0; }

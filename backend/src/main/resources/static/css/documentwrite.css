@@ -1,27 +1,27 @@
 /* Document editor layout. Shared typography, controls and paper surfaces live in common.css. */
-.document-write-page .write-workspace { max-width: 1152px; margin: 28px auto 32px; padding: 0 18px; }
-.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 24px; align-items: start; }
-.editor-panel { min-width: 0; }
-.panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 18px 24px; border-bottom: 2px solid var(--burgundy); }
+.document-write-page .write-workspace { max-width: 1240px; margin: 28px auto 32px; padding: 0 24px; }
+.workspace-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: start; }
+.editor-panel { min-width: 0; overflow: hidden; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding: 18px 28px; border-bottom: 1px solid var(--rule); background: var(--soft); }
 .panel-heading h2 { margin: 0; }
-.panel-heading > span { color: var(--muted); font-size: 11px; }
-.editor-panel form { padding: 24px; }
+.panel-heading > span { color: var(--muted); font-size: 12px; }
+.editor-panel form { padding: 28px; }
 .document-write-page .field { margin-bottom: 22px; }
 .document-write-page .field label { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; font-weight: 700; }
-.document-write-page .field label span { color: var(--muted); font-size: 10px; font-weight: 400; }
+.document-write-page .field label span { padding: 0 8px; border-radius: var(--radius-pill); background: var(--soft); color: var(--muted); font-size: 11.5px; font-weight: 500; }
 .document-write-page .field :is(input, textarea, select) { display: block; width: 100%; min-width: 0; }
 .document-write-page .field textarea { min-height: 360px; resize: vertical; line-height: 1.9; }
 .editor-actions { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding-top: 20px; border-top: 1px solid var(--rule); }
-.editor-actions p { margin: 0; color: var(--muted); font-size: 11px; }
+.editor-actions p { margin: 0; color: var(--muted); font-size: 12.5px; }
 .editor-actions button { display: inline-flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 22px; min-height: 42px; }
-.editor-panel > .notice { margin: 20px 24px 0; }
+.editor-panel > .notice { margin: 20px 28px 0; }
 .document-write-page form > .notice { margin: 0 0 20px; }
 .document-sidebar { display: grid; gap: 16px; min-width: 0; }
-.metadata-note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
-.writing-guide { display: flex; align-items: flex-start; gap: 10px; padding: 18px; border-left: 3px solid var(--burgundy); }
-.guide-marker { display: grid; place-items: center; flex-shrink: 0; width: 18px; height: 18px; margin-top: 2px; border: 1px solid var(--border); color: var(--burgundy); font-size: 11px; font-weight: 700; }
-.writing-guide h2 { margin: 0; font-size: 13px; }
-.writing-guide p { margin: 7px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; overflow-wrap: anywhere; }
+.metadata-note { margin: 16px 0 0; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 12px; line-height: 1.75; overflow-wrap: anywhere; }
+.writing-guide { display: flex; align-items: flex-start; gap: 12px; padding: 18px; box-shadow: inset 3px 0 0 var(--primary), var(--shadow-md); }
+.guide-marker { display: grid; place-items: center; flex-shrink: 0; width: 22px; height: 22px; margin-top: 0; border-radius: 50%; background: var(--primary-tint); color: var(--primary); font-size: 12px; font-weight: 700; }
+.writing-guide h2 { margin: 0; font-size: 14px; }
+.writing-guide p { margin: 7px 0 0; color: var(--muted); font-size: 12px; line-height: 1.75; overflow-wrap: anywhere; }
 
 @media (max-width: 850px) {
     .workspace-grid { grid-template-columns: minmax(0, 1fr); gap: 18px; }

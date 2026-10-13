@@ -1,6 +1,6 @@
 /* 계정 화면 배치는 signup.css를 공유합니다. */
 .login-panel { display: flex; align-items: center; }
-.login-guidance { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 11px; line-height: 1.8; word-break: keep-all; }
+.login-guidance { margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
 .login-guidance p { margin: 0 0 5px; }
 .login-guidance p:last-child { margin-bottom: 0; }
 .login-guidance .guidance-title { margin-bottom: 6px; color: var(--ink); font-weight: 700; }

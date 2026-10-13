@@ -18,11 +18,14 @@
   margin: 0;
 }
 .trace-version {
-  padding: 1.1rem 0 1.1rem 1.1rem;
-  border-left: 3px solid #dfd5d2;
+  padding: 1.1rem 0 1.1rem 1.2rem;
+  border-left: 3px solid var(--primary-line);
+}
+.trace-version:first-child {
+  border-left-color: var(--primary);
 }
 .trace-version + .trace-version {
-  border-top: 1px solid #ece5e1;
+  border-top: 1px solid var(--rule);
 }
 .trace-version-heading {
   display: flex;
@@ -38,7 +41,7 @@
   margin-top: 0.9rem;
 }
 .release-document + .release-document {
-  border-top: 1px solid #e7ddd8;
+  border-top: 1px solid var(--rule);
   margin-top: 1.5rem;
   padding-top: 1.5rem;
 }
@@ -48,7 +51,7 @@
 }
 .release-file {
   padding: 0.9rem 0;
-  border-bottom: 1px solid #ece5e1;
+  border-bottom: 1px solid var(--rule);
 }
 .release-file p {
   margin: 0.3rem 0;
@@ -73,7 +76,7 @@
     grid-template-columns: 1fr;
   }
   .trace-summary-grid > div + div {
-    border-top: 1px solid #e7ddd8;
+    border-top: 1px solid var(--rule);
     padding-top: 1rem;
   }
   .trace-version-heading {

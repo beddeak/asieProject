@@ -4,20 +4,24 @@
     grid-template-columns: 270px minmax(0, 1fr);
     max-width: 940px;
     margin: 28px auto;
-    border: 1px solid var(--border);
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: 14px;
     background: var(--paper);
+    box-shadow: 0 2px 4px rgba(16, 28, 45, .04), 0 18px 40px rgba(16, 28, 45, .08);
 }
 
-.system-overview { padding: 29px 26px; border-right: 1px solid var(--rule); background: var(--soft); }
-.system-overview h2 { margin: 8px 0 0; padding-bottom: 12px; border-bottom: 2px solid var(--burgundy); color: var(--burgundy); }
-.system-description { margin: 17px 0 24px; color: var(--muted); font-size: 12px; line-height: 1.9; word-break: keep-all; }
-.register-title { margin: 0 0 4px; padding-bottom: 7px; border-bottom: 1px solid var(--border); color: var(--ink); font-size: 11px; font-weight: 700; }
+.system-overview { padding: 32px 28px; background: linear-gradient(160deg, #0f1a2a 0%, #16294a 55%, #1f4f82 100%); color: #dbe4ef; }
+.system-overview .eyebrow { color: var(--brand-mark); }
+.system-overview h2 { margin: 8px 0 0; padding-bottom: 14px; border-bottom: 1px solid rgba(255, 255, 255, .14); color: #fff; font-size: 20px; }
+.system-description { margin: 16px 0 24px; color: #b3c2d5; font-size: 13px; line-height: 1.85; word-break: keep-all; }
+.register-title { margin: 0 0 4px; padding-bottom: 8px; border-bottom: 1px solid rgba(255, 255, 255, .14); color: #fff; font-size: 12px; font-weight: 700; letter-spacing: .04em; }
 .document-register ul { margin: 0; padding: 0; list-style: none; }
-.document-register li { display: flex; align-items: center; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--rule); font-size: 12px; }
-.document-code { width: 28px; flex-shrink: 0; color: var(--burgundy); font-size: 9px; letter-spacing: .03em; }
-.overview-note { margin: 24px 0 0; color: var(--muted); font-size: 11px; line-height: 1.8; word-break: keep-all; }
+.document-register li { display: flex; align-items: center; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255, 255, 255, .08); color: #dbe4ef; font-size: 12.5px; }
+.document-code { width: 34px; flex-shrink: 0; color: var(--brand-mark); font-family: var(--mono); font-size: 11px; letter-spacing: .03em; }
+.overview-note { margin: 24px 0 0; color: #9eabbd; font-size: 12px; line-height: 1.75; word-break: keep-all; }
 
-.registration-panel { min-width: 0; padding: 29px 38px; }
+.registration-panel { min-width: 0; padding: 40px 44px; }
 .registration-content, .login-content { width: 100%; max-width: 460px; min-width: 0; margin: auto; }
 .registration-panel .page-heading { display: block; margin-bottom: 20px; }
 .registration-panel .page-heading .eyebrow { margin-bottom: 8px; }
@@ -25,13 +29,13 @@
 .registration-panel .page-description { margin: 0; }
 .registration-panel .field { margin-bottom: 18px; }
 .registration-panel .field label { display: block; margin-bottom: 8px; }
-.registration-panel .field input { display: block; width: 100%; }
+.registration-panel .field input { display: block; width: 100%; min-height: 44px; }
 .registration-panel .notice { margin-bottom: 18px; }
 .registration-panel .notice p { margin: 0 0 4px; }
 .registration-panel .notice p:last-child { margin-bottom: 0; }
-.form-note { margin: 4px 0 18px; padding-left: 11px; border-left: 2px solid var(--border); color: var(--muted); font-size: 11px; line-height: 1.8; word-break: keep-all; }
-.registration-panel .form-submit { justify-content: space-between; width: 100%; }
-.login { margin: 19px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.form-note { margin: 4px 0 18px; padding-left: 11px; border-left: 2px solid var(--primary-line); color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
+.registration-panel .form-submit { justify-content: space-between; width: 100%; min-height: 46px; font-size: 14.5px; }
+.login { margin: 20px 0 0; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .login a { margin-left: 8px; font-weight: 700; }
 
 @media (max-width: 1000px) {
@@ -59,3 +63,6 @@
     .registration-layout { margin-inline: 10px; }
     .system-overview, .registration-panel { padding-inline: 18px; }
 }
+
+.auth-footer { grid-column: 1 / -1; margin: 0; padding: 14px 24px; border-top: 1px solid var(--rule); background: var(--soft); text-align: center; font-size: 13px; }
+.auth-footer a { font-weight: 600; }

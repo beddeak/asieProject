@@ -10,7 +10,7 @@ import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-/** Call under the project lock when evidence is created or used to release. */
+
 @Component
 @RequiredArgsConstructor
 public class ProjectEvidence {
