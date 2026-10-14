@@ -7,7 +7,6 @@
       <div th:replace="~{fragments/shell :: messages}"></div>
       <header class="page-heading">
         <div>
-          <p class="eyebrow">PROJECT SETTINGS</p>
           <h1 th:text="${project==null?'프로젝트 생성':'프로젝트 수정'}"></h1>
         </div>
         <a th:href="@{/projects}">프로젝트 목록</a>

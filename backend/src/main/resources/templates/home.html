@@ -17,7 +17,7 @@
     <div class="archive-layout">
         <aside class="archive-sidebar" aria-label="보관소 탐색 및 계정 정보">
             <details class="sidebar-directory" open>
-                <summary>보관소 탐색<span aria-hidden="true">INDEX</span></summary>
+                <summary>보관소 탐색</summary>
                 <div class="directory-content">
                     <nav class="sidebar-group" aria-label="기록 열람">
                         <h2>기록 열람</h2>
@@ -54,21 +54,20 @@
                 </dl>
                 <p class="profile-note">문서는 계정의 접근 권한에 따라 표시됩니다.</p>
             </section>
-            <p class="sidebar-imprint">AEGISVAULT<br><span>INTERNAL ARCHIVE</span></p>
         </aside>
 
         <aside class="home-activity" aria-label="할 일과 프로젝트">
             <section class="home-tasks" aria-labelledby="home-tasks-title">
                 <div class="section-heading">
                     <h2 id="home-tasks-title">지금 할 일</h2>
-                    <a th:href="@{/tasks}">내 업무 전체 →</a>
+                    <a th:href="@{/tasks}">내 업무 전체</a>
                 </div>
                 <p class="section-description">내 문서와 현재 검토 권한을 기준으로 표시합니다.</p>
                 <div class="home-task-grid">
                     <a class="home-task-card" th:each="task:${homeTasks}" th:href="${task.href}" th:classappend="${task.count > 0 ? 'needs-action' : ''}">
                         <span class="home-task-heading"><strong th:text="${task.title}"></strong><span><b th:text="${task.count}"></b>건</span></span>
                         <span th:text="${task.count > 0 ? task.description : '현재 처리할 문서가 없습니다.'}"></span>
-                        <span class="home-task-link" th:text="${task.count > 0 ? '처리할 문서 보기 →' : '업무함 보기 →'}"></span>
+                        <span class="home-task-link" th:text="${task.count > 0 ? '처리할 문서 보기' : '업무함 보기'}"></span>
                     </a>
                 </div>
             </section>
@@ -76,7 +75,7 @@
             <section class="home-projects" aria-labelledby="home-projects-title">
                 <div class="section-heading">
                     <h2 id="home-projects-title">프로젝트 확인</h2>
-                    <a th:href="@{/projects}">전체 보기 →</a>
+                    <a th:href="@{/projects}">전체 보기</a>
                 </div>
                 <p class="section-description" th:text="${isAdmin ? '전체 프로젝트 · 최근 등록 순' : '참여 프로젝트 · 최근 등록 순'}"></p>
                 <ul class="home-project-list" th:if="${!#lists.isEmpty(homeProjects)}">
@@ -85,13 +84,13 @@
                             <span class="home-project-heading"><strong th:text="${project.name}"></strong><span class="home-project-status" th:text="${project.status.label}"></span></span>
                             <span class="home-project-meta" th:text="${project.departmentName}"></span>
                             <span class="home-project-meta" th:text="${project.targetDate != null ? '목표일 · '+#temporals.format(project.targetDate,'yyyy.MM.dd') : '목표일 미정'}"></span>
-                            <span class="home-task-link">진행 상태·할 일 확인 →</span>
+                            <span class="home-task-link">진행 상태·할 일 확인</span>
                         </a>
                     </li>
                 </ul>
                 <div class="home-project-empty" th:if="${#lists.isEmpty(homeProjects)}">
                     <p th:text="${isAdmin ? '등록된 프로젝트가 없습니다.' : '참여 중인 프로젝트가 없습니다.'}"></p>
-                    <a th:href="@{/projects}">프로젝트 목록 확인 →</a>
+                    <a th:href="@{/projects}">프로젝트 목록 확인</a>
                 </div>
             </section>
         </aside>
@@ -112,7 +111,7 @@
                     <li><strong>v2로 변경</strong><span>이전 결과로 배포 차단</span></li>
                     <li><strong>v2 재검증</strong><span>모든 조건 충족 후 배포</span></li>
                 </ol>
-                <a th:href="@{/projects#project-start}">프로젝트에서 검증 흐름 확인 →</a>
+                <a th:href="@{/projects#project-start}">프로젝트에서 검증 흐름 확인</a>
             </section>
 
             <section class="archive-entry" aria-label="문서 찾기">
@@ -125,14 +124,14 @@
                 </form>
                 <div class="register-summary">
                     <span>현재 열람 가능한 문서</span>
-                    <a href="/document/list" th:href="@{/document/list}"><strong th:text="${documentCount}">0</strong>건 <span aria-hidden="true">→</span></a>
+                    <a href="/document/list" th:href="@{/document/list}"><strong th:text="${documentCount}">0</strong>건</a>
                 </div>
             </section>
 
             <section id="recent-register" class="recent-register" aria-labelledby="register-title">
                 <div class="section-heading">
                     <h2 id="register-title">최근 등록 문서</h2>
-                    <a href="/document/list" th:href="@{/document/list}">전체 목록 <span aria-hidden="true">→</span></a>
+                    <a href="/document/list" th:href="@{/document/list}">전체 목록</a>
                 </div>
                 <p class="section-description">열람 권한이 있는 문서의 최신 버전을 등록일 순으로 표시합니다.</p>
                 <div class="register-scroll" role="region" aria-label="최근 등록 문서 표" tabindex="0"
@@ -176,7 +175,7 @@
                 <div class="register-empty" th:if="${recentDocuments == null or #lists.isEmpty(recentDocuments)}">
                     <span class="empty-reference" aria-hidden="true">—</span>
                     <h3>현재 열람할 수 있는 문서가 없습니다.</h3>
-                    <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite}" hidden th:hidden="${false}">새 문서 작성 <span aria-hidden="true">→</span></a>
+                    <a href="/document/new" th:href="@{/document/new}" th:if="${canWrite}" hidden th:hidden="${false}">새 문서 작성</a>
                 </div>
             </section>
 

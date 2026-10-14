@@ -21,7 +21,6 @@
     <main id="main" class="list-workspace">
       <header class="page-heading">
         <div>
-          <p class="eyebrow">DOCUMENT REGISTER</p>
           <h1>문서 목록</h1>
           <p class="page-description">
             열람 가능한 기술 문서와 최신 검토 현황을 확인합니다.
@@ -34,7 +33,7 @@
             class="secondary-button"
             th:if="${canReview}"
             th:href="@{/document/review}"
-            >검토함 →</a
+            >검토함</a
           >
           <a
             class="write-button"
@@ -49,13 +48,10 @@
 
       <section class="department-banner" aria-labelledby="department-title">
         <div class="department-summary">
-          <span class="department-mark" aria-hidden="true">ADT</span>
           <div>
-            <p class="eyebrow">DEPARTMENT WORKSPACE</p>
             <h2 id="department-title" th:text="${departmentName}">소속 부서</h2>
           </div>
         </div>
-        <p>설계부터 검토까지,<br />부서의 기록을 한곳에서 관리합니다.</p>
       </section>
       <section
         id="document-register"
@@ -223,9 +219,6 @@
         </div>
 
         <div class="empty-state" th:if="${documentPage.empty}">
-          <span class="empty-document" aria-hidden="true"
-            ><span></span><span></span><span></span
-          ></span>
           <h3
             th:text="${filter.keyword != null and !#strings.isEmpty(filter.keyword) ? '검색 결과가 없습니다' : (departmentRequired ? '소속 부서가 배정되지 않았습니다' : '열람 가능한 문서가 없습니다')}"
           >

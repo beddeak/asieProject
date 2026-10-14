@@ -14,7 +14,6 @@
     <main id="main" class="list-workspace">
       <header class="page-heading">
         <div>
-          <p class="eyebrow">DEPARTMENT WORKSPACE</p>
           <h1>부서 탭</h1>
           <p class="page-description">
             우리 부서의 소식과 공지를 한곳에서 확인합니다.
@@ -24,7 +23,7 @@
           class="secondary-button"
           th:if="${workspace.admin}"
           th:href="@{/admin/users} + '#department-form'"
-          >새 부서 생성 →</a
+          >새 부서 생성</a
         >
       </header>
       <nav
@@ -38,9 +37,7 @@
       ></p>
       <section class="department-banner" th:if="${workspace.selected != null}">
         <div class="department-summary">
-          <span class="department-mark" aria-hidden="true">ADT</span>
           <div>
-            <p class="eyebrow">DEPARTMENT</p>
             <h2 th:text="${workspace.selected.name}"></h2>
             <p
               class="department-description"

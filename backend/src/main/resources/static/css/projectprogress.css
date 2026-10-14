@@ -1,6 +1,6 @@
 .project-progress {
-  margin: 0 0 1.8rem;
-  padding: 1.5rem;
+  margin: 0 0 1.5rem;
+  padding: 1.6rem 1.75rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--paper);
@@ -16,9 +16,9 @@
   margin-bottom: 1rem;
 }
 .progress-heading > p {
-  max-width: 50ch;
+  max-width: 52ch;
   color: var(--muted);
-  font-size: 0.85rem;
+  font-size: 13px;
 }
 .progress-steps {
   list-style: none;
@@ -32,25 +32,19 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: 1rem 1.05rem;
-  border: 1px solid var(--line);
-  border-top: 3px solid var(--primary-line);
-  border-radius: var(--radius-sm);
-  background: var(--soft);
+  padding: 1.05rem 1.1rem;
+  border: 1px solid var(--primary-line);
+  border-radius: 10px;
+  background: var(--paper);
 }
 .progress-step[data-state="COMPLETE"] {
-  background: var(--success-bg);
   border-color: var(--success-line);
+  background: var(--success-bg);
 }
+/* Blocked steps wait on an earlier one: keep them quiet and let the tag carry the warning. */
 .progress-step[data-state="BLOCKED"] {
-  background: var(--danger-bg);
-  border-color: var(--danger-line);
-}
-.progress-step[data-state="COMPLETE"] {
-  border-top-color: var(--success);
-}
-.progress-step[data-state="BLOCKED"] {
-  border-top-color: var(--danger);
+  border-color: var(--rule);
+  background: var(--soft);
 }
 .progress-step-heading {
   display: flex;
@@ -61,21 +55,28 @@
 }
 .progress-step-heading h3 {
   margin: 0;
-  font-size: 0.95rem;
+  font-size: 14.5px;
 }
 .progress-number {
   display: inline-grid;
   place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
+  width: 1.55rem;
+  height: 1.55rem;
   border-radius: 50%;
-  color: var(--primary);
-  background: var(--primary-tint);
-  font-size: 0.8rem;
+  color: #fff;
+  background: var(--primary);
+  font-size: 12px;
   font-weight: 700;
 }
+.progress-step[data-state="COMPLETE"] .progress-number {
+  background: var(--success);
+}
+.progress-step[data-state="BLOCKED"] .progress-number {
+  color: var(--muted);
+  background: #e4e8ee;
+}
 .progress-step > p {
-  font-size: 0.85rem;
+  font-size: 13.5px;
   margin-bottom: 0.6rem;
   overflow-wrap: anywhere;
 }
@@ -86,7 +87,8 @@
   gap: 0.4rem;
   margin-top: auto;
   padding-top: 0.8rem;
-  font-size: 0.85rem;
+  font-size: 13.5px;
+  font-weight: 600;
 }
 .progress-next {
   display: flex;
@@ -94,9 +96,9 @@
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
-  padding: 1rem 1.2rem;
+  padding: 1.05rem 1.25rem;
   border: 1px solid var(--primary-line);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   background: var(--primary-tint);
 }
 .progress-next h3 {
@@ -104,7 +106,7 @@
 }
 .progress-next p {
   margin-bottom: 0.3rem;
-  font-size: 0.9rem;
+  font-size: 13.5px;
 }
 .progress-next .actions {
   margin-top: 0;
@@ -118,7 +120,7 @@
   padding: 0;
   list-style: none;
   margin: 0 0 1rem;
-  font-size: 0.9rem;
+  font-size: 13.5px;
 }
 .quality-path li + li::before {
   content: "→";
@@ -129,7 +131,7 @@
   padding: 1rem 1.2rem;
   background: var(--soft);
   border: 1px solid var(--rule);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   margin: 1rem 0;
 }
 .quality-evidence h3 {
@@ -156,7 +158,7 @@
   border-bottom: 1px solid var(--line);
 }
 .gate-issues a {
-  font-size: 0.88rem;
+  font-size: 13.5px;
   font-weight: 600;
 }
 #quality-test-form,

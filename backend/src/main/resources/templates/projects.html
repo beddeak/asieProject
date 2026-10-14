@@ -7,7 +7,6 @@
       <div th:replace="~{fragments/shell :: messages}"></div>
       <header class="page-heading">
         <div>
-          <p class="eyebrow">PROJECT PORTFOLIO</p>
           <h1>프로젝트</h1>
           <p class="page-description">
             문서와 참여자, 검토 결과를 프로젝트별로 관리합니다.
@@ -72,7 +71,7 @@
                     ><a
                       th:href="@{/projects/{id}/guide(id=${p.id})}"
                       th:attr="aria-label=${p.name}+' 진행 안내'"
-                      >진행 안내 →</a
+                      >진행 안내</a
                     ></small
                   >
                 </td>

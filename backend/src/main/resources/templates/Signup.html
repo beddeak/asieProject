@@ -11,15 +11,14 @@
     <th:block th:replace="~{fragments/layout :: header('signup', false)}"></th:block>
     <main id="main-content" class="registration-layout" tabindex="-1">
         <aside class="system-overview" aria-labelledby="system-title">
-            <p class="eyebrow">DOCUMENT ARCHIVE</p>
             <h2 id="system-title">기술 기록 보관소</h2>
             <p class="system-description">설계부터 시험, 보안 검토까지.<br>사내 기술 문서를 한곳에서 기록하고 확인합니다.</p>
             <div class="document-register">
                 <p class="register-title">보관하는 기록</p>
                 <ul>
-                    <li><span class="document-code">ENG</span><span>설계서</span></li>
-                    <li><span class="document-code">TST</span><span>시험보고서</span></li>
-                    <li><span class="document-code">SEC</span><span>보안검토서</span></li>
+                    <li><span>설계서</span></li>
+                    <li><span>시험보고서</span></li>
+                    <li><span>보안검토서</span></li>
                 </ul>
             </div>
             <p class="overview-note">열람과 업무 메뉴는 계정의 소속 부서와 직급에 따라 제공됩니다.</p>
@@ -27,7 +26,6 @@
         <section class="registration-panel" aria-labelledby="signup-title">
             <div class="registration-content">
                 <header class="page-heading">
-                    <p class="eyebrow">ACCOUNT REGISTRATION</p>
                     <h1 id="signup-title">사내 계정 등록</h1>
                     <p class="page-description">AegisVault에서 사용할 계정 정보를 입력해 주세요.</p>
                 </header>
@@ -72,7 +70,7 @@
                     </div>
 
                     <p class="form-note">모든 항목은 필수 입력 사항입니다.<br>데모 환경에서는 실제 사내 계정의 비밀번호를 사용하지 마세요.</p>
-                    <button class="button form-submit" type="submit">계정 등록 <span aria-hidden="true">→</span></button>
+                    <button class="button form-submit" type="submit">계정 등록</button>
                 </form>
 
                 <p class="login">이미 계정이 있으신가요?<a href="/user/login" th:href="@{/user/login}">로그인</a></p>

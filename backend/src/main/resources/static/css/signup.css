@@ -5,26 +5,23 @@
     max-width: 940px;
     margin: 28px auto;
     overflow: hidden;
-    border: 1px solid var(--rule);
+    border: 1px solid var(--border);
     border-radius: var(--radius);
     background: var(--paper);
-    box-shadow: 0 1px 3px rgba(16, 24, 40, .06);
+    box-shadow: var(--shadow-md);
 }
 
 .system-overview { padding: 32px 28px; border-right: 1px solid var(--rule); background: var(--soft); color: var(--ink); }
-.system-overview .eyebrow { margin-bottom: 4px; }
 .system-overview h2 { margin: 0; color: var(--heading); font-size: 19px; }
 .system-description { margin: 12px 0 24px; color: var(--muted); font-size: 13.5px; line-height: 1.75; word-break: keep-all; }
 .register-title { margin: 0 0 6px; color: var(--muted); font-size: 12.5px; font-weight: 600; }
 .document-register ul { margin: 0; padding: 0; list-style: none; }
 .document-register li { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--rule); color: var(--ink); font-size: 13.5px; }
-.document-code { width: 36px; flex-shrink: 0; padding: 1px 0; border-radius: 4px; background: var(--primary-tint); color: var(--primary); font-size: 11px; font-weight: 600; text-align: center; }
 .overview-note { margin: 22px 0 0; color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
 
 .registration-panel { min-width: 0; padding: 40px 44px; }
 .registration-content, .login-content { width: 100%; max-width: 460px; min-width: 0; margin: auto; }
 .registration-panel .page-heading { display: block; margin-bottom: 20px; }
-.registration-panel .page-heading .eyebrow { margin-bottom: 8px; }
 .registration-panel .page-heading h1 { margin: 0 0 10px; }
 .registration-panel .page-description { margin: 0; }
 .registration-panel .field { margin-bottom: 18px; }
@@ -33,7 +30,7 @@
 .registration-panel .notice { margin-bottom: 18px; }
 .registration-panel .notice p { margin: 0 0 4px; }
 .registration-panel .notice p:last-child { margin-bottom: 0; }
-.form-note { margin: 4px 0 18px; padding-left: 11px; border-left: 2px solid var(--primary-line); color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
+.form-note { margin: 4px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.75; word-break: keep-all; }
 .registration-panel .form-submit { justify-content: center; width: 100%; min-height: 44px; font-size: 14.5px; }
 .login { margin: 20px 0 0; text-align: center; color: var(--muted); font-size: 13px; line-height: 1.8; }
 .login a { margin-left: 8px; font-weight: 700; }
@@ -51,7 +48,6 @@
 @media (max-width: 620px) {
     .registration-layout { grid-template-columns: 1fr; margin: 18px 14px; }
     .system-overview { padding: 18px 22px; border-right: 0; border-bottom: 1px solid var(--rule); }
-    .system-overview .eyebrow { margin-bottom: 4px; }
     .system-overview h2 { margin-top: 0; padding-bottom: 8px; }
     .system-description { margin: 11px 0 0; font-size: 11px; }
     .system-description br { display: none; }

@@ -15,14 +15,13 @@
     <main id="main" class="admin-workspace">
       <header class="page-heading">
         <div>
-          <p class="eyebrow">ADMINISTRATION / ACCESS CONTROL</p>
           <h1>사용자 관리</h1>
           <p class="page-description">
             사용자의 직급, 소속 부서와 계정 상태를 관리합니다.
           </p>
         </div>
         <a class="button secondary" th:href="@{/document/review}"
-          >문서 검토함 →</a
+          >문서 검토함</a
         >
       </header>
       <nav class="workspace-nav" aria-label="관리 메뉴">
@@ -40,7 +39,7 @@
       ></p>
       <p th:if="${createdDepartmentId != null}">
         <a th:href="@{/departments/{id}(id=${createdDepartmentId})}"
-          >생성한 부서 탭 열기 →</a
+          >생성한 부서 탭 열기</a
         >
       </p>
       <p

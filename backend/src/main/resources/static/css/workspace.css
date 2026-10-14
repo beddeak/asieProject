@@ -7,19 +7,7 @@
   --brand-dark: var(--primary-dark);
   color: var(--ink);
   font-size: 14px;
-  line-height: 1.65;
-}
-* {
-  box-sizing: border-box;
-}
-body {
-  margin: 0;
-}
-button,
-input,
-select,
-textarea {
-  font: inherit;
+  line-height: 1.6;
 }
 button,
 .button {
@@ -33,8 +21,9 @@ button.secondary,
 }
 button.secondary:hover,
 .button.secondary:hover {
+  border-color: #b9c2cf;
   background: var(--soft);
-  color: var(--ink);
+  color: var(--heading);
 }
 button.danger {
   border-color: var(--danger-line);
@@ -61,14 +50,19 @@ input,
 select,
 textarea {
   width: 100%;
-  min-height: 40px;
+  min-height: 42px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 0.8rem;
+  padding: 0.55rem 0.85rem;
   color: var(--ink);
   background: #fff;
-  font-size: 0.95rem;
+  font-size: 14px;
   font-weight: 400;
+}
+/* Same box height for text inputs and selects so labels in a row line up. */
+input,
+select {
+  line-height: 1.5;
 }
 textarea {
   min-height: 140px;
@@ -83,15 +77,15 @@ input[type="checkbox"] {
 label {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  font-size: 0.9rem;
+  gap: 0.45rem;
+  font-size: 13.5px;
   font-weight: 600;
 }
 label.check {
   flex-direction: row;
   align-items: center;
   gap: 0.55rem;
-  font-weight: 400;
+  font-weight: 500;
 }
 small,
 .muted {
@@ -99,8 +93,8 @@ small,
 }
 small {
   display: block;
-  margin-top: 0.15rem;
-  font-size: 0.82rem;
+  margin-top: 0.2rem;
+  font-size: 12.5px;
 }
 h1,
 h2,
@@ -109,37 +103,37 @@ p {
   margin-top: 0;
 }
 h1 {
-  font-size: 1.75rem;
-  line-height: 1.3;
+  font-size: 26px;
+  line-height: 1.35;
   margin-bottom: 0.4rem;
 }
 h2 {
-  font-size: 1.15rem;
-  line-height: 1.4;
+  font-size: 17px;
+  line-height: 1.45;
   margin-bottom: 0.9rem;
 }
 h3 {
-  font-size: 1rem;
+  font-size: 15px;
 }
 p:last-child {
   margin-bottom: 0;
 }
 .counter {
   display: inline-block;
-  min-width: 1.3rem;
+  min-width: 1.4rem;
   padding: 0 0.4rem;
-  border-radius: 9px;
+  border-radius: 6px;
   background: var(--primary-tint);
   color: var(--primary);
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 650;
   text-align: center;
   font-variant-numeric: tabular-nums;
 }
 .workspace {
   max-width: 1320px;
   margin: 0 auto;
-  padding: 2rem 1.7rem 1rem;
+  padding: 2.25rem 1.7rem 1rem;
   min-height: 75vh;
 }
 .narrow {
@@ -154,10 +148,35 @@ p:last-child {
 .page-heading h1 {
   margin-bottom: 0;
 }
-.page-heading .actions,
-.page-heading .row {
+.page-heading h1 + * {
+  margin-top: 0.4rem;
+}
+.page-heading > .actions,
+.page-heading > .row {
   margin-top: 0;
   flex-shrink: 0;
+}
+/* A lone "back to list" link in a heading reads as a small secondary button. */
+.page-heading > a:not([class]) {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+.page-heading > a:not([class]):hover {
+  border-color: #b9c2cf;
+  background: var(--soft);
+  color: var(--heading);
+  text-decoration: none;
 }
 .page-description {
   color: var(--muted);
@@ -169,21 +188,33 @@ p:last-child {
   background: var(--paper);
   border: 1px solid var(--border);
   border-radius: var(--radius);
-  padding: 1.4rem 1.5rem;
+  padding: 1.6rem 1.75rem;
   margin-bottom: 1.25rem;
   box-shadow: var(--shadow-md);
 }
 .card > h2:first-child,
 .card > .row:first-child h2 {
-  font-size: 1.05rem;
+  font-size: 17px;
 }
 .card > *:last-child {
   margin-bottom: 0;
+}
+/* Cards nested inside a card (e.g. review comments) are quiet boxes, not floating panels. */
+.card .card {
+  padding: 1rem 1.15rem;
+  border-color: var(--rule);
+  border-radius: 10px;
+  background: var(--soft);
+  box-shadow: none;
 }
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+.grid:last-child {
+  margin-bottom: 0;
 }
 .grid.thirds {
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -193,10 +224,16 @@ p:last-child {
 }
 .form-grid {
   display: grid;
-  gap: 1.1rem;
+  gap: 1.15rem;
 }
 .form-grid.two {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.form-grid > button {
+  justify-self: start;
+}
+form + .form-grid {
+  margin-top: 1rem;
 }
 .span-all {
   grid-column: 1/-1;
@@ -211,13 +248,26 @@ p:last-child {
 .actions {
   margin-top: 1.1rem;
 }
+.actions > a:not(.button) {
+  font-weight: 600;
+}
+.actions > a:not(.button) + a:not(.button) {
+  margin-left: 0.75rem;
+}
+.actions + p {
+  margin-top: 0.75rem;
+}
+/* Every action can be hidden by permissions; don't leave an empty gap behind. */
+.actions:not(:has(*)) {
+  display: none;
+}
 .toolbar {
   display: flex;
   align-items: flex-end;
   gap: 0.9rem;
   flex-wrap: wrap;
   margin-bottom: 1.25rem;
-  padding: 1rem 1.1rem;
+  padding: 1.1rem 1.25rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--paper);
@@ -226,10 +276,32 @@ p:last-child {
   min-width: 140px;
   flex: 1;
   color: var(--muted);
-  font-size: 0.82rem;
+  font-size: 13px;
 }
-.toolbar input {
+.toolbar input:not([type="checkbox"]) {
   min-width: 100px;
+}
+.toolbar label.check {
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 42px;
+  color: var(--ink);
+  font-size: 13.5px;
+  white-space: nowrap;
+}
+.toolbar > a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+/* A toolbar placed inside a card is a filter row, not a second card. */
+.card .toolbar {
+  padding: 1rem 1.1rem;
+  border-color: var(--rule);
+  border-radius: 10px;
+  background: var(--soft);
 }
 .tabs {
   display: flex;
@@ -241,43 +313,49 @@ p:last-child {
 .tabs a {
   position: relative;
   margin-bottom: -1px;
-  padding: 0.6rem 0.85rem;
+  padding: 0.7rem 0.9rem;
   border-bottom: 2px solid transparent;
   color: var(--muted);
-  font-size: 0.93rem;
+  font-size: 14.5px;
   font-weight: 500;
   text-decoration: none;
   transition: color 0.15s, border-color 0.15s;
 }
 .tabs a:hover {
   border-bottom-color: var(--border-strong);
-  color: var(--ink);
+  color: var(--heading);
   text-decoration: none;
 }
 .tabs a[aria-current="page"] {
   border-bottom-color: var(--primary);
-  color: var(--primary);
-  font-weight: 600;
+  color: var(--heading);
+  font-weight: 650;
 }
 .table-wrap {
   overflow: auto;
   border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   background: var(--paper);
+}
+.table-wrap:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.table-wrap + .pagination {
+  padding-top: 0.4rem;
 }
 table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.93rem;
+  font-size: 14px;
 }
 th {
-  font-size: 0.82rem;
+  font-size: 13px;
   white-space: nowrap;
 }
 th,
 td {
-  padding: 0.75rem 0.9rem;
+  padding: 0.85rem 1rem;
   vertical-align: top;
 }
 td {
@@ -289,26 +367,28 @@ tbody tr:last-child td {
 td a {
   font-weight: 600;
 }
+td > form + form {
+  margin-top: 0.35rem;
+}
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.1rem 0.6rem;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  background: var(--soft);
+  padding: 0.15rem 0.6rem;
+  border: 0;
+  border-radius: 6px;
+  background: #f0f2f5;
   color: var(--muted);
-  font-size: 0.78rem;
+  font-size: 12.5px;
   font-weight: 600;
+  line-height: 1.5;
   white-space: nowrap;
 }
 .badge.good {
-  border-color: var(--success-line);
   background: var(--success-bg);
   color: var(--success);
 }
 .badge.bad {
-  border-color: var(--danger-line);
   background: var(--danger-bg);
   color: var(--danger);
 }
@@ -318,6 +398,17 @@ td a {
   color: var(--muted);
   font-weight: 400;
 }
+p.empty {
+  margin-bottom: 1.25rem;
+  padding: 2.25rem 1rem;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  background: var(--paper);
+}
+.card p.empty {
+  border-radius: 10px;
+  background: var(--soft);
+}
 .pagination {
   display: flex;
   align-items: center;
@@ -325,10 +416,10 @@ td a {
   gap: 0.6rem;
   padding: 1.4rem 0 0.3rem;
   color: var(--muted);
-  font-size: 0.87rem;
+  font-size: 13.5px;
 }
 .pagination a {
-  padding: 0.3rem 0.8rem;
+  padding: 0.35rem 0.85rem;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-sm);
   background: #fff;
@@ -341,7 +432,17 @@ td a {
   text-decoration: none;
 }
 .notice {
-  margin-bottom: 1.2rem;
+  margin-bottom: 1.25rem;
+}
+.notice h2 {
+  margin-bottom: 0.35rem;
+  font-size: 15.5px;
+}
+.notice p:not(:last-child) {
+  margin-bottom: 0.25rem;
+}
+.notice .actions {
+  margin-top: 0.6rem;
 }
 .notice.danger {
   border-color: var(--danger-line);
@@ -355,6 +456,7 @@ td a {
 .document-text {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  font-size: 15px;
   line-height: 1.9;
   position: relative;
   z-index: 1;
@@ -367,8 +469,8 @@ td a {
 .watermark {
   position: absolute;
   inset: 30% 5% auto;
-  color: #1e4b7a;
-  opacity: 0.08;
+  color: var(--primary);
+  opacity: 0.07;
   font-size: 24px;
   font-weight: 700;
   transform: rotate(-24deg);
@@ -385,12 +487,12 @@ td a {
 }
 .details dt,
 .details dd {
-  padding: 0.6rem 0;
+  padding: 0.7rem 0;
   border-bottom: 1px solid var(--line);
 }
 .details dt {
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 13.5px;
 }
 .details dd {
   margin: 0;
@@ -426,7 +528,7 @@ td a {
 }
 .timeline li {
   border-left: 2px solid var(--rule);
-  padding: 0 0 1.4rem 1.3rem;
+  padding: 0 0 1.5rem 1.4rem;
   margin-left: 5px;
   position: relative;
 }
@@ -445,7 +547,6 @@ td a {
   top: 6px;
 }
 details > summary {
-  cursor: pointer;
   font-weight: 600;
   padding: 0.5rem 0;
   color: var(--ink);
@@ -512,10 +613,10 @@ details[open] > summary {
 .review-history-note {
   border-radius: var(--radius-sm);
   background: var(--soft);
-  padding: 0.6rem 0.9rem;
+  padding: 0.65rem 0.95rem;
   margin-top: 0.8rem;
   color: var(--muted);
-  font-size: 0.88rem;
+  font-size: 13.5px;
 }
 .requirement-list {
   list-style: none;
@@ -528,14 +629,15 @@ details[open] > summary {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
-  padding: 0.65rem 0;
+  padding: 0.75rem 0;
   border-bottom: 1px solid var(--rule);
 }
 .requirement-list li:last-child {
   border-bottom: 0;
 }
 .requirement-list a {
-  font-size: 0.88rem;
+  font-size: 13.5px;
+  font-weight: 600;
 }
 .guide-steps {
   display: grid;
@@ -552,7 +654,7 @@ details[open] > summary {
   scroll-margin-top: 4rem;
 }
 .guide-steps h3 {
-  font-size: 1.05rem;
+  font-size: 16px;
 }
 .guide-steps .actions {
   margin-top: auto;
@@ -587,7 +689,7 @@ details[open] > summary {
     grid-template-columns: 1fr;
   }
   .card {
-    padding: 1.1rem;
+    padding: 1.2rem;
   }
   .toolbar {
     gap: 0.7rem;
@@ -608,10 +710,10 @@ details[open] > summary {
   }
   .pagination {
     gap: 0.5rem;
-    font-size: 0.8rem;
+    font-size: 13px;
   }
   h1 {
-    font-size: 1.5rem;
+    font-size: 23px;
   }
 }
 @media print {

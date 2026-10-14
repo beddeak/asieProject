@@ -13,15 +13,14 @@
 
     <main id="main-content" class="registration-layout login-layout" tabindex="-1">
         <aside class="system-overview" aria-labelledby="system-title">
-            <p class="eyebrow">DOCUMENT ARCHIVE</p>
             <h2 id="system-title">기술 기록 보관소</h2>
             <p class="system-description">설계부터 시험, 보안 검토까지.<br>사내 기술 문서를 한곳에서 기록하고 확인합니다.</p>
             <div class="document-register">
                 <p class="register-title">보관하는 기록</p>
                 <ul>
-                    <li><span class="document-code">ENG</span><span>설계서</span></li>
-                    <li><span class="document-code">TST</span><span>시험보고서</span></li>
-                    <li><span class="document-code">SEC</span><span>보안검토서</span></li>
+                    <li><span>설계서</span></li>
+                    <li><span>시험보고서</span></li>
+                    <li><span>보안검토서</span></li>
                 </ul>
             </div>
             <p class="overview-note">열람과 업무 메뉴는 계정의 소속 부서와 직급에 따라 제공됩니다.</p>
@@ -30,7 +29,6 @@
         <section class="registration-panel login-panel" aria-labelledby="login-title">
             <div class="login-content">
                 <header class="page-heading">
-                    <p class="eyebrow">EMPLOYEE SIGN IN</p>
                     <h1 id="login-title">사내 로그인</h1>
                     <p class="page-description">등록한 계정으로 AegisVault에 접속하세요.</p>
                 </header>
@@ -61,7 +59,7 @@
                                placeholder="비밀번호를 입력하세요">
                     </div>
 
-                    <button class="button form-submit" type="submit">로그인 <span aria-hidden="true">→</span></button>
+                    <button class="button form-submit" type="submit">로그인</button>
                 </form>
 
                 <p class="login">등록된 계정이 없으신가요?<a href="/user/signup" th:href="@{/user/signup}">계정 등록</a></p>

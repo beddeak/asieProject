@@ -15,11 +15,9 @@
                 <span class="brand-type">
                     <span class="brand-name">AegisVault</span>
                     <span class="brand-subtitle">기술 기록 보관소</span>
-                    <span class="brand-caption">AEGIS DEFENSE TECHNOLOGIES</span>
                 </span>
             </a>
             <div class="masthead-account" th:if="${signedIn}">
-                <span class="session-label">사내 접속</span>
                 <a class="account-name" th:href="@{/account}" th:attr="aria-current=${currentPage == 'account' ? 'page' : null}"><strong th:if="${workspaceAccount != null}" th:text="${workspaceAccount.name}">사용자</strong><strong th:unless="${workspaceAccount != null}" sec:authentication="name">사용자</strong><span> · 내 계정</span></a>
                 <nav class="masthead-tools" aria-label="계정 메뉴">
                     <a th:href="@{/notifications}" th:attr="aria-current=${currentPage == 'notifications' ? 'page' : null}">알림 <span class="notification-count" th:if="${workspaceAccount != null}" th:text="${workspaceAccount.unread}" th:attr="aria-label=${'읽지 않은 알림 ' + workspaceAccount.unread + '개'}">0</span></a>
@@ -27,7 +25,7 @@
                     <form action="/logout" th:action="@{/logout}" method="post"><button class="logout-link" type="submit">로그아웃</button></form>
                 </nav>
             </div>
-            <span class="masthead-guest" th:unless="${signedIn}">INTERNAL DOCUMENT ARCHIVE</span>
+            <span class="masthead-guest" th:unless="${signedIn}">사내 전용</span>
         </div>
     </header>
     <div class="primary-nav">

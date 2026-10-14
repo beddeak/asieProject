@@ -19,13 +19,13 @@
 .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 24px; }
 .summary-grid > div { min-width: 0; padding: 16px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--paper); }
 .summary-grid span { color: var(--muted); font-size: 13px; font-weight: 500; }
-.summary-grid strong { display: block; margin: 4px 0; color: var(--heading); font-size: 28px; font-weight: 700; letter-spacing: -.02em; line-height: 1.25; font-variant-numeric: tabular-nums; }
+.summary-grid strong { display: block; margin: 4px 0; color: var(--heading); font-size: 26px; font-weight: 700; letter-spacing: -.03em; line-height: 1.25; font-variant-numeric: tabular-nums; }
 .summary-grid small { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .panel { min-width: 0; overflow: hidden; border: 1px solid var(--rule); border-radius: var(--radius); background: var(--paper); }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--rule); }
 .panel-heading h2 { display: flex; align-items: center; gap: 8px; margin: 0; }
 .panel-heading > span { color: var(--muted); font-size: 11px; }
-.count { min-width: 24px; padding: 0 8px; border: 1px solid var(--border); border-radius: var(--radius-pill); background: var(--soft); color: var(--muted); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.count { min-width: 24px; padding: 1px 8px; border-radius: 6px; background: var(--primary-tint); color: var(--primary); font-size: 12.5px; font-weight: 650; font-variant-numeric: tabular-nums; text-align: center; }
 .filter-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--rule); background: var(--soft); }
 .filter-form label { display: grid; flex: 0 1 150px; min-width: 0; gap: 6px; color: var(--muted); font-size: 12px; }
 .filter-form .search-field { flex: 1 1 230px; }
@@ -35,19 +35,18 @@
 .table-scroll { width: 100%; max-width: 100%; overflow-x: auto; }
 .table-scroll:focus-visible { outline-offset: -3px; }
 .user-table { min-width: 1010px; }
+.user-table th, .activity-table th { white-space: nowrap; }
 .activity-table { min-width: 840px; }
 .user-table td:first-child { max-width: 230px; overflow-wrap: anywhere; }
 .activity-table td { max-width: 300px; overflow-wrap: anywhere; }
 .user-table td small, .activity-table td small { display: block; margin-top: 6px; color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
 .user-name { font-size: 13px; }
-.self-tag { margin-left: 6px; padding: 0 7px; border-radius: var(--radius-pill); background: var(--primary-tint); color: var(--primary); font-size: 11px; font-weight: 600; white-space: nowrap; }
+.self-tag { margin-left: 6px; padding: 1px 6px; border-radius: 6px; background: var(--primary-tint); color: var(--primary); font-size: 11px; font-weight: 600; white-space: nowrap; }
 .reference { color: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
 .assignment-form { display: grid; grid-template-columns: minmax(80px, 110px) minmax(100px, 150px); gap: 8px; }
 .assignment-form label { min-width: 0; }
 .assignment-form select { width: 100%; min-width: 0; min-height: 36px; padding: 6px 8px; font-size: 12px; }
 .assignment-form button { grid-column: 1 / -1; justify-self: start; }
-.status-badge[data-status="ACTIVE"], .status-badge[data-action="APPROVED"] { border-color: var(--success); background: var(--success-bg); color: var(--success); }
-.status-badge[data-status="BAN"], .status-badge[data-action="REJECTED"] { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
 .date-cell { color: var(--muted); white-space: nowrap; font-size: 11px; font-variant-numeric: tabular-nums; }
 .row-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; min-width: 160px; max-width: 210px; font-size: 12px; }
 .row-actions form { margin: 0; }

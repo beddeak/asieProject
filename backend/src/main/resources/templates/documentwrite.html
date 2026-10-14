@@ -13,11 +13,10 @@
     <main class="write-workspace">
         <header class="page-heading">
             <div>
-                <p class="eyebrow">DOCUMENT WORKSPACE</p>
                 <h1>새 문서 작성</h1>
                 <p class="page-description" th:text="${automaticallyApproved} ? '관리자가 작성한 문서는 등록 즉시 승인됩니다.' : '기술의 근거를 기록하고, 다음 검토를 준비합니다.'">기술의 근거를 기록하고, 다음 검토를 준비합니다.</p>
             </div>
-            <a class="button" th:if="${canReview == true}" th:href="@{/document/review}">검토함 →</a>
+            <a class="button" th:if="${canReview == true}" th:href="@{/document/review}">검토함</a>
         </header>
 
         <div class="workspace-grid">
@@ -30,7 +29,7 @@
                 <div class="notice success-notice" role="status"
                      th:if="${successMessage != null}" hidden th:hidden="${false}">
                     <p th:text="${successMessage}"></p>
-                    <a href="/document/write" th:href="@{/document/write}">새 문서 작성하기 →</a>
+                    <a href="/document/write" th:href="@{/document/write}">새 문서 작성하기</a>
                 </div>
                 <div class="notice error-notice" role="alert"
                      th:if="${errorMessage != null}" th:text="${errorMessage}"
@@ -79,14 +78,13 @@
 
                     <footer class="editor-actions">
                         <p>자동 저장되지 않습니다.<br><span th:text="${automaticallyApproved} ? '등록하면 승인 완료 상태로 보관됩니다.' : '등록하면 해당 부서의 검토를 요청합니다.'">등록하면 해당 부서의 검토를 요청합니다.</span></p>
-                        <button type="submit"><span th:text="${automaticallyApproved} ? '문서 등록' : '등록 및 검토 요청'">등록 및 검토 요청</span> <span aria-hidden="true">→</span></button>
+                        <button type="submit"><span th:text="${automaticallyApproved} ? '문서 등록' : '등록 및 검토 요청'">등록 및 검토 요청</span></button>
                     </footer>
                 </form>
             </section>
 
             <aside class="document-sidebar" aria-label="문서 작성 정보">
                 <section class="metadata-panel paper-panel" aria-labelledby="metadata-title">
-                    <p class="eyebrow">DOCUMENT DETAILS</p>
                     <h2 id="metadata-title">등록 정보</h2>
                     <dl class="document-metadata">
                         <div><dt>버전</dt><dd>01 <span>최초 작성</span></dd></div>

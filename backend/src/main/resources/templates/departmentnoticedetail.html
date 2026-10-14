@@ -13,7 +13,7 @@
       <nav class="page-actions notice-breadcrumb" aria-label="공지 탐색">
         <a
           th:href="@{/departments/{id}(id=${notice.departmentId})}"
-          th:text="'← ' + ${notice.departmentName} + ' 공지 목록'"
+          th:text="${notice.departmentName} + ' 공지 목록'"
         ></a>
       </nav>
       <p

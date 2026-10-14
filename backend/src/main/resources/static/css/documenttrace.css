@@ -3,6 +3,11 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1.25rem;
 }
+.trace-summary-grid:not(:last-child) {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--rule);
+}
 .trace-summary-grid h3 {
   margin: 0 0 0.6rem;
   font-size: 0.95rem;

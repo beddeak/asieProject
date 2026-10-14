@@ -8,7 +8,7 @@
     <main id="main" class="workspace narrow">
       <div th:replace="~{fragments/shell :: messages}"></div>
       <section class="card">
-        <p class="eyebrow" th:text="'REQUEST · '+${status?:'ERROR'}"></p>
+        <p class="eyebrow" th:text="'오류 '+${status?:''}"></p>
         <h1>요청을 처리할 수 없습니다</h1>
         <p
           role="alert"

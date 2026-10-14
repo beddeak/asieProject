@@ -9,13 +9,13 @@
   flex: 0 0 auto;
   max-width: 280px;
   overflow-wrap: anywhere;
-  padding: 7px 16px;
+  padding: 8px 16px;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: #fff;
   color: var(--muted);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
   transition: border-color 0.15s, color 0.15s, background-color 0.15s;
 }
@@ -25,9 +25,9 @@
   text-decoration: none;
 }
 .department-tab[aria-current="page"] {
-  border-color: var(--primary);
-  background: var(--primary);
-  color: #fff;
+  border-color: var(--primary-line);
+  background: var(--primary-tint);
+  color: var(--primary);
 }
 .department-description {
   margin: 10px 0 0;
@@ -45,8 +45,8 @@
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 10px 18px;
+  min-height: 40px;
+  padding: 8px 16px;
   border: 1px solid var(--burgundy);
   border-radius: var(--radius-sm);
   background: var(--burgundy);
@@ -93,7 +93,7 @@ summary:focus-visible {
   padding: 11px 24px;
   background: var(--soft);
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13px;
 }
 .notice-table td {
   padding: 16px 24px;
@@ -181,8 +181,8 @@ summary:focus-visible {
   padding: 32px 36px;
 }
 .notice-article h1 {
-  margin: 12px 0 18px;
-  font-size: 28px;
+  margin: 8px 0 16px;
+  font-size: 26px;
   line-height: 1.5;
   overflow-wrap: anywhere;
 }

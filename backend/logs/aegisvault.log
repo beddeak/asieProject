@@ -794,3 +794,95 @@ Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키�
 	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
 	... 23 common frames omitted
 
+2026-10-14T22:53:29.076+09:00  INFO 5332 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.7 with PID 5332 (C:\Users\GIGAFACTORY\asieProject\backend\build\classes\java\main started by GIGAFACTORY in C:\Users\GIGAFACTORY\asieProject\backend)
+2026-10-14T22:53:29.078+09:00  INFO 5332 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-14T22:53:29.110+09:00  INFO 5332 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-14T22:53:29.110+09:00  INFO 5332 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-14T22:53:29.699+09:00  INFO 5332 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-14T22:53:29.809+09:00  INFO 5332 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 104 ms. Found 26 JPA repository interfaces.
+2026-10-14T22:53:30.281+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-14T22:53:30.295+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-14T22:53:30.295+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-14T22:53:30.343+09:00  INFO 5332 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1232 ms
+2026-10-14T22:53:30.528+09:00  INFO 5332 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-14T22:53:30.747+09:00  INFO 5332 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-14T22:53:30.748+09:00  INFO 5332 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-14T22:53:30.756+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-14T22:53:30.785+09:00  WARN 5332 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-14T22:53:30.821+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-14T22:53:30.823+09:00  WARN 5332 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-14T22:53:30.831+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.004s)
+2026-10-14T22:53:30.836+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-14T22:53:30.837+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-14T22:53:30.908+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-14T22:53:30.968+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-14T22:53:31.344+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-14T22:53:31.435+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-14T22:53:32.480+09:00  INFO 5332 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-14T22:53:32.506+09:00  INFO 5332 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-14T22:53:32.562+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-14T22:53:35.396+09:00  INFO 5332 --- [aegisvault] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-14T22:53:35.799+09:00  INFO 5332 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-10-14T22:53:35.805+09:00  INFO 5332 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Started AegisvaultApplication in 7.093 seconds (process running for 7.505)
+2026-10-14T22:53:41.801+09:00  INFO 5332 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.apache.tomcat.util.http.parser.Cookie  : A cookie header was received [g_state={"i_l":0,"i_ll":1790267731695,"i_e":{"enable_itp_optimization":24},"i_et":1790267731695};] that contained an invalid cookie. That cookie will be ignored.
+ Note: further occurrences of this error will be logged at DEBUG level.
+2026-10-14T22:53:41.808+09:00  INFO 5332 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-14T22:53:41.808+09:00  INFO 5332 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-14T22:53:41.809+09:00  INFO 5332 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-10-14T23:20:36.230+09:00  INFO 53936 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.7 with PID 53936 (C:\Users\GIGAFACTORY\asieProject\backend\build\classes\java\main started by GIGAFACTORY in C:\Users\GIGAFACTORY\asieProject\backend)
+2026-10-14T23:20:36.232+09:00  INFO 53936 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-14T23:20:36.263+09:00  INFO 53936 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-14T23:20:36.263+09:00  INFO 53936 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-14T23:20:36.823+09:00  INFO 53936 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-14T23:20:36.924+09:00  INFO 53936 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 94 ms. Found 26 JPA repository interfaces.
+2026-10-14T23:20:37.327+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-14T23:20:37.337+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-14T23:20:37.338+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-14T23:20:37.373+09:00  INFO 53936 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 1110 ms
+2026-10-14T23:20:37.548+09:00  INFO 53936 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-14T23:20:37.729+09:00  INFO 53936 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-14T23:20:37.730+09:00  INFO 53936 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-14T23:20:37.739+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-14T23:20:37.770+09:00  WARN 53936 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-14T23:20:37.808+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-14T23:20:37.811+09:00  WARN 53936 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-14T23:20:37.818+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.004s)
+2026-10-14T23:20:37.823+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-14T23:20:37.825+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-14T23:20:37.889+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-14T23:20:37.933+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-14T23:20:38.289+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-14T23:20:38.347+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-14T23:20:39.330+09:00  INFO 53936 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-14T23:20:39.357+09:00  INFO 53936 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-14T23:20:39.410+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-14T23:20:42.268+09:00  INFO 53936 --- [aegisvault] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-14T23:20:42.649+09:00  INFO 53936 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-10-14T23:20:42.655+09:00  INFO 53936 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Started AegisvaultApplication in 6.784 seconds (process running for 7.196)
+2026-10-14T23:22:45.286+09:00  INFO 53936 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-14T23:22:45.286+09:00  INFO 53936 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-14T23:22:45.286+09:00  INFO 53936 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
+2026-10-14T23:35:59.379+09:00  INFO 53936 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-10] o.apache.tomcat.util.http.parser.Cookie  : A cookie header was received [g_state={"i_l":0,"i_ll":1790267731695,"i_e":{"enable_itp_optimization":24},"i_et":1790267731695};] that contained an invalid cookie. That cookie will be ignored.
+ Note: further occurrences of this error will be logged at DEBUG level.

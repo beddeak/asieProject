@@ -1,26 +1,27 @@
 @import url("common.css");
 
+/* Matches the masthead content width (1320px minus 24px gutters) so page edges line up. */
 .list-workspace {
-  max-width: 1180px;
-  margin: 28px auto 32px;
+  max-width: 1272px;
+  margin: 36px auto 32px;
 }
 .page-heading {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 .page-heading h1 {
   margin: 0;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1.35;
 }
 .page-description {
   margin: 6px 0 0;
   color: var(--muted);
-  font-size: 14px;
-  line-height: 1.65;
+  font-size: 14.5px;
+  line-height: 1.6;
   word-break: keep-all;
 }
 .write-button {
@@ -57,11 +58,12 @@
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  transition: background-color 0.15s;
+  transition: background-color 0.15s, border-color 0.15s;
 }
 .secondary-button:hover {
+  border-color: #b9c2cf;
   background: var(--soft);
-  color: var(--ink);
+  color: var(--heading);
   text-decoration: none;
 }
 .department-banner {
@@ -69,34 +71,19 @@
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 20px 24px;
+  padding: 18px 24px;
   margin-bottom: 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--paper);
   color: var(--ink);
+  box-shadow: var(--shadow-md);
 }
 .department-summary {
   display: flex;
   align-items: center;
   gap: 16px;
   min-width: 0;
-}
-.department-mark {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius);
-  background: var(--primary-tint);
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-.department-banner .eyebrow {
-  margin-bottom: 2px;
 }
 .department-banner h2 {
   margin: 0;
@@ -113,10 +100,32 @@
 }
 .register-panel {
   overflow: hidden;
+  margin-bottom: 20px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   background: var(--paper);
   box-shadow: var(--shadow-md);
+}
+.register-panel:last-child {
+  margin-bottom: 0;
+}
+/* The filter form sits flush inside the register instead of floating as a second card. */
+.register-panel > .toolbar.card {
+  margin: 0;
+  padding: 16px 24px;
+  border: 0;
+  border-bottom: 1px solid var(--rule);
+  border-radius: 0;
+  background: var(--soft);
+  box-shadow: none;
+}
+.register-panel > .toolbar.card + p {
+  margin: 0;
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
 }
 .register-heading {
   display: flex;
@@ -124,7 +133,7 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 12px;
-  padding: 16px 24px;
+  padding: 18px 24px;
   border-bottom: 1px solid var(--rule);
 }
 .register-title-group {
@@ -134,16 +143,15 @@
 }
 .register-heading h2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 17px;
 }
 .document-count {
-  padding: 0 8px;
-  border-radius: var(--radius-pill);
-  background: var(--soft);
-  border: 1px solid var(--border);
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 6px;
+  background: var(--primary-tint);
+  color: var(--primary);
+  font-size: 12.5px;
+  font-weight: 650;
   font-variant-numeric: tabular-nums;
 }
 .register-description {
@@ -180,10 +188,10 @@
   width: 15%;
 }
 .document-table th {
-  padding: 10px 16px;
+  padding: 11px 16px;
 }
 .document-table td {
-  padding: 14px 16px;
+  padding: 16px;
   border-top: 1px solid var(--rule);
   border-bottom: 0;
   vertical-align: middle;
@@ -224,11 +232,6 @@
   font-size: 12px;
   overflow-wrap: anywhere;
 }
-.status-badge[data-status="ARCHIVED"] {
-  border-color: var(--border);
-  background: var(--soft);
-  color: var(--muted);
-}
 .author-cell {
   overflow-wrap: anywhere;
 }
@@ -247,32 +250,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 280px;
-  padding: 48px 24px;
+  min-height: 220px;
+  padding: 40px 24px;
   text-align: center;
 }
-.empty-document {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
-  width: 44px;
-  height: 54px;
-  padding: 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: var(--soft);
-}
-.empty-document span {
-  height: 3px;
-  border-radius: 2px;
-  background: var(--border);
-}
-.empty-document span:last-child {
-  width: 65%;
-}
 .empty-state h3 {
-  margin: 18px 0 6px;
+  margin: 0 0 6px;
   font-size: 15px;
   word-break: keep-all;
 }
@@ -291,8 +274,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding: 12px 24px;
+  padding: 13px 24px;
   border-top: 1px solid var(--rule);
+  background: var(--soft);
   color: var(--muted);
 }
 .list-pagination {
@@ -333,7 +317,7 @@
   line-height: 1.6;
 }
 
-@media (max-width: 1240px) {
+@media (max-width: 1320px) {
   .list-workspace {
     margin: 28px 24px 32px;
   }
@@ -354,6 +338,10 @@
   }
   .register-heading {
     padding: 14px 18px;
+  }
+  .register-panel > .toolbar.card,
+  .register-panel > .toolbar.card + p {
+    padding-inline: 18px;
   }
   .register-footer {
     padding: 12px 18px;
@@ -383,6 +371,10 @@
   }
   .register-heading {
     padding: 14px 16px;
+  }
+  .register-panel > .toolbar.card,
+  .register-panel > .toolbar.card + p {
+    padding-inline: 16px;
   }
   .error-notice {
     margin: 16px;
