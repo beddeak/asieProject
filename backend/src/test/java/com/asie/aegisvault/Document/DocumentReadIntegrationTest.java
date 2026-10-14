@@ -19,7 +19,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.transaction.TestTransaction;
 import org.springframework.test.util.ReflectionTestUtils;
 
-// 실제 파일 DB와 분리된 메모리 DB만 사용하며 각 테스트의 데이터는 롤백합니다.
 @DataJpaTest(
     showSql = false,
     properties = {
@@ -53,7 +52,6 @@ class DocumentReadIntegrationTest {
     author = persistUser("author", Position.STAFF, department);
     document = new Document(author, department);
     entityManager.persist(document);
-    // 저장된 순서가 아닌 versionNumber 기준으로 최신 버전을 골라야 합니다.
     entityManager.persist(new DocumentVersion(document, 3, "최신 제목", "최신 본문"));
     entityManager.persist(new DocumentVersion(document, 1, "첫 제목", "첫 본문"));
     entityManager.persist(new DocumentVersion(document, 2, "이전 제목", "이전 본문"));
@@ -75,7 +73,6 @@ class DocumentReadIntegrationTest {
     assertTrue(Hibernate.isInitialized(detail.getDocument().getDepartment()));
     TestTransaction.end();
 
-    // open-in-view=false인 상세 화면에서도 추가 DB 조회 없이 읽을 수 있어야 합니다.
     assertEquals("author", detail.getDocument().getAuthor().getNickname());
     assertEquals("연구개발본부", detail.getDocument().getDepartment().getName());
     assertEquals("최신 제목", detail.getTitle());

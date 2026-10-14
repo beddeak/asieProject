@@ -103,8 +103,6 @@ class DocumentListIntegrationTest {
         .andExpect(content().string(containsString("2건")))
         .andExpect(content().string(not(containsString("href=\"/document/review\""))));
     assertEquals(2, service.documentList(writer.getId(), 0).documents().getTotalElements());
-    // Department filtering narrows the authorized list; it cannot grant another department's
-    // documents.
     mvc.perform(
             get("/document/list")
                 .with(user("writer").roles("ADMIN"))
@@ -153,8 +151,6 @@ class DocumentListIntegrationTest {
   void onlyHighestVersionNumberAppearsAndAnUnapprovedLatestVersionHidesOlderApproval()
       throws Exception {
     var original = document(writer, Position.STAFF, "오래된 승인 제목", DocumentStatus.APPROVED);
-    // Persist version 3 before version 2: database insertion order must not select the latest
-    // version.
     version(original.getDocument(), 3, "최신 초안 제목", DocumentStatus.DRAFT);
     version(original.getDocument(), 2, "이전 승인 제목", DocumentStatus.APPROVED);
 

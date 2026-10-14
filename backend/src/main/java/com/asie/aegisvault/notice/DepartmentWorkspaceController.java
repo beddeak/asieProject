@@ -111,8 +111,6 @@ public class DepartmentWorkspaceController {
       Principal principal,
       RedirectAttributes redirect) {
     service.requireManager(principal.getName(), departmentId);
-    // Also check the target on validation errors; never render an edit form for another
-    // department's notice.
     service.detail(principal.getName(), departmentId, noticeId);
     if (errors.hasErrors()) {
       formModel(principal.getName(), departmentId, noticeId, model);

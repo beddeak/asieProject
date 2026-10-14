@@ -205,7 +205,6 @@ public class DocumentService {
         pageable);
   }
 
-  /** Batch lookup using the same visibility policy as the document list and history. */
   public List<DocumentListItem> readableVersions(Long actorId, Collection<Long> versionIds) {
     User actor = user(actorId);
     if (versionIds.isEmpty()) return List.of();

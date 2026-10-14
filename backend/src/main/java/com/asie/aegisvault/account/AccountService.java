@@ -94,8 +94,6 @@ public class AccountService {
             .findByTokenHash(hash(token))
             .orElseThrow(() -> new IllegalArgumentException("유효하지 않거나 만료된 복구 링크입니다."));
     User target = users.lockById(request.getUserId()).orElseThrow();
-    // Another request may have consumed or rotated the token while this transaction waited for the
-    // account lock.
     request =
         recoveries
             .findByTokenHash(hash(token))

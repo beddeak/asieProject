@@ -60,9 +60,6 @@ public class ReleaseController {
         output -> {
           try (ZipOutputStream zip = new ZipOutputStream(output, StandardCharsets.UTF_8)) {
             for (Long versionId : versions) {
-              // Re-check authorization and recall on each document; a partial
-              // interrupted ZIP is
-              // not a completed delivery.
               service.requireAvailable(name, id);
               zip.putNextEntry(new ZipEntry(ReleasePackagePaths.document(versionId)));
               zip.write(export.html(name, versionId).getBytes(StandardCharsets.UTF_8));

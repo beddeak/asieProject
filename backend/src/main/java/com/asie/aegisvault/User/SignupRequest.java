@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-// 회원가입 화면의 입력값입니다. 비밀번호 확인은 DB에 저장하지 않습니다.
 @Getter
 @Setter
 public class SignupRequest {

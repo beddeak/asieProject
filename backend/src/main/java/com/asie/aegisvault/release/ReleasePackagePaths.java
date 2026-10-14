@@ -1,6 +1,5 @@
 package com.asie.aegisvault.release;
 
-/** The manifest and ZIP writer share exactly the same entry names. */
 public final class ReleasePackagePaths {
   private ReleasePackagePaths() {}
 

@@ -25,7 +25,6 @@ class DocumentVersionTest {
         assertEquals("시험 보고서", version.getTitle());
         assertEquals(content, version.getContent());
         assertEquals(DocumentStatus.DRAFT, version.getStatus());
-        // ID와 생성 시각은 저장 시 채워집니다.
         assertNull(version.getId());
         assertNull(version.getCreatedAt());
     }

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.resource.jdbc.spi.StatementInspector;
 
-/** 검증 구간의 SQL 구조만 수집합니다. 바인딩된 값은 수집하지 않습니다. */
 public class SqlCapture implements StatementInspector {
   private static final ThreadLocal<List<String>> CURRENT = new ThreadLocal<>();
 

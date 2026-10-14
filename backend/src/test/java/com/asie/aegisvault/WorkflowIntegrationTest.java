@@ -803,7 +803,6 @@ class WorkflowIntegrationTest {
             .findFirst()
             .orElseThrow();
 
-    // Opening the gate and review histories must not invalidate completed evidence.
     workflow.runs(owner.getNickname(), projectId, 0);
     workflow.assessments(owner.getNickname(), projectId, 0);
     var unchangedGate = releases.gate(owner.getNickname(), projectId);
@@ -855,7 +854,6 @@ class WorkflowIntegrationTest {
         DocumentStatus.APPROVED,
         versions.findById(originalDesign.versionId()).orElseThrow().getStatus());
 
-    // Request review again so the evidence checks, rather than project status, reject release.
     projects.changeStatus(owner.getNickname(), projectId, "review");
     var changedGate = releases.gate(owner.getNickname(), projectId);
     String secondFingerprint = changedGate.snapshot().fingerprint();
@@ -971,7 +969,6 @@ class WorkflowIntegrationTest {
     assertTrue(deliveredVersions.contains(revisedId));
     assertFalse(deliveredVersions.contains(originalDesign.versionId()));
 
-    // Superseded results remain historical records with their original outcome and evidence.
     var qualityHistory = workflow.runs(owner.getNickname(), projectId, 0);
     assertEquals(2, qualityHistory.getTotalElements());
     var retainedQuality =

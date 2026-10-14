@@ -11,7 +11,6 @@
     <a class="skip-link" href="#main">본문으로 이동</a>
     <th:block th:replace="~{fragments/layout :: header('department', true)}"></th:block>
     <main id="main" class="department-create-shell">
-        <!-- 관리자 페이지에서 이 fragment를 불러올 때도 CSS와 departmentCreate 모델이 필요합니다. -->
         <section class="department-create-panel" th:fragment="departmentForm" aria-labelledby="department-create-title">
             <header class="department-create-header">
                 <p class="department-create-label eyebrow">AEGISVAULT / 조직 관리</p>

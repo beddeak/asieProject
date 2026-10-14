@@ -57,7 +57,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-// 실제 홈페이지·템플릿·보안 필터를 검증하며 DB 조회만 mock으로 대체합니다.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HomeControllerTest {
   private AnnotationConfigWebApplicationContext context;

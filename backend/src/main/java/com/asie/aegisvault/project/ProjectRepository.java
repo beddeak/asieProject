@@ -41,8 +41,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
       @Param("departmentId") Long departmentId,
       Pageable pageable);
 
-  long countByDepartmentIdAndStatusNot(Long departmentId, ProjectStatus status);
-
   @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
   @org.springframework.data.jpa.repository.Query(
       "select p from Project p where p.department.id=:id order by p.id")

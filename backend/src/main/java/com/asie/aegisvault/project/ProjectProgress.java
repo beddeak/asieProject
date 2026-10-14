@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/** Read-only guidance derived from the same conditions enforced at release time. */
 public record ProjectProgress(List<Step> steps, Step nextStep, String message, boolean restricted) {
   public ProjectProgress {
     steps = List.copyOf(steps);

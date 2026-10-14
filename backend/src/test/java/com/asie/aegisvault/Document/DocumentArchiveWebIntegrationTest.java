@@ -24,8 +24,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-// Fixtures commit before HTTP requests so open-in-view=false and detached relationship failures
-// remain visible.
 @SpringBootTest(
     properties = {
       "spring.datasource.url=jdbc:h2:mem:aegisvault-document-archive-web-test;DB_CLOSE_DELAY=-1",

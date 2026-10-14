@@ -1,6 +1,5 @@
 package com.asie.aegisvault.User;
 
-import com.asie.aegisvault.Department.Department;
 import com.asie.aegisvault.admin.UserListItem;
 import jakarta.persistence.LockModeType;
 import java.util.List;
@@ -32,7 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
       @Param("status") AccountStatus status,
       Pageable pageable);
 
-  // 관리자끼리 동시에 서로를 정지해 마지막 관리자가 사라지는 상황을 방지합니다.
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @Query(
       "select u from User u where u.position = com.asie.aegisvault.User.Position.ADMIN order by"
@@ -52,8 +50,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
   boolean existsByEmail(String email);
 
   boolean existsByNickname(String nickname);
-
-  List<User> findByDepartment(Department department);
 
   List<User> findByPosition(Position position);
 

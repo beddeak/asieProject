@@ -194,7 +194,6 @@ class DepartmentWorkspaceIntegrationTest {
     assertEquals(4, tabs.size());
     assertEquals(4, tabs.stream().map(DepartmentWorkspace.Tab::id).distinct().count());
     assertTrue(tabs.stream().anyMatch(tab -> tab.name().equals("사업관리부")));
-    // Reading repeatedly must not create additional tab records or departments.
     assertEquals(tabs, service.workspace("admin", null, 0).tabs());
     assertEquals(4, departments.count());
   }

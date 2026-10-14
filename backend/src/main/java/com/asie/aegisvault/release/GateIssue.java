@@ -2,7 +2,6 @@ package com.asie.aegisvault.release;
 
 import com.asie.aegisvault.project.ProjectProgress;
 
-/** Stable cause and destination; UI never infers workflow state by parsing error messages. */
 public record GateIssue(
     ProjectProgress.Key stage, Code code, String message, String actionLabel, String href) {
   public enum Code {

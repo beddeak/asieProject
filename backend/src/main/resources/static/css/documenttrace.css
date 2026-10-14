@@ -19,10 +19,10 @@
 }
 .trace-version {
   padding: 1.1rem 0 1.1rem 1.2rem;
-  border-left: 3px solid var(--primary-line);
+  border-left: 2px solid var(--rule);
 }
 .trace-version:first-child {
-  border-left-color: var(--primary);
+  border-left-color: var(--primary-line);
 }
 .trace-version + .trace-version {
   border-top: 1px solid var(--rule);

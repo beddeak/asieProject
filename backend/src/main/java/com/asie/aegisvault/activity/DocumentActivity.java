@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/** 활동 시점의 정보를 보존합니다. 목록 조회에는 사용자/문서 본문을 불러오지 않습니다. */
 @Entity
 @Getter
 @NoArgsConstructor(access = lombok.AccessLevel.PROTECTED)

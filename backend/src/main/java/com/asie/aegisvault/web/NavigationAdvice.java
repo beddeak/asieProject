@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
-/** Shared navigation derives its location from the route, including nested detail pages. */
 @ControllerAdvice
 public class NavigationAdvice {
   @ModelAttribute("navigationPage")

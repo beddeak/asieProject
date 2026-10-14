@@ -22,7 +22,6 @@ public class ProjectProgressService {
   private final ReleaseGate gate;
   private final ReleaseRepository releases;
 
-  /** Basic project pages remain readable even when a member cannot inspect classified evidence. */
   public ProjectProgress view(String actor, Long projectId) {
     var user = actors.get(actor);
     Project project = access.read(user, projectId);
@@ -34,7 +33,6 @@ public class ProjectProgressService {
     return summarize(projectId, project.getStatus(), gate.inspect(project, false));
   }
 
-  /** Workflow pages reuse their authorized gate result instead of running the checks twice. */
   public ProjectProgress from(ProjectDetail project, ReleaseGate.Decision decision) {
     return summarize(project.id(), project.status(), decision);
   }

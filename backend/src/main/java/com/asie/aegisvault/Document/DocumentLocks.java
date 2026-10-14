@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
-/** 모든 버전·첨부·검토 변경이 프로젝트 → 문서 순서로 잠금을 획득합니다. */
 @Component
 @RequiredArgsConstructor
 public class DocumentLocks {

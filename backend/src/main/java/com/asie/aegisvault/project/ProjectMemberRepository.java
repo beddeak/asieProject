@@ -27,8 +27,6 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Lo
   List<Long> recipients(
       @Param("projectId") Long projectId, @Param("roles") List<ProjectRole> roles);
 
-  long countByProjectIdAndRole(Long projectId, ProjectRole role);
-
   @Query(
       "select count(m) from ProjectMember m where m.project.id=:projectId and"
           + " m.role=com.asie.aegisvault.project.ProjectRole.OWNER and"

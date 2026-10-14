@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.transaction.TestTransaction;
 
-// The archive uses an isolated in-memory database; production documents are never accessed.
 @DataJpaTest(
     showSql = false,
     properties = {

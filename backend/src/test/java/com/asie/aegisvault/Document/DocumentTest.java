@@ -19,7 +19,6 @@ class DocumentTest {
 
         assertSame(author, document.getAuthor());
         assertSame(department, document.getDepartment());
-        // ID와 생성 시각은 DB 저장 시 채워집니다.
         assertNull(document.getId());
         assertNull(document.getCreatedAt());
     }

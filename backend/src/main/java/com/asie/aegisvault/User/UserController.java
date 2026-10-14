@@ -34,7 +34,6 @@ public class UserController {
             return "Signup";
         }
 
-        // 비밀번호는 공백을 제거하거나 변경하지 않고 입력한 그대로 비교합니다.
         if (!signupRequest.getPassword().equals(signupRequest.getPasswordConfirm())) {
             bindingResult.rejectValue("passwordConfirm", "passwordMismatch",
                     "비밀번호가 일치하지 않습니다");
@@ -49,7 +48,6 @@ public class UserController {
             model.addAttribute("errorMessage", e.getMessage());
             return "Signup";
         } catch (DataIntegrityViolationException e) {
-            // 중복 확인 이후 다른 요청이 먼저 저장한 경우에도 폼으로 안내합니다.
             model.addAttribute("errorMessage", "이미 사용 중인 아이디 또는 이메일입니다.");
             return "Signup";
         }

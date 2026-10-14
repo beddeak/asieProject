@@ -7,7 +7,6 @@ import java.time.temporal.TemporalAccessor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-/** 시간대 없는 기존 문서 시각은 저장 서버의 시간대로 해석합니다. */
 @Component("displayTime")
 public class DisplayTime {
   private static final DateTimeFormatter FORMAT =

@@ -4,7 +4,6 @@ import com.asie.aegisvault.Document.dto.DocumentListItem;
 import com.asie.aegisvault.Document.dto.ReviewQueueItem;
 import com.asie.aegisvault.User.Position;
 import com.asie.aegisvault.security.SecurityClassification;
-import jakarta.persistence.LockModeType;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +12,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -141,10 +139,6 @@ public interface DocumentVersionRepository extends JpaRepository<DocumentVersion
   @EntityGraph(
       attributePaths = {"document.author", "document.department", "document.project", "reviewedBy"})
   Optional<DocumentVersion> findForDisplayById(Long id);
-
-  @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("select v from DocumentVersion v where v.id = :id")
-  Optional<DocumentVersion> findForReviewById(@Param("id") Long id);
 
   @Query(
       """

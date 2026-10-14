@@ -14,7 +14,6 @@ public class UserService {
 
   @Transactional
   public User create(String nickname, String email, String password) {
-    // Spring Security 로그인과 같은 규칙으로 아이디 앞뒤 공백을 제거합니다.
     nickname = nickname == null ? null : nickname.trim();
     if (nickname == null || nickname.isBlank()) {
       throw new IllegalArgumentException("아이디를 입력해주세요");

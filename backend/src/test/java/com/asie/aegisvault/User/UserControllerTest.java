@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standaloneSetup;
 
-// 실제 DB에는 접근하지 않고 폼 검증, 서비스 호출 여부, 템플릿 출력을 확인합니다.
 @ExtendWith(MockitoExtension.class)
 class UserControllerTest {
     @Mock

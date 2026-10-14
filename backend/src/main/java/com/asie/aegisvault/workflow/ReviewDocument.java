@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.util.Objects;
 import lombok.*;
 
-/** The submitted document versions that were actually examined in one review. */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 public class ReviewEvidence {
   private final ReviewDocumentRepository documents;
 
-  /** Called in the same project-locked transaction as the review result. */
   public void captureQuality(Long runId, ProjectEvidence.Snapshot snapshot) {
     documents.saveAll(
         snapshot.versions().stream()
@@ -76,7 +75,6 @@ public class ReviewEvidence {
           available,
           List.of());
     }
-    // Older results have only the fingerprint. Do not reconstruct their historical documents.
     List<DocumentChange> changed = available ? changes(baseline, snapshot.versions()) : List.of();
     String reason =
         !available

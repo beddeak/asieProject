@@ -23,7 +23,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-// 실제 DB를 사용하지 않는 부서 생성 화면 렌더링 테스트입니다.
 @ExtendWith(MockitoExtension.class)
 class DepartmentControllerTest {
   @Mock private DepartmentService departmentService;

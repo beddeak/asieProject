@@ -251,3 +251,546 @@ Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키�
 	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
 	... 23 common frames omitted
 
+2026-10-13T10:41:28.961+09:00  INFO 34132 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 34132 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T10:41:28.964+09:00  INFO 34132 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T10:41:29.031+09:00  INFO 34132 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T10:41:29.031+09:00  INFO 34132 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T10:41:30.496+09:00  INFO 34132 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T10:41:30.881+09:00  INFO 34132 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 366 ms. Found 26 JPA repository interfaces.
+2026-10-13T10:41:32.505+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T10:41:32.548+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T10:41:32.550+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T10:41:32.681+09:00  INFO 34132 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3650 ms
+2026-10-13T10:41:33.415+09:00  INFO 34132 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T10:41:34.109+09:00  INFO 34132 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T10:41:34.117+09:00  INFO 34132 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T10:41:34.146+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T10:41:34.276+09:00  WARN 34132 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:41:34.409+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T10:41:34.423+09:00  WARN 34132 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:41:34.444+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.012s)
+2026-10-13T10:41:34.461+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T10:41:34.466+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T10:41:34.702+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T10:41:34.898+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T10:41:36.218+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T10:41:36.437+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T10:41:40.113+09:00  INFO 34132 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T10:41:40.213+09:00  INFO 34132 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T10:41:40.447+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T10:41:52.568+09:00  WARN 34132 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T10:41:52.570+09:00  INFO 34132 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T10:41:52.578+09:00  INFO 34132 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T10:41:52.612+09:00  INFO 34132 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T10:41:52.619+09:00  INFO 34132 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T10:41:52.650+09:00  INFO 34132 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T10:41:52.705+09:00 ERROR 34132 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+
+2026-10-13T10:45:36.930+09:00  INFO 27320 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 27320 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T10:45:36.934+09:00  INFO 27320 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T10:45:37.011+09:00  INFO 27320 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T10:45:37.011+09:00  INFO 27320 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T10:45:38.340+09:00  INFO 27320 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T10:45:38.712+09:00  INFO 27320 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 349 ms. Found 26 JPA repository interfaces.
+2026-10-13T10:45:40.377+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T10:45:40.424+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T10:45:40.426+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T10:45:40.551+09:00  INFO 27320 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3539 ms
+2026-10-13T10:45:41.257+09:00  INFO 27320 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T10:45:41.668+09:00  INFO 27320 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T10:45:41.676+09:00  INFO 27320 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T10:45:41.691+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T10:45:41.739+09:00  WARN 27320 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:45:41.803+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T10:45:41.810+09:00  WARN 27320 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:45:41.821+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.007s)
+2026-10-13T10:45:41.830+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T10:45:41.833+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T10:45:42.016+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T10:45:42.168+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T10:45:43.516+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T10:45:43.741+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T10:45:47.510+09:00  INFO 27320 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T10:45:47.610+09:00  INFO 27320 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T10:45:47.848+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T10:45:59.703+09:00  WARN 27320 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T10:45:59.707+09:00  INFO 27320 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T10:45:59.715+09:00  INFO 27320 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T10:45:59.728+09:00  INFO 27320 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T10:45:59.733+09:00  INFO 27320 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T10:45:59.765+09:00  INFO 27320 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T10:45:59.809+09:00 ERROR 27320 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+
+2026-10-13T10:54:37.783+09:00  INFO 38484 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 38484 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T10:54:37.788+09:00  INFO 38484 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T10:54:37.860+09:00  INFO 38484 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T10:54:37.860+09:00  INFO 38484 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T10:54:39.192+09:00  INFO 38484 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T10:54:39.639+09:00  INFO 38484 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 411 ms. Found 26 JPA repository interfaces.
+2026-10-13T10:54:41.421+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T10:54:41.466+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T10:54:41.467+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T10:54:41.612+09:00  INFO 38484 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3751 ms
+2026-10-13T10:54:42.345+09:00  INFO 38484 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T10:54:42.930+09:00  INFO 38484 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./local/test/aegisvault user=SA
+2026-10-13T10:54:42.937+09:00  INFO 38484 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T10:54:42.967+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./local/test/aegisvault (H2 2.4)
+2026-10-13T10:54:43.088+09:00  WARN 38484 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:54:43.149+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "PUBLIC"."flyway_schema_history" does not exist yet
+2026-10-13T10:54:43.198+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./local/test/aegisvault (H2 2.4)
+2026-10-13T10:54:43.208+09:00  WARN 38484 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T10:54:43.224+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.c.i.s.JdbcTableSchemaHistory         : Schema history table "PUBLIC"."flyway_schema_history" does not exist yet
+2026-10-13T10:54:43.226+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 3 migrations (execution time 00:00.007s)
+2026-10-13T10:54:43.233+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.flywaydb.core.Flyway                 : All configured schemas are empty; a baseline marker will not be added to Flyway's schema history table. A baseline or migration script with a lower version than the baseline version may execute if available. Check the Schemas parameter if this is not intended. See https://help.red-gate.com/help/flyway-cli12/help_4.aspx?topic=baseline-on-migrate for more info
+2026-10-13T10:54:43.236+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.c.i.s.JdbcTableSchemaHistory         : Creating Schema History table "PUBLIC"."flyway_schema_history" ...
+2026-10-13T10:54:43.309+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": << Empty Schema >>
+2026-10-13T10:54:43.352+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "1 - document project workflows"
+2026-10-13T10:54:43.489+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "2 - workflow reference integrity"
+2026-10-13T10:54:43.537+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Migrating schema "PUBLIC" to version "3 - review document baselines"
+2026-10-13T10:54:43.559+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Successfully applied 3 migrations to schema "PUBLIC", now at version v3 (execution time 00:00.160s)
+2026-10-13T10:54:43.840+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T10:54:44.046+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T10:54:45.498+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T10:54:45.735+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./local/test/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T10:54:49.760+09:00  INFO 38484 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T10:54:49.872+09:00  INFO 38484 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T10:54:50.132+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T10:55:03.878+09:00  INFO 38484 --- [aegisvault] [restartedMain] r$InitializeUserDetailsManagerConfigurer : Global AuthenticationManager configured with UserDetailsService bean with name customUserDetailsService
+2026-10-13T10:55:05.511+09:00  INFO 38484 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8081 (http) with context path '/'
+2026-10-13T10:55:05.540+09:00  INFO 38484 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Started AegisvaultApplication in 28.542 seconds (process running for 29.321)
+2026-10-13T10:57:15.064+09:00  INFO 38484 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-10-13T10:57:15.065+09:00  INFO 38484 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-10-13T10:57:15.070+09:00  INFO 38484 --- [aegisvault] [http-nio-127.0.0.1-8081-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 5 ms
+2026-10-13T11:10:54.184+09:00  INFO 12688 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 12688 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T11:10:54.201+09:00  INFO 12688 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T11:10:54.282+09:00  INFO 12688 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T11:10:54.284+09:00  INFO 12688 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T11:10:55.590+09:00  INFO 12688 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T11:10:55.814+09:00  INFO 12688 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 209 ms. Found 26 JPA repository interfaces.
+2026-10-13T11:10:56.878+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T11:10:56.905+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T11:10:56.906+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T11:10:56.993+09:00  INFO 12688 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 2708 ms
+2026-10-13T11:10:57.425+09:00  INFO 12688 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T11:10:57.874+09:00  INFO 12688 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T11:10:57.877+09:00  INFO 12688 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T11:10:57.900+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T11:10:57.970+09:00  WARN 12688 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T11:10:58.069+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T11:10:58.079+09:00  WARN 12688 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T11:10:58.096+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.011s)
+2026-10-13T11:10:58.110+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T11:10:58.139+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T11:10:58.363+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T11:10:58.486+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T11:10:59.513+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T11:10:59.694+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T11:11:02.310+09:00  INFO 12688 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T11:11:02.390+09:00  INFO 12688 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T11:11:02.534+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T11:11:08.707+09:00  WARN 12688 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T11:11:08.709+09:00  INFO 12688 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T11:11:08.711+09:00  INFO 12688 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T11:11:08.927+09:00  INFO 12688 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T11:11:08.930+09:00  INFO 12688 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T11:11:08.938+09:00  INFO 12688 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T11:11:08.950+09:00 ERROR 12688 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+
+2026-10-13T11:19:18.735+09:00  INFO 34040 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 34040 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T11:19:18.738+09:00  INFO 34040 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T11:19:18.794+09:00  INFO 34040 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T11:19:18.794+09:00  INFO 34040 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T11:19:19.800+09:00  INFO 34040 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T11:19:20.025+09:00  INFO 34040 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 215 ms. Found 26 JPA repository interfaces.
+2026-10-13T11:19:23.488+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T11:19:23.532+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T11:19:23.536+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T11:19:23.707+09:00  INFO 34040 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 4912 ms
+2026-10-13T11:19:28.261+09:00  INFO 34040 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T11:19:30.649+09:00  INFO 34040 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T11:19:30.651+09:00  INFO 34040 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T11:19:30.783+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T11:19:30.998+09:00  WARN 34040 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T11:19:31.263+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T11:19:31.417+09:00  WARN 34040 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T11:19:31.767+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.254s)
+2026-10-13T11:19:31.908+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T11:19:31.927+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T11:19:32.148+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T11:19:32.226+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T11:19:33.414+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T11:19:33.796+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T11:19:37.645+09:00  INFO 34040 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T11:19:37.693+09:00  INFO 34040 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T11:19:37.854+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T11:19:47.515+09:00  WARN 34040 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T11:19:47.550+09:00  INFO 34040 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T11:19:47.570+09:00  INFO 34040 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T11:19:47.592+09:00  INFO 34040 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T11:19:47.610+09:00  INFO 34040 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T11:19:47.647+09:00  INFO 34040 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T11:19:47.687+09:00 ERROR 34040 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+
+2026-10-13T12:16:59.061+09:00  INFO 29956 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 29956 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T12:16:59.066+09:00  INFO 29956 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T12:16:59.170+09:00  INFO 29956 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T12:16:59.170+09:00  INFO 29956 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T12:17:01.058+09:00  INFO 29956 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T12:17:01.431+09:00  INFO 29956 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 356 ms. Found 26 JPA repository interfaces.
+2026-10-13T12:17:02.810+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T12:17:02.837+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T12:17:02.837+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T12:17:02.929+09:00  INFO 29956 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3758 ms
+2026-10-13T12:17:03.540+09:00  INFO 29956 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T12:17:04.316+09:00  INFO 29956 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T12:17:04.324+09:00  INFO 29956 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T12:17:04.357+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T12:17:04.467+09:00  WARN 29956 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T12:17:04.607+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T12:17:04.613+09:00  WARN 29956 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T12:17:04.628+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.007s)
+2026-10-13T12:17:04.637+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T12:17:04.644+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T12:17:04.820+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T12:17:05.033+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T12:17:06.578+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T12:17:06.802+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T12:17:09.849+09:00  INFO 29956 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T12:17:09.902+09:00  INFO 29956 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T12:17:10.021+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T12:17:18.052+09:00  WARN 29956 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T12:17:18.052+09:00  INFO 29956 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T12:17:18.057+09:00  INFO 29956 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T12:17:18.116+09:00  INFO 29956 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T12:17:18.120+09:00  INFO 29956 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T12:17:18.135+09:00  INFO 29956 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T12:17:18.171+09:00 ERROR 29956 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+
+2026-10-13T13:42:57.291+09:00  INFO 15536 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : Starting AegisvaultApplication using Java 21.0.11 with PID 15536 (C:\dev\AegisvaultProject\backend\build\classes\java\main started by seyun in C:\dev\AegisvaultProject\backend)
+2026-10-13T13:42:57.295+09:00  INFO 15536 --- [aegisvault] [restartedMain] c.asie.aegisvault.AegisvaultApplication  : No active profile set, falling back to 1 default profile: "default"
+2026-10-13T13:42:57.395+09:00  INFO 15536 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2026-10-13T13:42:57.395+09:00  INFO 15536 --- [aegisvault] [restartedMain] .e.DevToolsPropertyDefaultsPostProcessor : For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2026-10-13T13:42:59.037+09:00  INFO 15536 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-10-13T13:42:59.386+09:00  INFO 15536 --- [aegisvault] [restartedMain] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 326 ms. Found 26 JPA repository interfaces.
+2026-10-13T13:43:00.502+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8081 (http)
+2026-10-13T13:43:00.534+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-10-13T13:43:00.536+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.24]
+2026-10-13T13:43:00.615+09:00  INFO 15536 --- [aegisvault] [restartedMain] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 3219 ms
+2026-10-13T13:43:01.095+09:00  INFO 15536 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-10-13T13:43:01.616+09:00  INFO 15536 --- [aegisvault] [restartedMain] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:file:./data/aegisvault user=SA
+2026-10-13T13:43:01.621+09:00  INFO 15536 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-10-13T13:43:01.644+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T13:43:01.726+09:00  WARN 15536 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T13:43:01.806+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.flywaydb.core.FlywayExecutor         : Database: jdbc:h2:file:./data/aegisvault (H2 2.4)
+2026-10-13T13:43:01.813+09:00  WARN 15536 --- [aegisvault] [restartedMain] o.f.c.internal.database.base.Database    : Using H2 2.4.240 which is newer than the version Flyway has been verified with. The latest verified version of H2 is 2.3.232.
+2026-10-13T13:43:01.828+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbValidate     : Successfully validated 4 migrations (execution time 00:00.008s)
+2026-10-13T13:43:01.842+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Current version of schema "PUBLIC": 3
+2026-10-13T13:43:01.848+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.f.core.internal.command.DbMigrate      : Schema "PUBLIC" is up to date. No migration necessary.
+2026-10-13T13:43:02.009+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-10-13T13:43:02.188+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.4.5.Final
+2026-10-13T13:43:03.087+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-10-13T13:43:03.245+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:file:./data/aegisvault]
+	Database driver: H2 JDBC Driver
+	Database dialect: H2Dialect
+	Database version: 2.4.240
+	Default catalog/schema: AEGISVAULT/PUBLIC
+	Autocommit mode: undefined/unknown
+	Isolation level: READ_COMMITTED [default READ_COMMITTED]
+	JDBC fetch size: 100
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-10-13T13:43:05.757+09:00  INFO 15536 --- [aegisvault] [restartedMain] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-10-13T13:43:05.837+09:00  INFO 15536 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T13:43:05.989+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-10-13T13:43:13.748+09:00  WARN 15536 --- [aegisvault] [restartedMain] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+2026-10-13T13:43:13.751+09:00  INFO 15536 --- [aegisvault] [restartedMain] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-10-13T13:43:13.761+09:00  INFO 15536 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-10-13T13:43:13.772+09:00  INFO 15536 --- [aegisvault] [restartedMain] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.
+2026-10-13T13:43:13.779+09:00  INFO 15536 --- [aegisvault] [restartedMain] o.apache.catalina.core.StandardService   : Stopping service [Tomcat]
+2026-10-13T13:43:13.804+09:00  INFO 15536 --- [aegisvault] [restartedMain] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-10-13T13:43:13.845+09:00 ERROR 15536 --- [aegisvault] [restartedMain] o.s.boot.SpringApplication               : Application run failed
+
+org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'auditChain': Invocation of init method failed
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:220) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.applyBeanPostProcessorsBeforeInitialization(AbstractAutowireCapableBeanFactory.java:426) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1807) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:603) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:525) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:333) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:371) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:331) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:196) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.instantiateSingleton(DefaultListableBeanFactory.java:1225) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingleton(DefaultListableBeanFactory.java:1191) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.support.DefaultListableBeanFactory.preInstantiateSingletons(DefaultListableBeanFactory.java:1121) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:994) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:621) ~[spring-context-7.0.9.jar:7.0.9]
+	at org.springframework.boot.web.server.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:143) ~[spring-boot-web-server-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:756) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:445) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:321) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1365) ~[spring-boot-4.1.1.jar:4.1.1]
+	at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-4.1.1.jar:4.1.1]
+	at com.asie.aegisvault.AegisvaultApplication.main(AegisvaultApplication.java:11) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.boot.devtools.restart.RestartLauncher.run(RestartLauncher.java:52) ~[spring-boot-devtools-4.1.1.jar:4.1.1]
+Caused by: java.lang.IllegalStateException: 기존 감사 기록의 서명 키가 없습니다. 백업한 키를 복원해주세요.
+	at com.asie.aegisvault.audit.AuditChain.initialize(AuditChain.java:53) ~[main/:na]
+	at java.base/jdk.internal.reflect.DirectMethodHandleAccessor.invoke(DirectMethodHandleAccessor.java:103) ~[na:na]
+	at java.base/java.lang.reflect.Method.invoke(Method.java:580) ~[na:na]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMethod.invoke(InitDestroyAnnotationBeanPostProcessor.java:453) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor$LifecycleMetadata.invokeInitMethods(InitDestroyAnnotationBeanPostProcessor.java:397) ~[spring-beans-7.0.9.jar:7.0.9]
+	at org.springframework.beans.factory.annotation.InitDestroyAnnotationBeanPostProcessor.postProcessBeforeInitialization(InitDestroyAnnotationBeanPostProcessor.java:217) ~[spring-beans-7.0.9.jar:7.0.9]
+	... 23 common frames omitted
+

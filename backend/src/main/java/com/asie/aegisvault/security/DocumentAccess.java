@@ -21,10 +21,6 @@ public class DocumentAccess {
     requireScopes(user, java.util.List.of(document));
   }
 
-  /**
-   * Batch operations reuse membership checks while still validating each document's grade and
-   * clearance.
-   */
   public void requireScopes(User user, java.util.Collection<Document> documents) {
     accounts.requireActive(user);
     if (accounts.isAdmin(user)) return;

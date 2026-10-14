@@ -68,8 +68,6 @@ public class AttachmentService {
     files.delete(file);
     changed(version);
     event(user, version, "ATTACHMENT_REMOVED", id);
-    // Blobs are immutable and may be shared by previous versions. Retention cleanup handles
-    // unreferenced blobs.
   }
 
   @Transactional

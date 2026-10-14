@@ -121,7 +121,6 @@ public class DepartmentNoticeService {
   }
 
   private Department writableDepartment(User user, Long departmentId) {
-    // Notice changes and department transfers must serialize on the same department lock.
     departments.lockDepartments(List.of(departmentId));
     Department department = readableDepartment(user, departmentId);
     requireOpen(department);

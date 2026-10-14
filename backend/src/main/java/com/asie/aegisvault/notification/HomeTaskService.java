@@ -49,7 +49,6 @@ public class HomeTaskService {
 
   private Queue queue(
       User user, DocumentFilter filter, String title, String description, String href) {
-    // Reuse the destination list's current visibility policy; fetch at most one summary row.
     long count = documents.documentList(user.getId(), filter, 0, 1).documents().getTotalElements();
     return new Queue(title, description, href, count);
   }

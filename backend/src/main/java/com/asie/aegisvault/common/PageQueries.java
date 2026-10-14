@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-/** JPA의 int 오프셋 범위를 지키고, 삭제·검색 이후 사라진 페이지를 마지막 페이지로 보정합니다. */
 public final class PageQueries {
   private PageQueries() {}
 

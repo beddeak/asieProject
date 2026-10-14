@@ -17,7 +17,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-/** 로그인 시점의 권한 대신 현재 DB 상태를 적용하여 밴·삭제·직급 변경을 즉시 반영합니다. */
 @RequiredArgsConstructor
 public class CurrentAccountFilter extends OncePerRequestFilter {
   private final UserRepository userRepository;

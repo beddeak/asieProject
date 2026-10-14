@@ -61,7 +61,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
-// 실제 컨트롤러·템플릿·SecurityConfig를 사용하되, 서비스와 Repository는 mock으로 DB 접근을 막습니다.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DocumentControllerTest {
   private AnnotationConfigWebApplicationContext context;

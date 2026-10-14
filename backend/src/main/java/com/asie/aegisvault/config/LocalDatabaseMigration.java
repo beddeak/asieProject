@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.flyway.autoconfigure.FlywayMigrationStrategy;
 import org.springframework.context.annotation.*;
 
-/** H2 BACKUP produces a consistent archive before an existing local database is upgraded. */
 @Configuration
 public class LocalDatabaseMigration {
   @Bean
